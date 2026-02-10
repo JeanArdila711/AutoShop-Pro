@@ -2,7 +2,7 @@ from django.views import View
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.contrib import messages
-from workorders.services.work_order_service import WorkOrderService
+from workorders.services.services import WorkOrderService
 from workorders.models import Vehicle, Owner, WorkOrder
 
 class CrearWorkOrderView(View):
