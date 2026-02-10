@@ -37,7 +37,9 @@ class EstadoOrden(models.TextChoices):
 class WorkOrder(models.Model):
     vehiculo = models.ForeignKey(Vehicle, on_delete=models.PROTECT, related_name="ordenes")
     propietario = models.ForeignKey(Owner, on_delete=models.PROTECT, related_name="ordenes")
+    mecanico = models.ForeignKey('Mechanic', on_delete=models.SET_NULL, null=True, blank=True, related_name="ordenes")
     estado = models.CharField(max_length=20, choices=EstadoOrden.choices, default=EstadoOrden.ABIERTA)
+
 
     fecha_ingreso = models.DateTimeField(default=timezone.now)
     descripcion_problema = models.TextField()
@@ -47,3 +49,41 @@ class WorkOrder(models.Model):
 
     def __str__(self):
         return f"OT#{self.id} {self.vehiculo.placa} [{self.estado}]"
+
+
+class Mechanic(models.Model):
+    """Mecánico del taller"""
+    ESPECIALIDADES = [
+        ('MOTOR', 'Motor'),
+        ('TRANSMISION', 'Transmisión'),
+        ('SUSPENSION', 'Suspensión'),
+        ('ELECTRICO', 'Eléctrico'),
+        ('GENERAL', 'General'),
+    ]
+    
+    NIVELES = [
+        ('JUNIOR', 'Junior'),
+        ('INTERMEDIO', 'Intermedio'),
+        ('EXPERTO', 'Experto'),
+    ]
+    
+    nombre = models.CharField(max_length=100)
+    especialidad = models.CharField(max_length=20, choices=ESPECIALIDADES)
+    nivel = models.CharField(max_length=15, choices=NIVELES)
+    tarifa_hora = models.DecimalField(max_digits=10, decimal_places=2)
+    disponible = models.BooleanField(default=True)
+    horas_pendientes = models.IntegerField(default=0)
+    
+    def __str__(self):
+        return f"{self.nombre} - {self.especialidad}"
+
+
+class ComponentePredictivo(models.Model):
+    """Componentes que pueden fallar"""
+    vehiculo = models.ForeignKey(Vehicle, on_delete=models.CASCADE, related_name='predicciones')
+    nombre = models.CharField(max_length=100)
+    km_promedio_fallo = models.IntegerField()
+    desviacion_estandar = models.FloatField()
+    
+    def __str__(self):
+        return f"{self.nombre} - {self.vehiculo.placa}"
