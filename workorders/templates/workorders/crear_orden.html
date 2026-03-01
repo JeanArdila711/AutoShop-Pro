@@ -1,324 +1,119 @@
-<!DOCTYPE html>
-<html lang="es">
+{% extends "workorders/base.html" %}
+{% block title %}Crear Orden de Trabajo{% endblock %}
+{% block nav_ordenes %}active{% endblock %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AutoShop Pro - Crear Orden de Trabajo</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+{% block content %}
+<div class="page-header">
+    <h1><i class="bi bi-file-earmark-plus"></i> Crear Orden de Trabajo</h1>
+    <p>Registrar una nueva orden — asignación automática de mecánico</p>
+</div>
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
+<!-- Info Box -->
+<div class="glass-card">
+    <div class="info-box">
+        <h3><i class="bi bi-info-circle"></i> Arquitectura Implementada</h3>
+        <p><strong>Service Layer:</strong> Orquesta la lógica de negocio &nbsp;·&nbsp;
+            <strong>Factory Pattern:</strong> Predictor según entorno &nbsp;·&nbsp;
+            <strong>Builder Pattern:</strong> Validación paso a paso
+        </p>
+    </div>
+</div>
 
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
+<!-- Formulario -->
+<div class="glass-card">
+    <h2><span class="card-icon"><i class="bi bi-pencil-square"></i></span> Nueva Orden de Trabajo</h2>
 
-        /* ESTILOS PARA MENSAJES - NUEVO */
-        .messages {
-            margin-bottom: 20px;
-        }
+    <form method="POST" action="{% url 'crear_orden' %}">
+        {% csrf_token %}
 
-        .alert {
-            padding: 15px 20px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            font-weight: 500;
-            animation: slideIn 0.3s ease-out;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .alert-success {
-            background: #d4edda;
-            color: #155724;
-            border-left: 4px solid #28a745;
-        }
-
-        .alert-error {
-            background: #f8d7da;
-            color: #721c24;
-            border-left: 4px solid #dc3545;
-        }
-
-        .alert-warning {
-            background: #fff3cd;
-            color: #856404;
-            border-left: 4px solid #ffc107;
-        }
-
-        .alert-info {
-            background: #d1ecf1;
-            color: #0c5460;
-            border-left: 4px solid #17a2b8;
-        }
-
-        /* FIN ESTILOS MENSAJES */
-
-        .header {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            margin-bottom: 30px;
-            text-align: center;
-        }
-
-        .header h1 {
-            color: #667eea;
-            font-size: 2.5em;
-            margin-bottom: 10px;
-        }
-
-        .header p {
-            color: #666;
-            font-size: 1.1em;
-        }
-
-        .card {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            margin-bottom: 20px;
-        }
-
-        .card h2 {
-            color: #333;
-            margin-bottom: 20px;
-            border-bottom: 3px solid #667eea;
-            padding-bottom: 10px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            color: #333;
-            font-weight: bold;
-            margin-bottom: 8px;
-        }
-
-        input,
-        select,
-        textarea {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-            font-size: 1em;
-            transition: border-color 0.3s;
-        }
-
-        input:focus,
-        select:focus,
-        textarea:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-
-        .btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 15px 40px;
-            border: none;
-            border-radius: 5px;
-            font-size: 1.1em;
-            font-weight: bold;
-            cursor: pointer;
-            transition: transform 0.2s;
-            width: 100%;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-
-        .info-box {
-            background: #f0f4ff;
-            border-left: 4px solid #667eea;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 5px;
-        }
-
-        .info-box h3 {
-            color: #667eea;
-            margin-bottom: 10px;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 5px 15px;
-            background: #667eea;
-            color: white;
-            border-radius: 20px;
-            font-size: 0.9em;
-            margin-right: 10px;
-        }
-
-        .orders-list {
-            margin-top: 20px;
-        }
-
-        .order-item {
-            background: #f8f9fa;
-            padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 5px;
-            border-left: 4px solid #28a745;
-        }
-
-        .order-item h4 {
-            color: #333;
-            margin-bottom: 5px;
-        }
-
-        .order-item p {
-            color: #666;
-            margin: 5px 0;
-        }
-    </style>
-</head>
-
-<body>
-    <div class="container">
-
-        <!-- SECCIÓN DE MENSAJES - NUEVO -->
-        {% if messages %}
-        <div class="messages">
-            {% for message in messages %}
-            <div class="alert alert-{{ message.tags }}">
-                {{ message }}
+        <div class="form-row">
+            <div class="form-group">
+                <label for="vehiculo_id"><i class="bi bi-car-front"></i> Vehículo *</label>
+                <select name="vehiculo_id" id="vehiculo_id" required>
+                    <option value="">Seleccione un vehículo...</option>
+                    {% for vehiculo in vehiculos %}
+                    <option value="{{ vehiculo.id }}">
+                        {{ vehiculo.placa }} — {{ vehiculo.marca }} {{ vehiculo.modelo }} ({{ vehiculo.anio }})
+                    </option>
+                    {% endfor %}
+                </select>
             </div>
-            {% endfor %}
+            <div class="form-group">
+                <label for="propietario_id"><i class="bi bi-person-fill"></i> Propietario *</label>
+                <select name="propietario_id" id="propietario_id" required>
+                    <option value="">Seleccione un propietario...</option>
+                    {% for propietario in propietarios %}
+                    <option value="{{ propietario.id }}">{{ propietario.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
         </div>
-        {% endif %}
-        <!-- FIN MENSAJES -->
 
-        <!-- Header -->
-        <div class="header">
-            <h1>🚗 AutoShop Pro</h1>
-            <p>Sistema de Gestión de Órdenes de Trabajo</p>
-            <p style="font-size: 0.9em; color: #999; margin-top: 10px;">
-                <span class="badge">Builder Pattern</span>
-                <span class="badge">Factory Pattern</span>
-                <span class="badge">Service Layer</span>
+        <div class="form-group">
+            <label for="descripcion_problema"><i class="bi bi-card-text"></i> Descripción del Problema *</label>
+            <textarea name="descripcion_problema" id="descripcion_problema"
+                placeholder="Describa el problema con detalle (mínimo 10 caracteres)..." required></textarea>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="odometer_km"><i class="bi bi-speedometer"></i> Kilometraje Actual *</label>
+                <input type="number" name="odometer_km" id="odometer_km" placeholder="Ej: 82500" required min="0">
+            </div>
+            <div class="form-group">
+                <label for="especialidad"><i class="bi bi-wrench"></i> Especialidad Requerida</label>
+                <select name="especialidad" id="especialidad">
+                    <option value="GENERAL">General</option>
+                    <option value="MOTOR">Motor</option>
+                    <option value="TRANSMISION">Transmisión</option>
+                    <option value="SUSPENSION">Suspensión</option>
+                    <option value="ELECTRICO">Eléctrico</option>
+                </select>
+            </div>
+        </div>
+
+        <button type="submit" class="btn"><i class="bi bi-check-circle-fill"></i> Crear Orden de Trabajo</button>
+    </form>
+</div>
+
+<!-- Órdenes Recientes -->
+{% if ordenes %}
+<div class="glass-card">
+    <h2><span class="card-icon"><i class="bi bi-clipboard-data"></i></span> Últimas Órdenes Creadas</h2>
+    <div style="display: flex; flex-direction: column; gap: 12px;">
+        {% for orden in ordenes %}
+        <div class="order-item" data-delay="{{ forloop.counter0 }}">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                <h4 style="display: flex; align-items: center; gap: 10px;">
+                    <span style="color: var(--accent-primary);">#{{ orden.id }}</span>
+                    <span style="font-family: monospace; color: var(--accent-cyan);">{{ orden.vehiculo.placa }}</span>
+                </h4>
+                <span class="badge badge-pulse
+                    {% if orden.estado == 'ABIERTA' %}badge-success
+                    {% elif orden.estado == 'EN_DIAGNOSTICO' or orden.estado == 'EN_REPARACION' %}badge-info
+                    {% elif orden.estado == 'PRESUPUESTADA' or orden.estado == 'APROBADA' %}badge-warning
+                    {% elif orden.estado == 'CERRADA' or orden.estado == 'FACTURADA' %}badge-danger
+                    {% else %}badge-default{% endif %}">
+                    {{ orden.estado }}
+                </span>
+            </div>
+            <p><i class="bi bi-wrench" style="color: var(--accent-primary);"></i> <strong>{{ orden.mecanico.nombre
+                    }}</strong> ({{ orden.mecanico.especialidad }})</p>
+            <p><i class="bi bi-person" style="color: var(--text-muted);"></i> {{ orden.propietario.nombre }}</p>
+            <p style="color: var(--text-muted); font-size: 0.82em; margin-top: 4px;">
+                <i class="bi bi-clock"></i> {{ orden.fecha_ingreso|date:"d/m/Y H:i" }}
             </p>
         </div>
-
-        <!-- Info Box -->
-        <div class="card">
-            <div class="info-box">
-                <h3>ℹ️ Arquitectura Implementada</h3>
-                <p><strong>Service Layer:</strong> Orquesta la lógica de negocio</p>
-                <p><strong>Factory Pattern:</strong> Predictor MOCK (modo DEV)</p>
-                <p><strong>Builder Pattern:</strong> Validación paso a paso</p>
-            </div>
-        </div>
-
-        <!-- Formulario -->
-        <div class="card">
-            <h2>📝 Crear Nueva Orden de Trabajo</h2>
-
-            <form method="POST" action="{% url 'crear_orden' %}">
-                {% csrf_token %}
-
-                <div class="form-group">
-                    <label for="vehiculo_id">🚙 Vehículo</label>
-                    <select name="vehiculo_id" id="vehiculo_id" required>
-                        <option value="">Seleccione un vehículo...</option>
-                        {% for vehiculo in vehiculos %}
-                        <option value="{{ vehiculo.id }}">
-                            {{ vehiculo.placa }} - {{ vehiculo.marca }} {{ vehiculo.modelo }} ({{ vehiculo.anio }})
-                        </option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="propietario_id">👤 Propietario</label>
-                    <select name="propietario_id" id="propietario_id" required>
-                        <option value="">Seleccione un propietario...</option>
-                        {% for propietario in propietarios %}
-                        <option value="{{ propietario.id }}">{{ propietario.nombre }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="descripcion_problema">📋 Descripción del Problema</label>
-                    <textarea name="descripcion_problema" id="descripcion_problema"
-                        placeholder="Describa el problema con detalle (mínimo 10 caracteres)..." required></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label for="odometer_km">📏 Kilometraje Actual</label>
-                    <input type="number" name="odometer_km" id="odometer_km" placeholder="Ej: 82500" required min="0">
-                </div>
-
-                <div class="form-group">
-                    <label for="especialidad">🔧 Especialidad Requerida</label>
-                    <select name="especialidad" id="especialidad">
-                        <option value="GENERAL">General</option>
-                        <option value="MOTOR">Motor</option>
-                        <option value="TRANSMISION">Transmisión</option>
-                        <option value="SUSPENSION">Suspensión</option>
-                        <option value="ELECTRICO">Eléctrico</option>
-                    </select>
-                </div>
-
-                <button type="submit" class="btn">✅ Crear Orden de Trabajo</button>
-            </form>
-        </div>
-
-        <!-- Órdenes Recientes -->
-        {% if ordenes %}
-        <div class="card">
-            <h2>📋 Órdenes Recientes</h2>
-            <div class="orders-list">
-                {% for orden in ordenes %}
-                <div class="order-item">
-                    <h4>Orden #{{ orden.id }} - {{ orden.vehiculo.placa }}</h4>
-                    <p><strong>Estado:</strong> {{ orden.estado }}</p>
-                    <p><strong>Propietario:</strong> {{ orden.propietario.nombre }}</p>
-                    <p><strong>Mecánico:</strong> {{ orden.mecanico.nombre }} ({{ orden.mecanico.especialidad }})</p>
-                    <p><strong>Problema:</strong> {{ orden.descripcion_problema }}</p>
-                    <p><strong>Fecha:</strong> {{ orden.fecha_ingreso|date:"d/m/Y H:i" }}</p>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-        {% endif %}
+        {% endfor %}
     </div>
-</body>
+</div>
+{% endif %}
+{% endblock %}
 
-</html>
+{% block extra_js %}
+<script>
+    document.querySelectorAll('.order-item[data-delay]').forEach(el => {
+        el.style.animationDelay = (el.dataset.delay * 100) + 'ms';
+    });
+</script>
+{% endblock %}

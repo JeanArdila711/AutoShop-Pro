@@ -1,16 +1,22 @@
 {% extends "workorders/base.html" %}
 {% block title %}Registrar Vehículo{% endblock %}
+{% block nav_vehiculos %}active{% endblock %}
 
 {% block content %}
+<div class="page-header">
+    <h1><i class="bi bi-car-front"></i> Vehículos</h1>
+    <p>Registrar nuevos vehículos y ver la flota actual</p>
+</div>
+
 <!-- Formulario -->
-<div class="card">
-    <h2>🚙 Registrar Nuevo Vehículo</h2>
+<div class="glass-card">
+    <h2><span class="card-icon"><i class="bi bi-pencil-square"></i></span> Registrar Nuevo Vehículo</h2>
 
     <form method="POST" action="{% url 'registrar_vehiculo' %}">
         {% csrf_token %}
 
         <div class="form-group">
-            <label for="propietario_id">👤 Propietario *</label>
+            <label for="propietario_id"><i class="bi bi-person-fill"></i> Propietario *</label>
             <select name="propietario_id" id="propietario_id" required>
                 <option value="">Seleccione un propietario...</option>
                 {% for p in propietarios %}
@@ -53,13 +59,13 @@
             </div>
         </div>
 
-        <button type="submit" class="btn">✅ Registrar Vehículo</button>
+        <button type="submit" class="btn"><i class="bi bi-check-circle-fill"></i> Registrar Vehículo</button>
     </form>
 </div>
 
 <!-- Lista de vehículos -->
-<div class="card">
-    <h2>📋 Vehículos Registrados</h2>
+<div class="glass-card">
+    <h2><span class="card-icon"><i class="bi bi-list-ul"></i></span> Vehículos Registrados</h2>
     {% if vehiculos %}
     <div class="table-wrapper">
         <table>
@@ -76,11 +82,15 @@
             <tbody>
                 {% for v in vehiculos %}
                 <tr>
-                    <td><strong>{{ v.placa }}</strong></td>
+                    <td>
+                        <strong style="color: var(--accent-primary); font-family: monospace; letter-spacing: 1px;">
+                            {{ v.placa }}
+                        </strong>
+                    </td>
                     <td>{{ v.marca }}</td>
                     <td>{{ v.modelo }}</td>
-                    <td>{{ v.anio }}</td>
-                    <td>{{ v.km_actuales|floatformat:0 }}</td>
+                    <td><span class="badge badge-default">{{ v.anio }}</span></td>
+                    <td style="color: var(--text-secondary);">{{ v.km_actuales|floatformat:0 }} km</td>
                     <td>{{ v.propietario.nombre }}</td>
                 </tr>
                 {% endfor %}
@@ -89,7 +99,8 @@
     </div>
     {% else %}
     <div class="empty-state">
-        <p>📭 No hay vehículos registrados aún.</p>
+        <div class="empty-icon"><i class="bi bi-inbox"></i></div>
+        <p>No hay vehículos registrados aún.</p>
     </div>
     {% endif %}
 </div>

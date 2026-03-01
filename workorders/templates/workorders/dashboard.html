@@ -1,34 +1,40 @@
 {% extends "workorders/base.html" %}
 {% block title %}Dashboard{% endblock %}
+{% block nav_dashboard %}active{% endblock %}
 
 {% block content %}
+<div class="page-header">
+    <h1><i class="bi bi-speedometer2"></i> Dashboard</h1>
+    <p>Vista general del taller — estadísticas en tiempo real</p>
+</div>
+
 <!-- Stats -->
 <div class="stats-grid">
     <div class="stat-card">
-        <div class="stat-icon">👤</div>
-        <div class="stat-number">{{ total_propietarios }}</div>
+        <div class="stat-icon"><i class="bi bi-people-fill"></i></div>
+        <div class="stat-number" data-target="{{ total_propietarios }}">0</div>
         <div class="stat-label">Propietarios</div>
     </div>
     <div class="stat-card">
-        <div class="stat-icon">🚙</div>
-        <div class="stat-number">{{ total_vehiculos }}</div>
+        <div class="stat-icon"><i class="bi bi-car-front"></i></div>
+        <div class="stat-number" data-target="{{ total_vehiculos }}">0</div>
         <div class="stat-label">Vehículos</div>
     </div>
     <div class="stat-card">
-        <div class="stat-icon">🔧</div>
-        <div class="stat-number">{{ total_mecanicos }}</div>
+        <div class="stat-icon"><i class="bi bi-wrench-adjustable"></i></div>
+        <div class="stat-number" data-target="{{ total_mecanicos }}">0</div>
         <div class="stat-label">Mecánicos</div>
     </div>
     <div class="stat-card">
-        <div class="stat-icon">📋</div>
-        <div class="stat-number">{{ total_ordenes }}</div>
+        <div class="stat-icon"><i class="bi bi-clipboard-data"></i></div>
+        <div class="stat-number" data-target="{{ total_ordenes }}">0</div>
         <div class="stat-label">Órdenes</div>
     </div>
 </div>
 
 <!-- Órdenes Recientes -->
-<div class="card">
-    <h2>📋 Órdenes Recientes</h2>
+<div class="glass-card">
+    <h2><span class="card-icon"><i class="bi bi-clipboard-data"></i></span> Órdenes Recientes</h2>
     {% if ordenes %}
     <div class="table-wrapper">
         <table>
@@ -45,12 +51,24 @@
             <tbody>
                 {% for o in ordenes %}
                 <tr>
-                    <td><strong>{{ o.id }}</strong></td>
+                    <td><strong style="color: var(--accent-primary);">#{{ o.id }}</strong></td>
                     <td>{{ o.vehiculo.placa }} — {{ o.vehiculo.marca }}</td>
                     <td>{{ o.propietario.nombre }}</td>
                     <td>{{ o.mecanico.nombre|default:"Sin asignar" }}</td>
-                    <td><span class="badge">{{ o.estado }}</span></td>
-                    <td>{{ o.fecha_ingreso|date:"d/m/Y H:i" }}</td>
+                    <td>
+                        <span class="badge badge-pulse
+                            {% if o.estado == 'ABIERTA' %}badge-success
+                            {% elif o.estado == 'EN_DIAGNOSTICO' or o.estado == 'EN_REPARACION' %}badge-info
+                            {% elif o.estado == 'PRESUPUESTADA' or o.estado == 'APROBADA' %}badge-warning
+                            {% elif o.estado == 'EN_ESPERA' %}badge-gold
+                            {% elif o.estado == 'PRUEBA_PISTA' %}badge-cyan
+                            {% elif o.estado == 'CERRADA' or o.estado == 'FACTURADA' %}badge-danger
+                            {% elif o.estado == 'ENTREGADA' %}badge-default
+                            {% else %}badge-default{% endif %}">
+                            {{ o.estado }}
+                        </span>
+                    </td>
+                    <td style="color: var(--text-secondary);">{{ o.fecha_ingreso|date:"d/m/Y H:i" }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -58,9 +76,12 @@
     </div>
     {% else %}
     <div class="empty-state">
-        <p>📭 No hay órdenes registradas aún.</p>
-        <p><a href="{% url 'crear_orden' %}" class="btn-secondary" style="margin-top:15px; display:inline-block;">Crear
-                primera orden</a></p>
+        <div class="empty-icon"><i class="bi bi-inbox"></i></div>
+        <p>No hay órdenes registradas aún.</p>
+        <p style="margin-top: 16px;">
+            <a href="{% url 'crear_orden' %}" class="btn-secondary"><i class="bi bi-file-earmark-plus"></i> Crear
+                primera orden</a>
+        </p>
     </div>
     {% endif %}
 </div>

@@ -1,10 +1,60 @@
 {% extends "workorders/base.html" %}
 {% block title %}Registrar Mecánico{% endblock %}
+{% block nav_mecanicos %}active{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ── Mechanic-specific: load bar ── */
+    .load-bar-container {
+        width: 100%;
+        height: 6px;
+        background: rgba(108, 138, 255, 0.08);
+        border-radius: 3px;
+        overflow: hidden;
+    }
+
+    .load-bar {
+        height: 100%;
+        border-radius: 3px;
+        transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        position: relative;
+    }
+
+    .load-bar.low {
+        background: var(--success);
+    }
+
+    .load-bar.mid {
+        background: var(--warning);
+    }
+
+    .load-bar.high {
+        background: var(--danger);
+    }
+
+    .load-bar::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        animation: shimmer 2s infinite;
+        background-size: 200% 100%;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
+<div class="page-header">
+    <h1><i class="bi bi-wrench-adjustable"></i> Mecánicos</h1>
+    <p>Registrar mecánicos y monitorear su carga de trabajo</p>
+</div>
+
 <!-- Formulario -->
-<div class="card">
-    <h2>🔧 Registrar Nuevo Mecánico</h2>
+<div class="glass-card">
+    <h2><span class="card-icon"><i class="bi bi-pencil-square"></i></span> Registrar Nuevo Mecánico</h2>
 
     <form method="POST" action="{% url 'registrar_mecanico' %}">
         {% csrf_token %}
@@ -42,13 +92,13 @@
             </div>
         </div>
 
-        <button type="submit" class="btn">✅ Registrar Mecánico</button>
+        <button type="submit" class="btn"><i class="bi bi-check-circle-fill"></i> Registrar Mecánico</button>
     </form>
 </div>
 
 <!-- Lista de mecánicos -->
-<div class="card">
-    <h2>📋 Mecánicos Registrados</h2>
+<div class="glass-card">
+    <h2><span class="card-icon"><i class="bi bi-list-ul"></i></span> Mecánicos Registrados</h2>
     {% if mecanicos %}
     <div class="table-wrapper">
         <table>
@@ -59,26 +109,52 @@
                     <th>Especialidad</th>
                     <th>Nivel</th>
                     <th>Tarifa/h</th>
-                    <th>Disponible</th>
-                    <th>Carga (h)</th>
+                    <th>Estado</th>
+                    <th>Carga de Trabajo</th>
                 </tr>
             </thead>
             <tbody>
                 {% for m in mecanicos %}
                 <tr>
-                    <td>{{ m.id }}</td>
+                    <td style="color: var(--text-muted);">{{ m.id }}</td>
                     <td><strong>{{ m.nombre }}</strong></td>
-                    <td><span class="badge">{{ m.especialidad }}</span></td>
-                    <td>{{ m.nivel }}</td>
-                    <td>${{ m.tarifa_hora|floatformat:0 }}</td>
+                    <td>
+                        <span class="badge
+                            {% if m.especialidad == 'MOTOR' %}badge-danger
+                            {% elif m.especialidad == 'TRANSMISION' %}badge-warning
+                            {% elif m.especialidad == 'SUSPENSION' %}badge-info
+                            {% elif m.especialidad == 'ELECTRICO' %}badge-cyan
+                            {% else %}badge-default{% endif %}">
+                            {{ m.especialidad }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge
+                            {% if m.nivel == 'EXPERTO' %}badge-gold
+                            {% elif m.nivel == 'INTERMEDIO' %}badge-info
+                            {% else %}badge-default{% endif %}">
+                            {% if m.nivel == 'EXPERTO' %}<i class="bi bi-star-fill"></i>{% endif %}
+                            {{ m.nivel }}
+                        </span>
+                    </td>
+                    <td style="color: var(--text-secondary);">${{ m.tarifa_hora|floatformat:0 }}</td>
                     <td>
                         {% if m.disponible %}
-                        <span class="badge badge-success">Sí</span>
+                        <span class="badge badge-success badge-pulse">Disponible</span>
                         {% else %}
-                        <span class="badge badge-danger">No</span>
+                        <span class="badge badge-danger">Ocupado</span>
                         {% endif %}
                     </td>
-                    <td>{{ m.horas_pendientes }}</td>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div class="load-bar-container">
+                                <div class="load-bar" data-hours="{{ m.horas_pendientes }}"></div>
+                            </div>
+                            <span style="font-size: 0.8em; color: var(--text-muted); white-space: nowrap;">
+                                {{ m.horas_pendientes }}/40h
+                            </span>
+                        </div>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -86,8 +162,22 @@
     </div>
     {% else %}
     <div class="empty-state">
-        <p>📭 No hay mecánicos registrados aún.</p>
+        <div class="empty-icon"><i class="bi bi-inbox"></i></div>
+        <p>No hay mecánicos registrados aún.</p>
     </div>
     {% endif %}
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.querySelectorAll('.load-bar[data-hours]').forEach(bar => {
+        const hours = parseInt(bar.dataset.hours) || 0;
+        const pct = Math.min(Math.round((hours / 40) * 100), 100);
+        bar.style.width = pct + '%';
+        if (hours < 15) bar.classList.add('low');
+        else if (hours < 30) bar.classList.add('mid');
+        else bar.classList.add('high');
+    });
+</script>
 {% endblock %}

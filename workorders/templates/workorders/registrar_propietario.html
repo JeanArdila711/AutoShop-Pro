@@ -1,10 +1,16 @@
 {% extends "workorders/base.html" %}
 {% block title %}Registrar Propietario{% endblock %}
+{% block nav_propietarios %}active{% endblock %}
 
 {% block content %}
+<div class="page-header">
+    <h1><i class="bi bi-people-fill"></i> Propietarios</h1>
+    <p>Registrar nuevos propietarios y ver los existentes</p>
+</div>
+
 <!-- Formulario -->
-<div class="card">
-    <h2>👤 Registrar Nuevo Propietario</h2>
+<div class="glass-card">
+    <h2><span class="card-icon"><i class="bi bi-pencil-square"></i></span> Registrar Nuevo Propietario</h2>
 
     <form method="POST" action="{% url 'registrar_propietario' %}">
         {% csrf_token %}
@@ -35,13 +41,13 @@
             </div>
         </div>
 
-        <button type="submit" class="btn">✅ Registrar Propietario</button>
+        <button type="submit" class="btn"><i class="bi bi-check-circle-fill"></i> Registrar Propietario</button>
     </form>
 </div>
 
 <!-- Lista de propietarios existentes -->
-<div class="card">
-    <h2>📋 Propietarios Registrados</h2>
+<div class="glass-card">
+    <h2><span class="card-icon"><i class="bi bi-list-ul"></i></span> Propietarios Registrados</h2>
     {% if propietarios %}
     <div class="table-wrapper">
         <table>
@@ -57,11 +63,20 @@
             <tbody>
                 {% for p in propietarios %}
                 <tr>
-                    <td>{{ p.id }}</td>
+                    <td style="color: var(--text-muted);">{{ p.id }}</td>
                     <td><strong>{{ p.nombre }}</strong></td>
-                    <td>{{ p.email|default:"—" }}</td>
-                    <td>{{ p.telefono|default:"—" }}</td>
-                    <td><span class="badge">{{ p.tipo_cliente }}</span></td>
+                    <td style="color: var(--text-secondary);">{{ p.email|default:"—" }}</td>
+                    <td style="color: var(--text-secondary);">{{ p.telefono|default:"—" }}</td>
+                    <td>
+                        <span class="badge
+                            {% if p.tipo_cliente == 'VIP' %}badge-gold
+                            {% elif p.tipo_cliente == 'PREMIUM' %}badge-cyan
+                            {% else %}badge-default{% endif %}">
+                            {% if p.tipo_cliente == 'VIP' %}<i class="bi bi-star-fill"></i>{% elif p.tipo_cliente ==
+                            'PREMIUM' %}<i class="bi bi-gem"></i>{% endif %}
+                            {{ p.tipo_cliente }}
+                        </span>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -69,7 +84,8 @@
     </div>
     {% else %}
     <div class="empty-state">
-        <p>📭 No hay propietarios registrados aún.</p>
+        <div class="empty-icon"><i class="bi bi-inbox"></i></div>
+        <p>No hay propietarios registrados aún.</p>
     </div>
     {% endif %}
 </div>
