@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils import timezone
 from django.core.exceptions import ValidationError
+from django.core.validators import RegexValidator
 
 
 # ─────────────────────────────────────────────
@@ -103,7 +104,16 @@ class Owner(models.Model):
 
 class Vehicle(models.Model):
     """Vehículo registrado en el taller"""
-    placa = models.CharField(max_length=10, unique=True)
+    placa = models.CharField(
+        max_length=6,          
+        unique=True,
+        validators=[
+            RegexValidator(
+                regex=r'^[A-Z]{3}[0-9]{3}$',
+                message='Formato inválido. La placa colombiana debe ser 3 letras + 3 números (Ej: ABC123)'
+            )
+        ]
+    )
     vin = models.CharField(max_length=17, blank=True, default='')
     marca = models.CharField(max_length=40)
     modelo = models.CharField(max_length=40)

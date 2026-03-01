@@ -8,12 +8,13 @@
 from workorders.domain.work_order_builder import WorkOrderBuilder
 from workorders.infra.predictor_factory import PredictorFactory
 from workorders.infra.notificacion_factory import NotificacionFactory
-from workorders.models import Mechanic, Vehicle, Owner
+from workorders.models import Mechanic, Vehicle, Owner, WorkOrder
 
 
 class WorkOrderService:
     """
-    Servicio principal de órdenes de trabajo.
+    Servicio principal del taller.
+    Centraliza TODA la lógica de negocio (SRP).
     Dependencias inyectables: predictor y notificador (DIP).
     """
 
@@ -21,6 +22,91 @@ class WorkOrderService:
         # Inyección de dependencias con valores por defecto vía Factories
         self.predictor = predictor or PredictorFactory.crear_predictor()
         self.notificador = notificador or NotificacionFactory.crear_notificador()
+
+    # ─────────────────────────────────────────────
+    # Dashboard
+    # ─────────────────────────────────────────────
+
+    def obtener_estadisticas_dashboard(self):
+        """Retorna las estadísticas y órdenes recientes para el dashboard"""
+        return {
+            'total_propietarios': Owner.objects.count(),
+            'total_vehiculos': Vehicle.objects.count(),
+            'total_mecanicos': Mechanic.objects.count(),
+            'total_ordenes': WorkOrder.objects.count(),
+            'ordenes': WorkOrder.objects.all().order_by('-fecha_ingreso')[:10],
+        }
+
+    # ─────────────────────────────────────────────
+    # Propietarios
+    # ─────────────────────────────────────────────
+
+    def listar_propietarios(self, orden='-id'):
+        """Retorna todos los propietarios ordenados"""
+        return Owner.objects.all().order_by(orden)
+
+    def registrar_propietario(self, datos):
+        """Crea y retorna un nuevo propietario"""
+        propietario = Owner.objects.create(
+            nombre=datos['nombre'],
+            email=datos['email'],
+            telefono=datos['telefono'],
+            tipo_cliente=datos.get('tipo_cliente', 'REGULAR'),
+        )
+        return propietario
+
+    # ─────────────────────────────────────────────
+    # Vehículos
+    # ─────────────────────────────────────────────
+
+    def listar_vehiculos(self, orden='-id'):
+        """Retorna todos los vehículos ordenados"""
+        return Vehicle.objects.all().order_by(orden)
+
+    def registrar_vehiculo(self, datos):
+        """Crea y retorna un nuevo vehículo asociado a un propietario"""
+        propietario = Owner.objects.get(id=datos['propietario_id'])
+        
+        vehiculo = Vehicle(
+            placa=datos['placa'].upper(),
+            vin=datos.get('vin', ''),
+            marca=datos['marca'],
+            modelo=datos['modelo'],
+            anio=int(datos.get('anio', 2024)),
+            km_actuales=int(datos.get('km_actuales', 0)),
+            propietario=propietario,
+        )
+    
+        vehiculo.full_clean()  # ← dispara el RegexValidator de la placa
+        vehiculo.save()
+        return vehiculo
+
+
+    # ─────────────────────────────────────────────
+    # Mecánicos
+    # ─────────────────────────────────────────────
+
+    def listar_mecanicos(self, orden='-id'):
+        """Retorna todos los mecánicos ordenados"""
+        return Mechanic.objects.all().order_by(orden)
+
+    def registrar_mecanico(self, datos):
+        """Crea y retorna un nuevo mecánico"""
+        mecanico = Mechanic.objects.create(
+            nombre=datos['nombre'],
+            especialidad=datos.get('especialidad', 'GENERAL'),
+            nivel=datos.get('nivel', 'JUNIOR'),
+            tarifa_hora=datos.get('tarifa_hora', 0),
+        )
+        return mecanico
+
+    # ─────────────────────────────────────────────
+    # Órdenes de Trabajo
+    # ─────────────────────────────────────────────
+
+    def listar_ordenes_recientes(self, limite=5):
+        """Retorna las órdenes más recientes"""
+        return WorkOrder.objects.all().order_by('-fecha_ingreso')[:limite]
 
     def crear_work_order(self, datos):
         """
@@ -70,6 +156,10 @@ class WorkOrderService:
         )
 
         return work_order, predicciones
+
+    # ─────────────────────────────────────────────
+    # Métodos privados de apoyo
+    # ─────────────────────────────────────────────
 
     def _asignar_mejor_mecanico(self, especialidad_requerida):
         """Selecciona el mecánico con mejor score según especialidad y carga"""

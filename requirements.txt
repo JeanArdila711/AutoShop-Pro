@@ -1,2 +1,10 @@
+# ──────────────────────────────────────────────
+# AutoShop-Pro - Dependencias del proyecto
+# Instalar con:  pip install -r requirements.txt
+# ──────────────────────────────────────────────
+
+# Framework principal
 Django>=5.0,<6.0
+
+# API REST
 djangorestframework>=3.15,<4.0
