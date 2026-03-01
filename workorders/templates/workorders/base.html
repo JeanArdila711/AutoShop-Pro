@@ -53,6 +53,128 @@
             --sidebar-collapsed: 72px;
         }
 
+        /* ── Light Mode Override ── */
+        [data-theme='light'] {
+            --bg-deep: #f0f2f8;
+            --bg-primary: #f5f7fc;
+            --bg-secondary: #e8ecf4;
+            --bg-card: rgba(255, 255, 255, 0.85);
+            --bg-card-hover: rgba(255, 255, 255, 0.95);
+            --bg-input: rgba(255, 255, 255, 0.9);
+
+            --border-glass: rgba(100, 120, 200, 0.15);
+            --border-glow: rgba(80, 120, 255, 0.25);
+
+            --accent-primary: #4f6bf0;
+            --accent-secondary: #7c5cfc;
+            --accent-cyan: #0891b2;
+            --accent-gradient: linear-gradient(135deg, #4f6bf0 0%, #7c5cfc 50%, #0891b2 100%);
+            --accent-gradient-btn: linear-gradient(135deg, #4f6bf0 0%, #6c4de8 100%);
+
+            --text-primary: #1a1d2e;
+            --text-secondary: #4a4e6a;
+            --text-muted: #8890a8;
+
+            --success: #16a34a;
+            --warning: #d97706;
+            --danger: #dc2626;
+            --info: #0284c7;
+
+            --shadow-card: 0 4px 16px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
+            --shadow-glow: 0 0 12px rgba(79, 107, 240, 0.08);
+            --shadow-btn: 0 4px 16px rgba(79, 107, 240, 0.2);
+        }
+
+        [data-theme='light'] body::before {
+            background:
+                radial-gradient(ellipse 80% 60% at 20% 10%, rgba(79, 107, 240, 0.05) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 80% at 80% 90%, rgba(124, 92, 252, 0.04) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 50% at 50% 50%, rgba(8, 145, 178, 0.02) 0%, transparent 60%);
+        }
+
+        [data-theme='light'] .particle {
+            background: rgba(79, 107, 240, 0.12);
+        }
+
+        [data-theme='light'] .sidebar {
+            background: linear-gradient(180deg, #ffffff 0%, #f0f2f8 100%);
+            border-right: 1px solid rgba(100, 120, 200, 0.12);
+        }
+
+        [data-theme='light'] .nav-link:hover {
+            background: rgba(79, 107, 240, 0.08);
+        }
+
+        [data-theme='light'] .nav-link.active {
+            background: rgba(79, 107, 240, 0.1);
+            border-left-color: var(--accent-primary);
+        }
+
+        [data-theme='light'] input,
+        [data-theme='light'] select,
+        [data-theme='light'] textarea {
+            background: var(--bg-input);
+            border-color: rgba(100, 120, 200, 0.2);
+            color: var(--text-primary);
+        }
+
+        [data-theme='light'] .sidebar-toggle {
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--text-primary);
+            border: 1px solid rgba(100, 120, 200, 0.15);
+        }
+
+        [data-theme='light'] ::-webkit-scrollbar-track {
+            background: #e8ecf4;
+        }
+
+        [data-theme='light'] ::-webkit-scrollbar-thumb {
+            background: rgba(79, 107, 240, 0.2);
+        }
+
+        /* ── Theme Toggle Button ── */
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            margin: 12px 20px 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: 10px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+            padding: 0;
+        }
+
+        .theme-toggle:hover {
+            background: var(--bg-card-hover);
+            color: var(--accent-primary);
+            border-color: var(--border-glow);
+            transform: scale(1.1);
+        }
+
+        .theme-toggle:active {
+            transform: scale(0.95);
+        }
+
+        .theme-toggle i {
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .theme-toggle:hover i {
+            transform: rotate(25deg);
+        }
+
+        .sidebar-bottom {
+            margin-top: auto;
+            border-top: 1px solid var(--border-glass);
+            padding-top: 4px;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -1167,6 +1289,13 @@
                 <span class="nav-label">Crear Orden</span>
             </a>
         </div>
+
+        <!-- Theme Toggle -->
+        <div class="sidebar-bottom">
+            <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Cambiar tema">
+                <i class="bi bi-sun-fill" id="themeIcon"></i>
+            </button>
+        </div>
     </nav>
 
     <!-- Main Content -->
@@ -1225,6 +1354,32 @@
                 }, 5000 + i * 500);
             });
         });
+
+        /* ── Theme Toggle ── */
+        function toggleTheme() {
+            const html = document.documentElement;
+            const isDark = html.getAttribute('data-theme') !== 'light';
+            const newTheme = isDark ? 'light' : 'dark';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('autoshop-theme', newTheme);
+            updateThemeButton(newTheme);
+        }
+
+        function updateThemeButton(theme) {
+            const icon = document.getElementById('themeIcon');
+            if (theme === 'light') {
+                icon.className = 'bi bi-moon-stars-fill';
+            } else {
+                icon.className = 'bi bi-sun-fill';
+            }
+        }
+
+        /* Apply saved theme instantly */
+        (function () {
+            const saved = localStorage.getItem('autoshop-theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', saved);
+            updateThemeButton(saved);
+        })();
     </script>
     {% block extra_js %}{% endblock %}
 </body>
