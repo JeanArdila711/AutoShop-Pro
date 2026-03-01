@@ -1,0 +1,76 @@
+{% extends "workorders/base.html" %}
+{% block title %}Registrar Propietario{% endblock %}
+
+{% block content %}
+<!-- Formulario -->
+<div class="card">
+    <h2>👤 Registrar Nuevo Propietario</h2>
+
+    <form method="POST" action="{% url 'registrar_propietario' %}">
+        {% csrf_token %}
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="nombre">Nombre Completo *</label>
+                <input type="text" name="nombre" id="nombre" placeholder="Ej: Carlos Gómez" required maxlength="120">
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" name="email" id="email" placeholder="Ej: carlos@email.com">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="telefono">Teléfono</label>
+                <input type="text" name="telefono" id="telefono" placeholder="Ej: 3001234567" maxlength="20">
+            </div>
+            <div class="form-group">
+                <label for="tipo_cliente">Tipo de Cliente</label>
+                <select name="tipo_cliente" id="tipo_cliente">
+                    <option value="REGULAR">Regular</option>
+                    <option value="VIP">VIP</option>
+                    <option value="PREMIUM">Premium</option>
+                </select>
+            </div>
+        </div>
+
+        <button type="submit" class="btn">✅ Registrar Propietario</button>
+    </form>
+</div>
+
+<!-- Lista de propietarios existentes -->
+<div class="card">
+    <h2>📋 Propietarios Registrados</h2>
+    {% if propietarios %}
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Email</th>
+                    <th>Teléfono</th>
+                    <th>Tipo</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in propietarios %}
+                <tr>
+                    <td>{{ p.id }}</td>
+                    <td><strong>{{ p.nombre }}</strong></td>
+                    <td>{{ p.email|default:"—" }}</td>
+                    <td>{{ p.telefono|default:"—" }}</td>
+                    <td><span class="badge">{{ p.tipo_cliente }}</span></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <p>📭 No hay propietarios registrados aún.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

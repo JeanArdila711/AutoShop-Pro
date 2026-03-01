@@ -1,0 +1,67 @@
+{% extends "workorders/base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<!-- Stats -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon">👤</div>
+        <div class="stat-number">{{ total_propietarios }}</div>
+        <div class="stat-label">Propietarios</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">🚙</div>
+        <div class="stat-number">{{ total_vehiculos }}</div>
+        <div class="stat-label">Vehículos</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">🔧</div>
+        <div class="stat-number">{{ total_mecanicos }}</div>
+        <div class="stat-label">Mecánicos</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">📋</div>
+        <div class="stat-number">{{ total_ordenes }}</div>
+        <div class="stat-label">Órdenes</div>
+    </div>
+</div>
+
+<!-- Órdenes Recientes -->
+<div class="card">
+    <h2>📋 Órdenes Recientes</h2>
+    {% if ordenes %}
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Vehículo</th>
+                    <th>Propietario</th>
+                    <th>Mecánico</th>
+                    <th>Estado</th>
+                    <th>Fecha</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for o in ordenes %}
+                <tr>
+                    <td><strong>{{ o.id }}</strong></td>
+                    <td>{{ o.vehiculo.placa }} — {{ o.vehiculo.marca }}</td>
+                    <td>{{ o.propietario.nombre }}</td>
+                    <td>{{ o.mecanico.nombre|default:"Sin asignar" }}</td>
+                    <td><span class="badge">{{ o.estado }}</span></td>
+                    <td>{{ o.fecha_ingreso|date:"d/m/Y H:i" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <p>📭 No hay órdenes registradas aún.</p>
+        <p><a href="{% url 'crear_orden' %}" class="btn-secondary" style="margin-top:15px; display:inline-block;">Crear
+                primera orden</a></p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
