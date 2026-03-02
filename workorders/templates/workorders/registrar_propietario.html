@@ -18,7 +18,7 @@
         <div class="form-row">
             <div class="form-group">
                 <label for="nombre">Nombre Completo *</label>
-                <input type="text" name="nombre" id="nombre" placeholder="Ej: Carlos Gómez" required maxlength="120">
+                <input type="text" name="nombre" id="nombre" placeholder="Ej: Carlos G&#243;mez" required maxlength="120">
             </div>
             <div class="form-group">
                 <label for="email">Email</label>
@@ -28,7 +28,7 @@
 
         <div class="form-row">
             <div class="form-group">
-                <label for="telefono">Teléfono</label>
+                <label for="telefono">Tel&#233;fono</label>
                 <input type="text" name="telefono" id="telefono" placeholder="Ej: 3001234567" maxlength="20">
             </div>
             <div class="form-group">
@@ -56,7 +56,7 @@
                     <th>ID</th>
                     <th>Nombre</th>
                     <th>Email</th>
-                    <th>Teléfono</th>
+                    <th>Tel&#233;fono</th>
                     <th>Tipo</th>
                 </tr>
             </thead>
@@ -65,18 +65,9 @@
                 <tr>
                     <td style="color: var(--text-muted);">{{ p.id }}</td>
                     <td><strong>{{ p.nombre }}</strong></td>
-                    <td style="color: var(--text-secondary);">{{ p.email|default:"—" }}</td>
-                    <td style="color: var(--text-secondary);">{{ p.telefono|default:"—" }}</td>
-                    <td>
-                        <span class="badge
-                            {% if p.tipo_cliente == 'VIP' %}badge-gold
-                            {% elif p.tipo_cliente == 'PREMIUM' %}badge-cyan
-                            {% else %}badge-default{% endif %}">
-                            {% if p.tipo_cliente == 'VIP' %}<i class="bi bi-star-fill"></i>{% elif p.tipo_cliente ==
-                            'PREMIUM' %}<i class="bi bi-gem"></i>{% endif %}
-                            {{ p.tipo_cliente }}
-                        </span>
-                    </td>
+                    <td style="color: var(--text-secondary);">{{ p.email|default:"&#8212;" }}</td>
+                    <td style="color: var(--text-secondary);">{{ p.telefono|default:"&#8212;" }}</td>
+                    <td>{% if p.tipo_cliente == 'VIP' %}<span class="badge badge-gold"><i class="bi bi-star-fill"></i> VIP</span>{% elif p.tipo_cliente == 'PREMIUM' %}<span class="badge badge-cyan"><i class="bi bi-gem"></i> PREMIUM</span>{% else %}<span class="badge badge-default">{{ p.tipo_cliente }}</span>{% endif %}</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -85,7 +76,7 @@
     {% else %}
     <div class="empty-state">
         <div class="empty-icon"><i class="bi bi-inbox"></i></div>
-        <p>No hay propietarios registrados aún.</p>
+        <p>No hay propietarios registrados a&#250;n.</p>
     </div>
     {% endif %}
 </div>
