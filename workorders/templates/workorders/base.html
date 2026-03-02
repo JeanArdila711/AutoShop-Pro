@@ -55,15 +55,15 @@
 
         /* ── Light Mode Override ── */
         [data-theme='light'] {
-            --bg-deep: #f0f2f8;
-            --bg-primary: #f5f7fc;
-            --bg-secondary: #e8ecf4;
-            --bg-card: rgba(255, 255, 255, 0.85);
-            --bg-card-hover: rgba(255, 255, 255, 0.95);
-            --bg-input: rgba(255, 255, 255, 0.9);
+            --bg-deep: #e8ecf5;
+            --bg-primary: #edf0f8;
+            --bg-secondary: #dde2ef;
+            --bg-card: rgba(255, 255, 255, 0.92);
+            --bg-card-hover: rgba(255, 255, 255, 1);
+            --bg-input: #f8f9fd;
 
-            --border-glass: rgba(100, 120, 200, 0.15);
-            --border-glow: rgba(80, 120, 255, 0.25);
+            --border-glass: rgba(80, 100, 180, 0.18);
+            --border-glow: rgba(80, 120, 255, 0.30);
 
             --accent-primary: #4f6bf0;
             --accent-secondary: #7c5cfc;
@@ -80,8 +80,8 @@
             --danger: #dc2626;
             --info: #0284c7;
 
-            --shadow-card: 0 4px 16px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
-            --shadow-glow: 0 0 12px rgba(79, 107, 240, 0.08);
+            --shadow-card: 0 4px 20px rgba(80, 100, 180, 0.10), 0 1px 4px rgba(0, 0, 0, 0.05);
+            --shadow-glow: 0 0 16px rgba(79, 107, 240, 0.12);
             --shadow-btn: 0 4px 16px rgba(79, 107, 240, 0.2);
         }
 
@@ -97,8 +97,9 @@
         }
 
         [data-theme='light'] .sidebar {
-            background: linear-gradient(180deg, #ffffff 0%, #f0f2f8 100%);
-            border-right: 1px solid rgba(100, 120, 200, 0.12);
+            background: linear-gradient(180deg, #f5f7ff 0%, #eaedfa 100%);
+            border-right: 1px solid rgba(80, 100, 180, 0.18);
+            box-shadow: 2px 0 12px rgba(80, 100, 180, 0.08);
         }
 
         [data-theme='light'] .nav-link:hover {
@@ -106,15 +107,16 @@
         }
 
         [data-theme='light'] .nav-link.active {
-            background: rgba(79, 107, 240, 0.1);
+            background: rgba(79, 107, 240, 0.12);
             border-left-color: var(--accent-primary);
+            box-shadow: 0 2px 8px rgba(79, 107, 240, 0.08);
         }
 
         [data-theme='light'] input,
         [data-theme='light'] select,
         [data-theme='light'] textarea {
             background: var(--bg-input);
-            border-color: rgba(100, 120, 200, 0.2);
+            border-color: rgba(80, 100, 180, 0.22);
             color: var(--text-primary);
         }
 
@@ -131,9 +133,41 @@
         }
 
         [data-theme='light'] .sidebar-toggle {
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.95);
             color: var(--text-primary);
-            border: 1px solid rgba(100, 120, 200, 0.15);
+            border: 1px solid rgba(80, 100, 180, 0.18);
+            box-shadow: 0 2px 8px rgba(80, 100, 180, 0.08);
+        }
+
+        [data-theme='light'] .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(80, 100, 180, 0.15);
+            box-shadow: 0 4px 20px rgba(80, 100, 180, 0.10), 0 1px 4px rgba(0, 0, 0, 0.04);
+        }
+
+        [data-theme='light'] .glass-card:hover {
+            border-color: rgba(79, 107, 240, 0.25);
+            box-shadow: 0 8px 28px rgba(80, 100, 180, 0.14), 0 0 12px rgba(79, 107, 240, 0.06);
+        }
+
+        [data-theme='light'] .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(80, 100, 180, 0.15);
+            box-shadow: 0 4px 20px rgba(80, 100, 180, 0.10), 0 1px 4px rgba(0, 0, 0, 0.04);
+        }
+
+        [data-theme='light'] .stat-card:hover {
+            border-color: rgba(79, 107, 240, 0.25);
+            box-shadow: 0 8px 28px rgba(80, 100, 180, 0.14), 0 0 12px rgba(79, 107, 240, 0.06);
+        }
+
+        [data-theme='light'] table thead th {
+            background: #eef1fa;
+            color: var(--text-secondary);
+        }
+
+        [data-theme='light'] table tbody tr:hover {
+            background: rgba(79, 107, 240, 0.04);
         }
 
         [data-theme='light'] ::-webkit-scrollbar-track {
