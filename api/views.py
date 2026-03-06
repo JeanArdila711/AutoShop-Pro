@@ -1,5 +1,5 @@
 # ─────────────────────────────────────────────────────────────
-# workorders/api_views.py
+# api/views.py
 # API Views de DRF: actúan como "porteros".
 # Reciben JSON → validan sintaxis → llaman al Service → retornan Response.
 # NO contienen lógica de negocio.
@@ -9,14 +9,14 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
-from workorders.serializers import OrdenTrabajoInputSerializer, OrdenTrabajoOutputSerializer
+from api.serializers import OrdenTrabajoInputSerializer, OrdenTrabajoOutputSerializer
 from workorders.services.services import WorkOrderService
 from workorders.models import Vehicle, Owner
 
 
 class CrearOrdenAPIView(APIView):
     """
-    POST /workorders/api/ordenes/
+    POST /api/v1/ordenes/
     Crea una nueva orden de trabajo.
 
     Códigos de respuesta:

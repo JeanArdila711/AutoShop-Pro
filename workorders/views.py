@@ -5,6 +5,12 @@ from workorders.services.services import WorkOrderService
 from workorders.models import Owner
 
 
+class LandingPageView(View):
+    """Landing page pública — primera impresión del taller"""
+
+    def get(self, request):
+        return render(request, 'workorders/landing.html')
+
 class DashboardView(View):
     """Vista principal: coordina HTTP para el dashboard"""
 

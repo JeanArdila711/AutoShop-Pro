@@ -1336,8 +1336,12 @@
             </a>
         </div>
 
-        <!-- Theme Toggle -->
+        <!-- Theme Toggle & Landing Link -->
         <div class="sidebar-bottom">
+            <a href="{% url 'landing' %}" class="nav-link" title="Ir al inicio">
+                <span class="nav-icon"><i class="bi bi-house-door"></i></span>
+                <span class="nav-label">Inicio</span>
+            </a>
             <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Cambiar tema">
                 <i class="bi bi-sun-fill" id="themeIcon"></i>
             </button>

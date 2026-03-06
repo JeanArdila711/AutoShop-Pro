@@ -1,5 +1,5 @@
 # ─────────────────────────────────────────────────────────────
-# workorders/serializers.py
+# api/serializers.py
 # Serializers de DRF: solo validan SINTAXIS (tipos, campos requeridos).
 # La SEMÁNTICA / NEGOCIO se valida en el Service Layer.
 # ─────────────────────────────────────────────────────────────

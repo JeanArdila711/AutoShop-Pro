@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoShop Pro — Taller Mecánico de Confianza</title>
+    <meta name="description"
+        content="AutoShop Pro — Sistema de gestión de taller mecánico automotriz. Servicio profesional, mantenimiento predictivo y tecnología de punta.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        /* ═══════════════════════════════════════════
+           LANDING PAGE — AutoShop Pro
+           ═══════════════════════════════════════════ */
+
+        :root {
+            --bg-deep: #06060f;
+            --bg-primary: #0a0a1a;
+            --bg-secondary: #10102a;
+            --bg-card: rgba(18, 18, 50, 0.6);
+            --bg-card-hover: rgba(25, 25, 65, 0.8);
+
+            --border-glass: rgba(100, 120, 255, 0.12);
+            --border-glow: rgba(100, 180, 255, 0.3);
+
+            --accent-primary: #6c8aff;
+            --accent-secondary: #a78bfa;
+            --accent-cyan: #22d3ee;
+            --accent-gradient: linear-gradient(135deg, #6c8aff 0%, #a78bfa 50%, #22d3ee 100%);
+            --accent-gradient-btn: linear-gradient(135deg, #6c8aff 0%, #7c5cfc 100%);
+
+            --text-primary: #e8eaff;
+            --text-secondary: #8b8db0;
+            --text-muted: #5a5c7a;
+
+            --success: #34d399;
+            --warning: #fbbf24;
+            --danger: #f87171;
+            --info: #38bdf8;
+
+            --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+            --shadow-glow: 0 0 20px rgba(108, 138, 255, 0.15);
+            --shadow-btn: 0 4px 20px rgba(108, 138, 255, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-deep);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ── Animated Background ── */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(ellipse 80% 60% at 20% 10%, rgba(108, 138, 255, 0.08) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 80% at 80% 90%, rgba(167, 139, 250, 0.06) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 50% at 50% 50%, rgba(34, 211, 238, 0.03) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ── Floating particles ── */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background: var(--accent-primary);
+            opacity: 0;
+            animation: particleFloat linear infinite;
+        }
+
+        .particle:nth-child(1) {
+            width: 3px;
+            height: 3px;
+            left: 10%;
+            animation-duration: 18s;
+            animation-delay: 0s;
+        }
+
+        .particle:nth-child(2) {
+            width: 2px;
+            height: 2px;
+            left: 25%;
+            animation-duration: 22s;
+            animation-delay: 3s;
+            background: var(--accent-cyan);
+        }
+
+        .particle:nth-child(3) {
+            width: 4px;
+            height: 4px;
+            left: 45%;
+            animation-duration: 16s;
+            animation-delay: 6s;
+            background: var(--accent-secondary);
+        }
+
+        .particle:nth-child(4) {
+            width: 2px;
+            height: 2px;
+            left: 65%;
+            animation-duration: 20s;
+            animation-delay: 2s;
+        }
+
+        .particle:nth-child(5) {
+            width: 3px;
+            height: 3px;
+            left: 80%;
+            animation-duration: 24s;
+            animation-delay: 5s;
+            background: var(--accent-cyan);
+        }
+
+        .particle:nth-child(6) {
+            width: 2px;
+            height: 2px;
+            left: 90%;
+            animation-duration: 19s;
+            animation-delay: 8s;
+            background: var(--accent-secondary);
+        }
+
+        .particle:nth-child(7) {
+            width: 3px;
+            height: 3px;
+            left: 35%;
+            animation-duration: 21s;
+            animation-delay: 4s;
+        }
+
+        .particle:nth-child(8) {
+            width: 2px;
+            height: 2px;
+            left: 55%;
+            animation-duration: 17s;
+            animation-delay: 7s;
+            background: var(--accent-cyan);
+        }
+
+        @keyframes particleFloat {
+            0% {
+                transform: translateY(100vh) scale(0);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 0.6;
+            }
+
+            90% {
+                opacity: 0.6;
+            }
+
+            100% {
+                transform: translateY(-20vh) scale(1);
+                opacity: 0;
+            }
+        }
+
+        /* ═══════════════════════════════════════════
+           NAVBAR
+           ═══════════════════════════════════════════ */
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 100;
+            padding: 16px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(6, 6, 15, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-glass);
+            transition: all 0.3s ease;
+        }
+
+        .navbar.scrolled {
+            padding: 10px 40px;
+            background: rgba(6, 6, 15, 0.95);
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .nav-brand .brand-icon {
+            width: 42px;
+            height: 42px;
+            background: var(--accent-gradient);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3em;
+            box-shadow: 0 4px 15px rgba(108, 138, 255, 0.3);
+            color: #fff;
+        }
+
+        .nav-brand .brand-name {
+            font-weight: 800;
+            font-size: 1.2em;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: 0.9em;
+            padding: 10px 18px;
+            border-radius: 10px;
+            transition: all 0.25s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--text-primary);
+            background: rgba(108, 138, 255, 0.08);
+        }
+
+        .nav-cta {
+            background: var(--accent-gradient-btn);
+            color: #fff !important;
+            padding: 10px 24px;
+            border-radius: 10px;
+            font-weight: 600;
+            box-shadow: var(--shadow-btn);
+            transition: all 0.3s ease;
+        }
+
+        .nav-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(108, 138, 255, 0.4);
+        }
+
+        /* ═══════════════════════════════════════════
+           HERO SECTION
+           ═══════════════════════════════════════════ */
+
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 120px 40px 80px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-content {
+            max-width: 800px;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 20px;
+            border-radius: 50px;
+            background: rgba(108, 138, 255, 0.1);
+            border: 1px solid rgba(108, 138, 255, 0.2);
+            color: var(--accent-primary);
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-bottom: 28px;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        .hero-badge i {
+            font-size: 1.1em;
+        }
+
+        .hero h1 {
+            font-size: 4em;
+            font-weight: 900;
+            line-height: 1.1;
+            letter-spacing: -2px;
+            margin-bottom: 24px;
+            animation: fadeInUp 0.8s ease-out 0.2s backwards;
+        }
+
+        .hero h1 .gradient-text {
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 1.2em;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            max-width: 600px;
+            margin: 0 auto 40px;
+            animation: fadeInUp 0.8s ease-out 0.4s backwards;
+        }
+
+        .hero-buttons {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            animation: fadeInUp 0.8s ease-out 0.6s backwards;
+        }
+
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 36px;
+            background: var(--accent-gradient-btn);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 1.05em;
+            box-shadow: var(--shadow-btn);
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 30px rgba(108, 138, 255, 0.4);
+        }
+
+        .btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 36px;
+            background: var(--bg-card);
+            color: var(--text-primary);
+            text-decoration: none;
+            border-radius: 14px;
+            font-weight: 600;
+            font-size: 1.05em;
+            border: 1px solid var(--border-glass);
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            backdrop-filter: blur(12px);
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-3px);
+            border-color: var(--border-glow);
+            box-shadow: var(--shadow-glow);
+            background: var(--bg-card-hover);
+        }
+
+        /* ── Scroll indicator ── */
+        .scroll-indicator {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-muted);
+            font-size: 0.75em;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            animation: fadeInUp 0.8s ease-out 1s backwards;
+        }
+
+        .scroll-indicator .scroll-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent-primary);
+            animation: scrollBounce 2s ease-in-out infinite;
+        }
+
+        @keyframes scrollBounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+
+            50% {
+                transform: translateY(10px);
+                opacity: 0.4;
+            }
+        }
+
+        /* ═══════════════════════════════════════════
+           SERVICES SECTION
+           ═══════════════════════════════════════════ */
+
+        .section {
+            padding: 100px 40px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .section-header {
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto 60px;
+        }
+
+        .section-header .section-tag {
+            display: inline-block;
+            font-size: 0.75em;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: var(--accent-primary);
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .section-header h2 {
+            font-size: 2.6em;
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 16px;
+        }
+
+        .section-header p {
+            color: var(--text-secondary);
+            font-size: 1.05em;
+            line-height: 1.7;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .service-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-glass);
+            border-radius: 20px;
+            padding: 36px 28px;
+            text-align: center;
+            box-shadow: var(--shadow-card);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .service-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--accent-gradient);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .service-card:hover::before {
+            opacity: 1;
+        }
+
+        .service-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--border-glow);
+            box-shadow: var(--shadow-card), var(--shadow-glow);
+        }
+
+        .service-icon {
+            width: 64px;
+            height: 64px;
+            background: rgba(108, 138, 255, 0.1);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6em;
+            margin: 0 auto 20px;
+            transition: all 0.3s ease;
+        }
+
+        .service-card:hover .service-icon {
+            background: rgba(108, 138, 255, 0.2);
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(108, 138, 255, 0.2);
+        }
+
+        .service-card h3 {
+            font-size: 1.15em;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .service-card p {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        /* ═══════════════════════════════════════════
+           FEATURES SECTION
+           ═══════════════════════════════════════════ */
+
+        .features-section {
+            background: linear-gradient(180deg, transparent 0%, rgba(10, 10, 30, 0.5) 50%, transparent 100%);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 32px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+            padding: 28px;
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-glass);
+            border-radius: 16px;
+            transition: all 0.35s ease;
+        }
+
+        .feature-card:hover {
+            border-color: var(--border-glow);
+            transform: translateX(6px);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .feature-icon {
+            width: 52px;
+            height: 52px;
+            min-width: 52px;
+            background: rgba(108, 138, 255, 0.1);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3em;
+        }
+
+        .feature-card h3 {
+            font-size: 1.05em;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .feature-card p {
+            color: var(--text-secondary);
+            font-size: 0.88em;
+            line-height: 1.6;
+        }
+
+        /* ═══════════════════════════════════════════
+           STATS BANNER
+           ═══════════════════════════════════════════ */
+
+        .stats-banner {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 24px;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 60px 40px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-item .stat-number {
+            font-size: 2.8em;
+            font-weight: 900;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.1;
+        }
+
+        .stat-item .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.88em;
+            font-weight: 500;
+            margin-top: 6px;
+        }
+
+        /* ═══════════════════════════════════════════
+           CTA SECTION
+           ═══════════════════════════════════════════ */
+
+        .cta-section {
+            text-align: center;
+            padding: 80px 40px 100px;
+        }
+
+        .cta-card {
+            max-width: 700px;
+            margin: 0 auto;
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-glass);
+            border-radius: 24px;
+            padding: 60px 40px;
+            box-shadow: var(--shadow-card);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--accent-gradient);
+            opacity: 0.03;
+            pointer-events: none;
+        }
+
+        .cta-card h2 {
+            font-size: 2em;
+            font-weight: 800;
+            margin-bottom: 14px;
+            position: relative;
+        }
+
+        .cta-card p {
+            color: var(--text-secondary);
+            font-size: 1.05em;
+            line-height: 1.7;
+            margin-bottom: 32px;
+            position: relative;
+        }
+
+        /* ═══════════════════════════════════════════
+           FOOTER
+           ═══════════════════════════════════════════ */
+
+        .footer {
+            text-align: center;
+            padding: 32px 40px;
+            border-top: 1px solid var(--border-glass);
+            color: var(--text-muted);
+            font-size: 0.85em;
+            position: relative;
+            z-index: 1;
+        }
+
+        .footer a {
+            color: var(--accent-primary);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer a:hover {
+            color: var(--accent-cyan);
+        }
+
+        /* ═══════════════════════════════════════════
+           ANIMATIONS
+           ═══════════════════════════════════════════ */
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ── Scroll reveal ── */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ═══════════════════════════════════════════
+           RESPONSIVE
+           ═══════════════════════════════════════════ */
+
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 12px 20px;
+            }
+
+            .nav-links .nav-link:not(.nav-cta) {
+                display: none;
+            }
+
+            .hero {
+                padding: 100px 20px 60px;
+            }
+
+            .hero h1 {
+                font-size: 2.4em;
+                letter-spacing: -1px;
+            }
+
+            .hero p {
+                font-size: 1em;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+            }
+
+            .btn-primary,
+            .btn-secondary {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .section {
+                padding: 60px 20px;
+            }
+
+            .section-header h2 {
+                font-size: 1.8em;
+            }
+
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .cta-card {
+                padding: 40px 24px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- ── Particles ── -->
+    <div class="particles">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════
+         NAVBAR
+         ═══════════════════════════════════════════ -->
+    <nav class="navbar" id="navbar">
+        <a href="{% url 'landing' %}" class="nav-brand">
+            <div class="brand-icon"><i class="bi bi-gear-wide-connected"></i></div>
+            <span class="brand-name">AutoShop Pro</span>
+        </a>
+        <div class="nav-links">
+            <a href="#servicios" class="nav-link">Servicios</a>
+            <a href="#features" class="nav-link">Características</a>
+            <a href="{% url 'dashboard' %}" class="nav-link nav-cta">
+                <i class="bi bi-speedometer2"></i> Dashboard
+            </a>
+        </div>
+    </nav>
+
+    <!-- ═══════════════════════════════════════════
+         HERO SECTION
+         ═══════════════════════════════════════════ -->
+    <section class="hero" id="hero">
+        <div class="hero-content">
+            <div class="hero-badge">
+                <i class="bi bi-stars"></i>
+                Gestión inteligente de taller
+            </div>
+            <h1>
+                Tu taller mecánico<br>
+                <span class="gradient-text">de confianza</span>
+            </h1>
+            <p>
+                Servicio profesional con tecnología de punta. Gestionamos órdenes de trabajo,
+                mantenimiento predictivo y control de inventario para que tu vehículo siempre
+                esté en las mejores manos.
+            </p>
+            <div class="hero-buttons">
+                <a href="{% url 'dashboard' %}" class="btn-primary">
+                    <i class="bi bi-speedometer2"></i>
+                    Ir al Dashboard
+                </a>
+                <a href="#servicios" class="btn-secondary">
+                    <i class="bi bi-arrow-down-circle"></i>
+                    Conoce nuestros servicios
+                </a>
+            </div>
+        </div>
+        <div class="scroll-indicator">
+            <span>Scroll</span>
+            <div class="scroll-dot"></div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════
+         STATS BANNER
+         ═══════════════════════════════════════════ -->
+    <div class="stats-banner reveal">
+        <div class="stat-item">
+            <div class="stat-number" data-count="500">0</div>
+            <div class="stat-label">Vehículos atendidos</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number" data-count="15">0</div>
+            <div class="stat-label">Mecánicos expertos</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number" data-count="98">0</div>
+            <div class="stat-label">% Satisfacción</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number" data-count="24">0</div>
+            <div class="stat-label">Horas de soporte</div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════
+         SERVICES SECTION
+         ═══════════════════════════════════════════ -->
+    <section class="section" id="servicios">
+        <div class="section-header reveal">
+            <span class="section-tag">Servicios</span>
+            <h2>Especialidades mecánicas</h2>
+            <p>Contamos con técnicos especializados en cada área para brindarte un servicio de calidad.</p>
+        </div>
+        <div class="services-grid">
+            <div class="service-card reveal">
+                <div class="service-icon">🔧</div>
+                <h3>Motor</h3>
+                <p>Diagnóstico y reparación de motores con equipo de última generación y técnicos certificados.</p>
+            </div>
+            <div class="service-card reveal">
+                <div class="service-icon">⚙️</div>
+                <h3>Transmisión</h3>
+                <p>Servicio completo de cajas automáticas y manuales. Cambio de aceite, ajustes y reconstrucción.</p>
+            </div>
+            <div class="service-card reveal">
+                <div class="service-icon">🛞</div>
+                <h3>Suspensión</h3>
+                <p>Alineación, balanceo, amortiguadores y todo lo que tu vehículo necesita para rodar suave.</p>
+            </div>
+            <div class="service-card reveal">
+                <div class="service-icon">⚡</div>
+                <h3>Eléctrico</h3>
+                <p>Sistemas eléctricos, baterías, alternadores y diagnóstico computarizado de sensores.</p>
+            </div>
+            <div class="service-card reveal">
+                <div class="service-icon">🛡️</div>
+                <h3>Frenos</h3>
+                <p>Revisión completa del sistema de frenado: pastillas, discos, líquido y ABS.</p>
+            </div>
+            <div class="service-card reveal">
+                <div class="service-icon">🔩</div>
+                <h3>Mantenimiento General</h3>
+                <p>Revisiones preventivas, cambios de aceite, filtros y chequeo de rutina para tu tranquilidad.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════
+         FEATURES SECTION
+         ═══════════════════════════════════════════ -->
+    <section class="section features-section" id="features">
+        <div class="section-header reveal">
+            <span class="section-tag">Características</span>
+            <h2>¿Por qué AutoShop Pro?</h2>
+            <p>Combinamos experiencia mecánica con tecnología inteligente para ofrecerte la mejor experiencia.</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card reveal">
+                <div class="feature-icon">
+                    <i class="bi bi-clipboard2-data" style="color: var(--accent-primary)"></i>
+                </div>
+                <div>
+                    <h3>Órdenes de trabajo digitales</h3>
+                    <p>Seguimiento en tiempo real del estado de tu vehículo, desde el diagnóstico hasta la entrega.</p>
+                </div>
+            </div>
+            <div class="feature-card reveal">
+                <div class="feature-icon">
+                    <i class="bi bi-graph-up-arrow" style="color: var(--accent-cyan)"></i>
+                </div>
+                <div>
+                    <h3>Mantenimiento predictivo</h3>
+                    <p>Algoritmos que anticipan fallas con base en el kilometraje y el historial de tu vehículo.</p>
+                </div>
+            </div>
+            <div class="feature-card reveal">
+                <div class="feature-icon">
+                    <i class="bi bi-people-fill" style="color: var(--accent-secondary)"></i>
+                </div>
+                <div>
+                    <h3>Asignación inteligente</h3>
+                    <p>El mecánico ideal es asignado automáticamente según la especialidad y disponibilidad.</p>
+                </div>
+            </div>
+            <div class="feature-card reveal">
+                <div class="feature-icon">
+                    <i class="bi bi-receipt-cutoff" style="color: var(--success)"></i>
+                </div>
+                <div>
+                    <h3>Facturación automática</h3>
+                    <p>Generación de facturas con cálculo de IVA, descuentos por fidelidad y garantías extendidas.</p>
+                </div>
+            </div>
+            <div class="feature-card reveal">
+                <div class="feature-icon">
+                    <i class="bi bi-box-seam" style="color: var(--warning)"></i>
+                </div>
+                <div>
+                    <h3>Control de inventario</h3>
+                    <p>Gestión de repuestos con alertas de stock mínimo y trazabilidad por orden de trabajo.</p>
+                </div>
+            </div>
+            <div class="feature-card reveal">
+                <div class="feature-icon">
+                    <i class="bi bi-shield-check" style="color: var(--info)"></i>
+                </div>
+                <div>
+                    <h3>Garantía y confianza</h3>
+                    <p>Garantía de hasta 90 días para clientes premium. Tu satisfacción es nuestra prioridad.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════
+         CTA SECTION
+         ═══════════════════════════════════════════ -->
+    <section class="cta-section">
+        <div class="cta-card reveal">
+            <h2>¿Listo para gestionar tu taller?</h2>
+            <p>
+                Accede al dashboard para crear órdenes de trabajo, registrar vehículos,
+                mecánicos y propietarios en segundos.
+            </p>
+            <a href="{% url 'dashboard' %}" class="btn-primary" style="position: relative;">
+                <i class="bi bi-rocket-takeoff"></i>
+                Acceder al Dashboard
+            </a>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════
+         FOOTER
+         ═══════════════════════════════════════════ -->
+    <footer class="footer">
+        <p>&copy; 2026 <a href="{% url 'landing' %}">AutoShop Pro</a> — Sistema de gestión de taller mecánico. Todos los
+            derechos reservados.</p>
+    </footer>
+
+    <!-- ═══════════════════════════════════════════
+         SCRIPTS
+         ═══════════════════════════════════════════ -->
+    <script>
+        // ── Navbar scroll effect ──
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            navbar.classList.toggle('scrolled', window.scrollY > 50);
+        });
+
+        // ── Scroll reveal ──
+        const revealElements = document.querySelectorAll('.reveal');
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.15 });
+
+        revealElements.forEach(el => revealObserver.observe(el));
+
+        // ── Animated counters ──
+        const counterElements = document.querySelectorAll('.stat-number[data-count]');
+        const counterObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const el = entry.target;
+                    const target = parseInt(el.dataset.count);
+                    let current = 0;
+                    const step = Math.max(1, Math.floor(target / 60));
+                    const timer = setInterval(() => {
+                        current += step;
+                        if (current >= target) {
+                            current = target;
+                            clearInterval(timer);
+                        }
+                        el.textContent = current + (el.parentElement.querySelector('.stat-label').textContent.includes('%') ? '%' : '+');
+                    }, 25);
+                    counterObserver.unobserve(el);
+                }
+            });
+        }, { threshold: 0.5 });
+
+        counterElements.forEach(el => counterObserver.observe(el));
+
+        // ── Smooth scroll for anchor links ──
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
