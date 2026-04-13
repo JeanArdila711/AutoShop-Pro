@@ -1,0 +1,56 @@
+# docker-compose.yml
+# Orquesta: Django + Flask + Nginx + SQLite (via volumen)
+
+version: "3.9"
+
+services:
+
+  # ── Monolito Django (API v1) ──────────────────────────────
+  django_web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: autoshop_django
+    environment:
+      - ENV_TYPE=PROD # Activa PredictorReal en lugar de PredictorMock
+      - DJANGO_SETTINGS_MODULE=autoshop.settings
+    volumes:
+      - .:/app # Monta el código para no tener que rebuilder en desarrollo
+    expose:
+      - "8000" # Solo expuesto internamente (Nginx lo rutea)
+    networks:
+      - autoshop_net
+
+  # ── Microservicio Flask (API v2) ──────────────────────────
+  predictivo_service:
+    build:
+      context: .
+      dockerfile: Dockerfile.flask
+    container_name: autoshop_flask
+    expose:
+      - "5000" # Solo expuesto internamente (Nginx lo rutea)
+    healthcheck:
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/api/v2/predictivo/health')" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - autoshop_net
+
+  # ── Nginx (Reverse Proxy / Router de tráfico) ─────────────
+  nginx:
+    image: nginx:1.25-alpine # Imagen oficial - no necesita Dockerfile propio
+    container_name: autoshop_nginx
+    ports:
+      - "80:80" # ← El ÚNICO puerto expuesto al mundo exterior
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro # Montar config
+    depends_on:
+      - django_web
+      - predictivo_service
+    networks:
+      - autoshop_net
+
+networks:
+  autoshop_net:
+    driver: bridge

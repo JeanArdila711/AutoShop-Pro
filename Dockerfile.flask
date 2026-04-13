@@ -1,0 +1,16 @@
+# Dockerfile.flask  (para el microservicio Flask)
+FROM python:3.12-slim
+
+WORKDIR /app
+
+# Solo copiamos la carpeta del microservicio
+COPY predictivo_service/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY predictivo_service/ .
+
+# Puerto interno de Flask
+EXPOSE 5000
+
+# Arrancar Flask directamente con python
+CMD ["python", "app.py"]
