@@ -4,7 +4,7 @@
 
 {% block extra_css %}
 <style>
-    /* ── Modal overlay ── */
+    /* ── Shared modal base ── */
     .modal-overlay {
         display: none;
         position: fixed;
@@ -29,10 +29,14 @@
         padding: 36px;
         width: 100%;
         max-width: 600px;
+        max-height: 88vh;
+        overflow-y: auto;
         box-shadow: 0 30px 80px rgba(0,0,0,0.5);
         animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         position: relative;
     }
+
+    .modal-box.wide { max-width: 760px; }
 
     .modal-close {
         position: absolute;
@@ -57,16 +61,22 @@
     .modal-title {
         font-size: 1.3rem;
         font-weight: 700;
-        margin-bottom: 24px;
+        margin-bottom: 8px;
         display: flex;
         align-items: center;
         gap: 10px;
         color: var(--accent-primary);
     }
 
+    .modal-subtitle {
+        font-size: 0.88rem;
+        color: var(--text-muted);
+        margin-bottom: 24px;
+    }
+
     @keyframes slideUp {
         from { opacity: 0; transform: translateY(30px) scale(0.97); }
-        to   { opacity: 1; transform: translateY(0)   scale(1); }
+        to   { opacity: 1; transform: translateY(0) scale(1); }
     }
 
     @keyframes fadeIn {
@@ -74,6 +84,7 @@
         to   { opacity: 1; }
     }
 
+    /* ── Page header layout ── */
     .page-header-row {
         display: flex;
         align-items: flex-start;
@@ -83,9 +94,7 @@
         margin-bottom: 28px;
     }
 
-    .page-header-row .page-header {
-        margin-bottom: 0;
-    }
+    .page-header-row .page-header { margin-bottom: 0; }
 
     .btn-register {
         display: inline-flex;
@@ -110,6 +119,163 @@
         transform: translateY(-2px);
         box-shadow: 0 8px 28px rgba(108,138,255,0.5);
     }
+
+    /* ── Clickable rows ── */
+    tbody tr.clickable-row {
+        cursor: pointer;
+        transition: background 0.18s;
+    }
+
+    tbody tr.clickable-row:hover {
+        background: rgba(108, 138, 255, 0.07);
+    }
+
+    tbody tr.clickable-row td:first-child::before {
+        content: '';
+        display: inline-block;
+        width: 3px;
+        height: 0;
+        background: var(--accent-primary);
+        border-radius: 2px;
+        margin-right: 0;
+        transition: height 0.2s;
+        vertical-align: middle;
+    }
+
+    tbody tr.clickable-row:hover td:first-child {
+        padding-left: 12px;
+    }
+
+    .row-hint {
+        font-size: 0.78rem;
+        color: var(--text-muted);
+        margin-top: 8px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    /* ── Vehículo card dentro del modal ── */
+    .vehicle-card {
+        background: rgba(108, 138, 255, 0.05);
+        border: 1px solid rgba(108, 138, 255, 0.15);
+        border-radius: 14px;
+        padding: 16px 20px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        transition: background 0.2s, border-color 0.2s;
+    }
+
+    .vehicle-card:hover {
+        background: rgba(108, 138, 255, 0.1);
+        border-color: rgba(108, 138, 255, 0.3);
+    }
+
+    .vehicle-card-icon {
+        font-size: 2rem;
+        color: var(--accent-primary);
+        flex-shrink: 0;
+        opacity: 0.8;
+    }
+
+    .vehicle-card-info { flex: 1; min-width: 0; }
+
+    .vehicle-placa {
+        font-family: monospace;
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--accent-cyan);
+        letter-spacing: 2px;
+    }
+
+    .vehicle-desc {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        margin-top: 2px;
+    }
+
+    .vehicle-meta {
+        display: flex;
+        gap: 10px;
+        margin-top: 8px;
+        flex-wrap: wrap;
+    }
+
+    .vehicle-meta span {
+        font-size: 0.78rem;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .vehicles-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .no-vehicles {
+        text-align: center;
+        padding: 32px 20px;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+    }
+
+    .no-vehicles i {
+        font-size: 2.5rem;
+        display: block;
+        margin-bottom: 10px;
+        opacity: 0.4;
+    }
+
+    /* ── Owner info strip ── */
+    .owner-strip {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 14px 18px;
+        background: rgba(108, 138, 255, 0.06);
+        border-radius: 12px;
+        margin-bottom: 20px;
+    }
+
+    .owner-avatar {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        color: #fff;
+        flex-shrink: 0;
+    }
+
+    .owner-strip-info { flex: 1; min-width: 0; }
+
+    .owner-strip-name {
+        font-weight: 700;
+        font-size: 1rem;
+        color: var(--text-primary);
+    }
+
+    .owner-strip-meta {
+        font-size: 0.82rem;
+        color: var(--text-muted);
+        margin-top: 2px;
+    }
+
+    .vehicles-count-badge {
+        font-size: 0.8rem;
+        font-weight: 700;
+        padding: 4px 10px;
+        background: rgba(108, 138, 255, 0.15);
+        color: var(--accent-primary);
+        border-radius: 20px;
+    }
 </style>
 {% endblock %}
 
@@ -121,7 +287,7 @@
         <h1><i class="bi bi-people-fill"></i> Propietarios</h1>
         <p>Gestión de propietarios registrados en el taller</p>
     </div>
-    <button class="btn-register" onclick="abrirModal()" id="btn-abrir-modal">
+    <button class="btn-register" onclick="abrirModalRegistro()" id="btn-abrir-modal">
         <i class="bi bi-plus-circle-fill"></i> Registrar Propietario
     </button>
 </div>
@@ -139,37 +305,67 @@
                     <th>Email</th>
                     <th>Teléfono</th>
                     <th>Tipo</th>
+                    <th>Vehículos</th>
                 </tr>
             </thead>
             <tbody>
                 {% for p in propietarios %}
-                <tr>
+                {# Serializar vehículos como JSON embebido en data-attribute #}
+                <tr class="clickable-row"
+                    data-owner-id="{{ p.id }}"
+                    data-owner-name="{{ p.nombre }}"
+                    data-owner-email="{{ p.email|default:'' }}"
+                    data-owner-tel="{{ p.telefono|default:'' }}"
+                    data-owner-tipo="{{ p.tipo_cliente }}"
+                    data-vehiculos="[{% for v in p.vehiculos.all %}{% if not forloop.first %},{% endif %}{&quot;placa&quot;:&quot;{{ v.placa }}&quot;,&quot;marca&quot;:&quot;{{ v.marca }}&quot;,&quot;modelo&quot;:&quot;{{ v.modelo }}&quot;,&quot;anio&quot;:{{ v.anio }},&quot;km&quot;:{{ v.km_actuales }},&quot;vin&quot;:&quot;{{ v.vin|default:'' }}&quot;}{% endfor %}]"
+                    onclick="abrirModalVehiculos(this)"
+                    title="Click para ver vehículos">
                     <td style="color: var(--text-muted);">{{ p.id }}</td>
-                    <td><strong>{{ p.nombre }}</strong></td>
+                    <td>
+                        <strong>{{ p.nombre }}</strong>
+                    </td>
                     <td style="color: var(--text-secondary);">{{ p.email|default:"&#8212;" }}</td>
                     <td style="color: var(--text-secondary);">{{ p.telefono|default:"&#8212;" }}</td>
-                    <td>{% if p.tipo_cliente == 'VIP' %}<span class="badge badge-gold"><i class="bi bi-star-fill"></i> VIP</span>{% elif p.tipo_cliente == 'PREMIUM' %}<span class="badge badge-cyan"><i class="bi bi-gem"></i> PREMIUM</span>{% else %}<span class="badge badge-default">{{ p.tipo_cliente }}</span>{% endif %}</td>
+                    <td>
+                        {% if p.tipo_cliente == 'VIP' %}
+                            <span class="badge badge-gold"><i class="bi bi-star-fill"></i> VIP</span>
+                        {% elif p.tipo_cliente == 'PREMIUM' %}
+                            <span class="badge badge-cyan"><i class="bi bi-gem"></i> PREMIUM</span>
+                        {% else %}
+                            <span class="badge badge-default">{{ p.tipo_cliente }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% with count=p.vehiculos.count %}
+                        <span class="vehicles-count-badge">
+                            <i class="bi bi-car-front"></i> {{ count }}
+                        </span>
+                        {% endwith %}
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
+    <p class="row-hint"><i class="bi bi-hand-index"></i> Haz clic en un propietario para ver sus vehículos</p>
     {% else %}
     <div class="empty-state">
         <div class="empty-icon"><i class="bi bi-inbox"></i></div>
         <p>No hay propietarios registrados aún.</p>
-        <button class="btn-register" onclick="abrirModal()" style="margin-top: 12px;">
+        <button class="btn-register" onclick="abrirModalRegistro()" style="margin-top: 12px;">
             <i class="bi bi-plus-circle-fill"></i> Registrar el primero
         </button>
     </div>
     {% endif %}
 </div>
 
-<!-- Modal: Formulario -->
-<div class="modal-overlay" id="modal-registrar" role="dialog" aria-modal="true" aria-labelledby="modal-titulo">
+<!-- ══════════════════════════════════════
+     MODAL 1 — Registrar propietario
+══════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-registrar" role="dialog" aria-modal="true" aria-labelledby="modal-reg-titulo">
     <div class="modal-box">
-        <button class="modal-close" onclick="cerrarModal()" aria-label="Cerrar">&times;</button>
-        <div class="modal-title" id="modal-titulo">
+        <button class="modal-close" onclick="cerrarModalRegistro()" aria-label="Cerrar">&times;</button>
+        <div class="modal-title" id="modal-reg-titulo">
             <i class="bi bi-person-plus-fill"></i> Registrar Nuevo Propietario
         </div>
 
@@ -207,29 +403,125 @@
     </div>
 </div>
 
+<!-- ══════════════════════════════════════
+     MODAL 2 — Ver vehículos del propietario
+══════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-vehiculos" role="dialog" aria-modal="true" aria-labelledby="modal-veh-titulo">
+    <div class="modal-box wide">
+        <button class="modal-close" onclick="cerrarModalVehiculos()" aria-label="Cerrar">&times;</button>
+        <div class="modal-title" id="modal-veh-titulo">
+            <i class="bi bi-car-front-fill"></i> Vehículos del Propietario
+        </div>
+
+        <!-- Info del propietario -->
+        <div class="owner-strip" id="owner-strip">
+            <div class="owner-avatar"><i class="bi bi-person-fill"></i></div>
+            <div class="owner-strip-info">
+                <div class="owner-strip-name" id="owner-strip-name">—</div>
+                <div class="owner-strip-meta" id="owner-strip-meta">—</div>
+            </div>
+            <span id="owner-tipo-badge"></span>
+        </div>
+
+        <!-- Lista de vehículos -->
+        <div class="vehicles-list" id="vehicles-list">
+            <!-- Populated by JS -->
+        </div>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    function abrirModal() {
+    /* ─── Modal 1: Registrar propietario ─── */
+    function abrirModalRegistro() {
         document.getElementById('modal-registrar').classList.add('open');
         document.body.style.overflow = 'hidden';
         setTimeout(() => document.getElementById('nombre').focus(), 100);
     }
 
-    function cerrarModal() {
+    function cerrarModalRegistro() {
         document.getElementById('modal-registrar').classList.remove('open');
         document.body.style.overflow = '';
     }
 
-    // Cerrar al hacer clic en el overlay fuera del box
     document.getElementById('modal-registrar').addEventListener('click', function(e) {
-        if (e.target === this) cerrarModal();
+        if (e.target === this) cerrarModalRegistro();
     });
 
-    // Cerrar con Escape
+    /* ─── Modal 2: Ver vehículos ─── */
+    function abrirModalVehiculos(row) {
+        const nombre  = row.dataset.ownerName;
+        const email   = row.dataset.ownerEmail  || '—';
+        const tel     = row.dataset.ownerTel    || '—';
+        const tipo    = row.dataset.ownerTipo;
+        const rawJson = row.dataset.vehiculos;
+
+        // Poblar strip del propietario
+        document.getElementById('owner-strip-name').textContent = nombre;
+        document.getElementById('owner-strip-meta').textContent =
+            `${email}  ·  ${tel}`;
+
+        // Badge de tipo
+        const tipoBadgeEl = document.getElementById('owner-tipo-badge');
+        const tipoMap = {
+            VIP:     '<span class="badge badge-gold"><i class="bi bi-star-fill"></i> VIP</span>',
+            PREMIUM: '<span class="badge badge-cyan"><i class="bi bi-gem"></i> PREMIUM</span>',
+            REGULAR: '<span class="badge badge-default">REGULAR</span>',
+        };
+        tipoBadgeEl.innerHTML = tipoMap[tipo] || `<span class="badge badge-default">${tipo}</span>`;
+
+        // Parsear vehículos
+        let vehiculos = [];
+        try { vehiculos = JSON.parse(rawJson); } catch(e) { vehiculos = []; }
+
+        const listEl = document.getElementById('vehicles-list');
+
+        if (!vehiculos.length) {
+            listEl.innerHTML = `
+                <div class="no-vehicles">
+                    <i class="bi bi-car-front"></i>
+                    Este propietario no tiene vehículos registrados aún.
+                </div>`;
+        } else {
+            listEl.innerHTML = vehiculos.map(v => `
+                <div class="vehicle-card">
+                    <div class="vehicle-card-icon">
+                        <i class="bi bi-car-front-fill"></i>
+                    </div>
+                    <div class="vehicle-card-info">
+                        <div class="vehicle-placa">${v.placa}</div>
+                        <div class="vehicle-desc">${v.marca} ${v.modelo}</div>
+                        <div class="vehicle-meta">
+                            <span><i class="bi bi-calendar3"></i> ${v.anio}</span>
+                            <span><i class="bi bi-speedometer2"></i> ${v.km.toLocaleString()} km</span>
+                            ${v.vin ? `<span><i class="bi bi-upc-scan"></i> VIN: ${v.vin}</span>` : ''}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        document.getElementById('modal-vehiculos').classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function cerrarModalVehiculos() {
+        document.getElementById('modal-vehiculos').classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+    document.getElementById('modal-vehiculos').addEventListener('click', function(e) {
+        if (e.target === this) cerrarModalVehiculos();
+    });
+
+    /* ─── Escape cierra cualquier modal abierto ─── */
     document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') cerrarModal();
+        if (e.key === 'Escape') {
+            cerrarModalRegistro();
+            cerrarModalVehiculos();
+        }
     });
 </script>
 {% endblock %}
