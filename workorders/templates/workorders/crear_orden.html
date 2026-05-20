@@ -197,27 +197,16 @@
         <form method="POST" action="{% url 'crear_orden' %}">
             {% csrf_token %}
 
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="vehiculo_id"><i class="bi bi-car-front"></i> Vehículo *</label>
-                    <select name="vehiculo_id" id="vehiculo_id" required>
-                        <option value="">Seleccione un vehículo...</option>
-                        {% for vehiculo in vehiculos %}
-                        <option value="{{ vehiculo.id }}">
-                            {{ vehiculo.placa }} &#8212; {{ vehiculo.marca }} {{ vehiculo.modelo }} ({{ vehiculo.anio }})
-                        </option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="propietario_id"><i class="bi bi-person-fill"></i> Propietario *</label>
-                    <select name="propietario_id" id="propietario_id" required>
-                        <option value="">Seleccione un propietario...</option>
-                        {% for propietario in propietarios %}
-                        <option value="{{ propietario.id }}">{{ propietario.nombre }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
+            <div class="form-group">
+                <label for="vehiculo_id"><i class="bi bi-car-front"></i> Vehículo *</label>
+                <select name="vehiculo_id" id="vehiculo_id" required>
+                    <option value="">Seleccione un vehículo...</option>
+                    {% for vehiculo in vehiculos %}
+                    <option value="{{ vehiculo.id }}">
+                        {{ vehiculo.placa }} &#8212; {{ vehiculo.marca }} {{ vehiculo.modelo }} ({{ vehiculo.anio }})
+                    </option>
+                    {% endfor %}
+                </select>
             </div>
 
             <div class="form-group">

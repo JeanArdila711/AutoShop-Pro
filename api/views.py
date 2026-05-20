@@ -54,11 +54,6 @@ class CrearOrdenAPIView(APIView):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-        except Owner.DoesNotExist:
-            return Response(
-                {'error': f"Propietario con id={datos_validados['propietario_id']} no encontrado"},
-                status=status.HTTP_404_NOT_FOUND,
-            )
 
         except ValueError as e:
             # Conflictos de negocio: mecánico no disponible, validaciones del builder, etc.

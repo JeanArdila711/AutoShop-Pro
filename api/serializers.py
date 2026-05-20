@@ -17,10 +17,7 @@ class OrdenTrabajoInputSerializer(serializers.Serializer):
         required=True,
         help_text="ID del vehículo registrado",
     )
-    propietario_id = serializers.IntegerField(
-        required=True,
-        help_text="ID del propietario del vehículo",
-    )
+
     descripcion_problema = serializers.CharField(
         required=True,
         min_length=10,

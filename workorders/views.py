@@ -119,7 +119,6 @@ class CrearWorkOrderView(View):
     def post(self, request):
         datos = {
             'vehiculo_id': request.POST.get('vehiculo_id'),
-            'propietario_id': request.POST.get('propietario_id'),
             'descripcion_problema': request.POST.get('descripcion_problema'),
             'odometer_km': int(request.POST.get('odometer_km', 0)),
             'especialidad_requerida': request.POST.get('especialidad', 'GENERAL')

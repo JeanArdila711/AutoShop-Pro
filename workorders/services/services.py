@@ -119,7 +119,7 @@ class WorkOrderService:
         """
         # 1. Obtener entidades y predicciones
         vehiculo = Vehicle.objects.get(id=datos['vehiculo_id'])
-        propietario = Owner.objects.get(id=datos['propietario_id'])
+        propietario = vehiculo.propietario
         predicciones = self.predictor.obtener_predicciones(vehiculo)
 
         # 2. Asignar mecánico
@@ -130,7 +130,7 @@ class WorkOrderService:
         work_order = (
             WorkOrderBuilder()
             .para_vehiculo(datos['vehiculo_id'])
-            .del_propietario(datos['propietario_id'])
+            .del_propietario(propietario.id)
             .con_problema(datos['descripcion_problema'])
             .con_kilometraje(datos['odometer_km'])
             .asignar_mecanico(mecanico)
