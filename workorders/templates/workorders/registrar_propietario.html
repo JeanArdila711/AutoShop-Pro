@@ -1,51 +1,132 @@
 {% extends "workorders/base.html" %}
-{% block title %}Registrar Propietario{% endblock %}
+{% block title %}Propietarios{% endblock %}
 {% block nav_propietarios %}active{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* ── Modal overlay ── */
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(6px);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .modal-overlay.open {
+        display: flex;
+        animation: fadeIn 0.2s ease;
+    }
+
+    .modal-box {
+        background: var(--surface-card);
+        border: 1px solid var(--border-color);
+        border-radius: 20px;
+        padding: 36px;
+        width: 100%;
+        max-width: 600px;
+        box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+        animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        position: relative;
+    }
+
+    .modal-close {
+        position: absolute;
+        top: 16px;
+        right: 20px;
+        background: none;
+        border: none;
+        color: var(--text-muted);
+        font-size: 1.5rem;
+        cursor: pointer;
+        line-height: 1;
+        padding: 4px 8px;
+        border-radius: 8px;
+        transition: background 0.2s, color 0.2s;
+    }
+
+    .modal-close:hover {
+        background: rgba(255,255,255,0.07);
+        color: var(--text-primary);
+    }
+
+    .modal-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--accent-primary);
+    }
+
+    @keyframes slideUp {
+        from { opacity: 0; transform: translateY(30px) scale(0.97); }
+        to   { opacity: 1; transform: translateY(0)   scale(1); }
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to   { opacity: 1; }
+    }
+
+    .page-header-row {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-bottom: 28px;
+    }
+
+    .page-header-row .page-header {
+        margin-bottom: 0;
+    }
+
+    .btn-register {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 22px;
+        background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+        color: #fff;
+        border: none;
+        border-radius: 12px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        white-space: nowrap;
+        box-shadow: 0 4px 20px rgba(108,138,255,0.35);
+        transition: transform 0.2s, box-shadow 0.2s;
+        flex-shrink: 0;
+        align-self: center;
+    }
+
+    .btn-register:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 28px rgba(108,138,255,0.5);
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="page-header">
-    <h1><i class="bi bi-people-fill"></i> Propietarios</h1>
-    <p>Registrar nuevos propietarios y ver los existentes</p>
+
+<!-- Header con botón -->
+<div class="page-header-row">
+    <div class="page-header">
+        <h1><i class="bi bi-people-fill"></i> Propietarios</h1>
+        <p>Gestión de propietarios registrados en el taller</p>
+    </div>
+    <button class="btn-register" onclick="abrirModal()" id="btn-abrir-modal">
+        <i class="bi bi-plus-circle-fill"></i> Registrar Propietario
+    </button>
 </div>
 
-<!-- Formulario -->
-<div class="glass-card">
-    <h2><span class="card-icon"><i class="bi bi-pencil-square"></i></span> Registrar Nuevo Propietario</h2>
-
-    <form method="POST" action="{% url 'registrar_propietario' %}">
-        {% csrf_token %}
-
-        <div class="form-row">
-            <div class="form-group">
-                <label for="nombre">Nombre Completo *</label>
-                <input type="text" name="nombre" id="nombre" placeholder="Ej: Carlos G&#243;mez" required maxlength="120">
-            </div>
-            <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" name="email" id="email" placeholder="Ej: carlos@email.com">
-            </div>
-        </div>
-
-        <div class="form-row">
-            <div class="form-group">
-                <label for="telefono">Tel&#233;fono</label>
-                <input type="text" name="telefono" id="telefono" placeholder="Ej: 3001234567" maxlength="20">
-            </div>
-            <div class="form-group">
-                <label for="tipo_cliente">Tipo de Cliente</label>
-                <select name="tipo_cliente" id="tipo_cliente">
-                    <option value="REGULAR">Regular</option>
-                    <option value="VIP">VIP</option>
-                    <option value="PREMIUM">Premium</option>
-                </select>
-            </div>
-        </div>
-
-        <button type="submit" class="btn"><i class="bi bi-check-circle-fill"></i> Registrar Propietario</button>
-    </form>
-</div>
-
-<!-- Lista de propietarios existentes -->
+<!-- Lista de propietarios -->
 <div class="glass-card">
     <h2><span class="card-icon"><i class="bi bi-list-ul"></i></span> Propietarios Registrados</h2>
     {% if propietarios %}
@@ -56,7 +137,7 @@
                     <th>ID</th>
                     <th>Nombre</th>
                     <th>Email</th>
-                    <th>Tel&#233;fono</th>
+                    <th>Teléfono</th>
                     <th>Tipo</th>
                 </tr>
             </thead>
@@ -76,8 +157,79 @@
     {% else %}
     <div class="empty-state">
         <div class="empty-icon"><i class="bi bi-inbox"></i></div>
-        <p>No hay propietarios registrados a&#250;n.</p>
+        <p>No hay propietarios registrados aún.</p>
+        <button class="btn-register" onclick="abrirModal()" style="margin-top: 12px;">
+            <i class="bi bi-plus-circle-fill"></i> Registrar el primero
+        </button>
     </div>
     {% endif %}
 </div>
+
+<!-- Modal: Formulario -->
+<div class="modal-overlay" id="modal-registrar" role="dialog" aria-modal="true" aria-labelledby="modal-titulo">
+    <div class="modal-box">
+        <button class="modal-close" onclick="cerrarModal()" aria-label="Cerrar">&times;</button>
+        <div class="modal-title" id="modal-titulo">
+            <i class="bi bi-person-plus-fill"></i> Registrar Nuevo Propietario
+        </div>
+
+        <form method="POST" action="{% url 'registrar_propietario' %}">
+            {% csrf_token %}
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="nombre">Nombre Completo *</label>
+                    <input type="text" name="nombre" id="nombre" placeholder="Ej: Carlos Gómez" required maxlength="120">
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" name="email" id="email" placeholder="Ej: carlos@email.com">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="telefono">Teléfono</label>
+                    <input type="text" name="telefono" id="telefono" placeholder="Ej: 3001234567" maxlength="20">
+                </div>
+                <div class="form-group">
+                    <label for="tipo_cliente">Tipo de Cliente</label>
+                    <select name="tipo_cliente" id="tipo_cliente">
+                        <option value="REGULAR">Regular</option>
+                        <option value="VIP">VIP</option>
+                        <option value="PREMIUM">Premium</option>
+                    </select>
+                </div>
+            </div>
+
+            <button type="submit" class="btn"><i class="bi bi-check-circle-fill"></i> Registrar Propietario</button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function abrirModal() {
+        document.getElementById('modal-registrar').classList.add('open');
+        document.body.style.overflow = 'hidden';
+        setTimeout(() => document.getElementById('nombre').focus(), 100);
+    }
+
+    function cerrarModal() {
+        document.getElementById('modal-registrar').classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+    // Cerrar al hacer clic en el overlay fuera del box
+    document.getElementById('modal-registrar').addEventListener('click', function(e) {
+        if (e.target === this) cerrarModal();
+    });
+
+    // Cerrar con Escape
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') cerrarModal();
+    });
+</script>
 {% endblock %}

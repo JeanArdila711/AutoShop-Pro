@@ -1,84 +1,152 @@
 {% extends "workorders/base.html" %}
-{% block title %}Crear Orden de Trabajo{% endblock %}
+{% block title %}Órdenes de Trabajo{% endblock %}
 {% block nav_ordenes %}active{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* ── Modal overlay ── */
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(6px);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .modal-overlay.open {
+        display: flex;
+        animation: fadeIn 0.2s ease;
+    }
+
+    .modal-box {
+        background: var(--surface-card);
+        border: 1px solid var(--border-color);
+        border-radius: 20px;
+        padding: 36px;
+        width: 100%;
+        max-width: 720px;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+        animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        position: relative;
+    }
+
+    .modal-close {
+        position: absolute;
+        top: 16px;
+        right: 20px;
+        background: none;
+        border: none;
+        color: var(--text-muted);
+        font-size: 1.5rem;
+        cursor: pointer;
+        line-height: 1;
+        padding: 4px 8px;
+        border-radius: 8px;
+        transition: background 0.2s, color 0.2s;
+    }
+
+    .modal-close:hover {
+        background: rgba(255,255,255,0.07);
+        color: var(--text-primary);
+    }
+
+    .modal-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--accent-primary);
+    }
+
+    .modal-info-banner {
+        background: rgba(108, 138, 255, 0.08);
+        border: 1px solid rgba(108, 138, 255, 0.2);
+        border-radius: 12px;
+        padding: 14px 18px;
+        margin-bottom: 24px;
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        line-height: 1.6;
+    }
+
+    .modal-info-banner strong {
+        color: var(--accent-primary);
+    }
+
+    @keyframes slideUp {
+        from { opacity: 0; transform: translateY(30px) scale(0.97); }
+        to   { opacity: 1; transform: translateY(0)   scale(1); }
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to   { opacity: 1; }
+    }
+
+    .page-header-row {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-bottom: 28px;
+    }
+
+    .page-header-row .page-header {
+        margin-bottom: 0;
+    }
+
+    .btn-register {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 22px;
+        background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+        color: #fff;
+        border: none;
+        border-radius: 12px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        white-space: nowrap;
+        box-shadow: 0 4px 20px rgba(108,138,255,0.35);
+        transition: transform 0.2s, box-shadow 0.2s;
+        flex-shrink: 0;
+        align-self: center;
+    }
+
+    .btn-register:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 28px rgba(108,138,255,0.5);
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="page-header">
-    <h1><i class="bi bi-file-earmark-plus"></i> Crear Orden de Trabajo</h1>
-    <p>Registrar una nueva orden &#8212; asignaci&#243;n autom&#225;tica de mec&#225;nico</p>
-</div>
 
-<!-- Info Box -->
-<div class="glass-card">
-    <div class="info-box">
-        <h3><i class="bi bi-info-circle"></i> Arquitectura Implementada</h3>
-        <p><strong>Service Layer:</strong> Orquesta la l&#243;gica de negocio &nbsp;&middot;&nbsp;
-            <strong>Factory Pattern:</strong> Predictor seg&#250;n entorno &nbsp;&middot;&nbsp;
-            <strong>Builder Pattern:</strong> Validaci&#243;n paso a paso
-        </p>
+<!-- Header con botón -->
+<div class="page-header-row">
+    <div class="page-header">
+        <h1><i class="bi bi-file-earmark-text"></i> Órdenes de Trabajo</h1>
+        <p>Historial y gestión de órdenes del taller</p>
     </div>
+    <button class="btn-register" onclick="abrirModal()" id="btn-abrir-modal">
+        <i class="bi bi-plus-circle-fill"></i> Nueva Orden
+    </button>
 </div>
 
-<!-- Formulario -->
+<!-- Órdenes Recientes -->
 <div class="glass-card">
-    <h2><span class="card-icon"><i class="bi bi-pencil-square"></i></span> Nueva Orden de Trabajo</h2>
-
-    <form method="POST" action="{% url 'crear_orden' %}">
-        {% csrf_token %}
-
-        <div class="form-row">
-            <div class="form-group">
-                <label for="vehiculo_id"><i class="bi bi-car-front"></i> Veh&#237;culo *</label>
-                <select name="vehiculo_id" id="vehiculo_id" required>
-                    <option value="">Seleccione un veh&#237;culo...</option>
-                    {% for vehiculo in vehiculos %}
-                    <option value="{{ vehiculo.id }}">
-                        {{ vehiculo.placa }} &#8212; {{ vehiculo.marca }} {{ vehiculo.modelo }} ({{ vehiculo.anio }})
-                    </option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="propietario_id"><i class="bi bi-person-fill"></i> Propietario *</label>
-                <select name="propietario_id" id="propietario_id" required>
-                    <option value="">Seleccione un propietario...</option>
-                    {% for propietario in propietarios %}
-                    <option value="{{ propietario.id }}">{{ propietario.nombre }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label for="descripcion_problema"><i class="bi bi-card-text"></i> Descripci&#243;n del Problema *</label>
-            <textarea name="descripcion_problema" id="descripcion_problema" placeholder="Describa el problema con detalle (m&#237;nimo 10 caracteres)..." required></textarea>
-        </div>
-
-        <div class="form-row">
-            <div class="form-group">
-                <label for="odometer_km"><i class="bi bi-speedometer"></i> Kilometraje Actual *</label>
-                <input type="number" name="odometer_km" id="odometer_km" placeholder="Ej: 82500" required min="0">
-            </div>
-            <div class="form-group">
-                <label for="especialidad"><i class="bi bi-wrench"></i> Especialidad Requerida</label>
-                <select name="especialidad" id="especialidad">
-                    <option value="GENERAL">General</option>
-                    <option value="MOTOR">Motor</option>
-                    <option value="TRANSMISION">Transmisi&#243;n</option>
-                    <option value="SUSPENSION">Suspensi&#243;n</option>
-                    <option value="ELECTRICO">El&#233;ctrico</option>
-                </select>
-            </div>
-        </div>
-
-        <button type="submit" class="btn"><i class="bi bi-check-circle-fill"></i> Crear Orden de Trabajo</button>
-    </form>
-</div>
-
-<!-- Ordenes Recientes -->
-{% if ordenes %}
-<div class="glass-card">
-    <h2><span class="card-icon"><i class="bi bi-clipboard-data"></i></span> &#218;ltimas &#211;rdenes Creadas</h2>
+    <h2><span class="card-icon"><i class="bi bi-clipboard-data"></i></span> Últimas Órdenes Creadas</h2>
+    {% if ordenes %}
     <div style="display: flex; flex-direction: column; gap: 12px;">
         {% for orden in ordenes %}
         <div class="order-item" data-delay="{{ forloop.counter0 }}">
@@ -90,20 +158,122 @@
                 <span class="badge badge-pulse {% if orden.estado == 'ABIERTA' %}badge-success{% elif orden.estado == 'EN_DIAGNOSTICO' or orden.estado == 'EN_REPARACION' %}badge-info{% elif orden.estado == 'PRESUPUESTADA' or orden.estado == 'APROBADA' %}badge-warning{% elif orden.estado == 'CERRADA' or orden.estado == 'FACTURADA' %}badge-danger{% else %}badge-default{% endif %}">{{ orden.estado }}</span>
             </div>
             <p><i class="bi bi-person" style="color: var(--text-muted);"></i> {{ orden.propietario.nombre }}</p>
+            {% if orden.mecanico %}
+            <p style="color: var(--text-muted); font-size: 0.85em;">
+                <i class="bi bi-wrench"></i> {{ orden.mecanico.nombre }}
+            </p>
+            {% endif %}
             <p style="color: var(--text-muted); font-size: 0.82em; margin-top: 4px;">
                 <i class="bi bi-clock"></i> {{ orden.fecha_ingreso|date:"d/m/Y H:i" }}
             </p>
         </div>
         {% endfor %}
     </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon"><i class="bi bi-inbox"></i></div>
+        <p>No hay órdenes registradas aún.</p>
+        <button class="btn-register" onclick="abrirModal()" style="margin-top: 12px;">
+            <i class="bi bi-plus-circle-fill"></i> Crear la primera orden
+        </button>
+    </div>
+    {% endif %}
 </div>
-{% endif %}
+
+<!-- Modal: Formulario nueva orden -->
+<div class="modal-overlay" id="modal-registrar" role="dialog" aria-modal="true" aria-labelledby="modal-titulo">
+    <div class="modal-box">
+        <button class="modal-close" onclick="cerrarModal()" aria-label="Cerrar">&times;</button>
+        <div class="modal-title" id="modal-titulo">
+            <i class="bi bi-file-earmark-plus"></i> Nueva Orden de Trabajo
+        </div>
+
+        <div class="modal-info-banner">
+            <strong>Service Layer</strong> · orquesta la lógica &nbsp;&middot;&nbsp;
+            <strong>Factory</strong> · predictor según entorno &nbsp;&middot;&nbsp;
+            <strong>Builder</strong> · validación paso a paso
+        </div>
+
+        <form method="POST" action="{% url 'crear_orden' %}">
+            {% csrf_token %}
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="vehiculo_id"><i class="bi bi-car-front"></i> Vehículo *</label>
+                    <select name="vehiculo_id" id="vehiculo_id" required>
+                        <option value="">Seleccione un vehículo...</option>
+                        {% for vehiculo in vehiculos %}
+                        <option value="{{ vehiculo.id }}">
+                            {{ vehiculo.placa }} &#8212; {{ vehiculo.marca }} {{ vehiculo.modelo }} ({{ vehiculo.anio }})
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="propietario_id"><i class="bi bi-person-fill"></i> Propietario *</label>
+                    <select name="propietario_id" id="propietario_id" required>
+                        <option value="">Seleccione un propietario...</option>
+                        {% for propietario in propietarios %}
+                        <option value="{{ propietario.id }}">{{ propietario.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="descripcion_problema"><i class="bi bi-card-text"></i> Descripción del Problema *</label>
+                <textarea name="descripcion_problema" id="descripcion_problema" placeholder="Describa el problema con detalle (mínimo 10 caracteres)..." required></textarea>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="odometer_km"><i class="bi bi-speedometer"></i> Kilometraje Actual *</label>
+                    <input type="number" name="odometer_km" id="odometer_km" placeholder="Ej: 82500" required min="0">
+                </div>
+                <div class="form-group">
+                    <label for="especialidad"><i class="bi bi-wrench"></i> Especialidad Requerida</label>
+                    <select name="especialidad" id="especialidad">
+                        <option value="GENERAL">General</option>
+                        <option value="MOTOR">Motor</option>
+                        <option value="TRANSMISION">Transmisión</option>
+                        <option value="SUSPENSION">Suspensión</option>
+                        <option value="ELECTRICO">Eléctrico</option>
+                    </select>
+                </div>
+            </div>
+
+            <button type="submit" class="btn"><i class="bi bi-check-circle-fill"></i> Crear Orden de Trabajo</button>
+        </form>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block extra_js %}
 <script>
+    // Animación de orden items
     document.querySelectorAll('.order-item[data-delay]').forEach(el => {
         el.style.animationDelay = (el.dataset.delay * 100) + 'ms';
+    });
+
+    // Modal
+    function abrirModal() {
+        document.getElementById('modal-registrar').classList.add('open');
+        document.body.style.overflow = 'hidden';
+        setTimeout(() => document.getElementById('vehiculo_id').focus(), 100);
+    }
+
+    function cerrarModal() {
+        document.getElementById('modal-registrar').classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+    document.getElementById('modal-registrar').addEventListener('click', function(e) {
+        if (e.target === this) cerrarModal();
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') cerrarModal();
     });
 </script>
 {% endblock %}
