@@ -108,11 +108,14 @@ class CrearWorkOrderView(View):
     """Vista que maneja GET y POST para crear órdenes — solo coordina HTTP"""
 
     def get(self, request):
+        import json
+        from workorders.models import TRANSICIONES_VALIDAS
         service = WorkOrderService()
         context = {
             'vehiculos': service.listar_vehiculos(),
             'propietarios': service.listar_propietarios(orden='nombre'),
             'ordenes': service.listar_ordenes_recientes(),
+            'transiciones_json': json.dumps(TRANSICIONES_VALIDAS),
         }
         return render(request, 'workorders/crear_orden.html', context)
 
@@ -139,3 +142,17 @@ class CrearWorkOrderView(View):
         except Exception as e:
             messages.error(request, f'❌ Error: {str(e)}')
             return redirect('crear_orden')
+
+
+class CambiarEstadoOrdenView(View):
+    """Vista para cambiar el estado de una orden de trabajo"""
+
+    def post(self, request, orden_id):
+        nuevo_estado = request.POST.get('nuevo_estado')
+        try:
+            service = WorkOrderService()
+            orden = service.cambiar_estado_orden(orden_id, nuevo_estado)
+            messages.success(request, f'✅ Estado de orden #{orden.id} actualizado a {orden.estado}')
+        except Exception as e:
+            messages.error(request, f'❌ Error al cambiar estado: {str(e)}')
+        return redirect('crear_orden')

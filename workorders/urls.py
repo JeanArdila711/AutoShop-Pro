@@ -6,12 +6,11 @@ from workorders.views import (
     RegistrarPropietarioView,
     RegistrarVehiculoView,
     RegistrarMecanicoView,
+    CambiarEstadoOrdenView,
 )
-
 
 def ping(request):
     return JsonResponse({"ok": True, "app": "workorders"})
-
 
 urlpatterns = [
     # ── Rutas HTML (SSR) ──
@@ -21,4 +20,5 @@ urlpatterns = [
     path("propietarios/", RegistrarPropietarioView.as_view(), name='registrar_propietario'),
     path("vehiculos/", RegistrarVehiculoView.as_view(), name='registrar_vehiculo'),
     path("mecanicos/", RegistrarMecanicoView.as_view(), name='registrar_mecanico'),
+    path("orden/<int:orden_id>/cambiar-estado/", CambiarEstadoOrdenView.as_view(), name='cambiar_estado_orden'),
 ]

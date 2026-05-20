@@ -157,6 +157,14 @@ class WorkOrderService:
 
         return work_order, predicciones
 
+    def cambiar_estado_orden(self, orden_id, nuevo_estado):
+        """Cambia el estado de una orden de trabajo si la transición es válida"""
+        orden = WorkOrder.objects.get(id=orden_id)
+        orden.validar_cambio_estado(nuevo_estado)
+        orden.estado = nuevo_estado
+        orden.save()
+        return orden
+
     # ─────────────────────────────────────────────
     # Métodos privados de apoyo
     # ─────────────────────────────────────────────

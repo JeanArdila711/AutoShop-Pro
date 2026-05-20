@@ -127,6 +127,17 @@
         transform: translateY(-2px);
         box-shadow: 0 8px 28px rgba(108,138,255,0.5);
     }
+
+    .order-item.clickable {
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    }
+    
+    .order-item.clickable:hover {
+        transform: translateY(-2px);
+        border-color: rgba(108, 138, 255, 0.4);
+        background: rgba(108, 138, 255, 0.04);
+    }
 </style>
 {% endblock %}
 
@@ -149,7 +160,12 @@
     {% if ordenes %}
     <div style="display: flex; flex-direction: column; gap: 12px;">
         {% for orden in ordenes %}
-        <div class="order-item" data-delay="{{ forloop.counter0 }}">
+        <div class="order-item clickable" data-delay="{{ forloop.counter0 }}"
+             data-id="{{ orden.id }}"
+             data-estado="{{ orden.estado }}"
+             data-placa="{{ orden.vehiculo.placa }}"
+             onclick="abrirModalEstado(this)"
+             title="Click para cambiar estado">
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
                 <h4 style="display: flex; align-items: center; gap: 10px;">
                     <span style="color: var(--accent-primary);">#{{ orden.id }}</span>
@@ -236,6 +252,42 @@
     </div>
 </div>
 
+<!-- Modal: Cambiar Estado -->
+<div class="modal-overlay" id="modal-estado" role="dialog" aria-modal="true" aria-labelledby="modal-estado-titulo">
+    <div class="modal-box">
+        <button class="modal-close" onclick="cerrarModalEstado()" aria-label="Cerrar">&times;</button>
+        <div class="modal-title" id="modal-estado-titulo">
+            <i class="bi bi-arrow-left-right"></i> Cambiar Estado de Orden <span id="span-orden-id" style="color: var(--text-primary); margin-left: 8px;"></span>
+        </div>
+
+        <form id="form-cambiar-estado" method="POST" action="">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label>Estado Actual</label>
+                <div id="div-estado-actual" style="padding: 12px; background: rgba(255,255,255,0.05); border-radius: 8px; font-family: monospace; color: var(--accent-cyan); font-weight: bold; border: 1px solid var(--border-glass);"></div>
+            </div>
+
+            <div class="form-group" id="group-nuevo-estado">
+                <label for="nuevo_estado"><i class="bi bi-check2-circle"></i> Nuevo Estado</label>
+                <select name="nuevo_estado" id="nuevo_estado" required>
+                    <!-- Populated by JS -->
+                </select>
+            </div>
+
+            <div id="msg-no-transiciones" style="display: none; color: var(--warning); padding: 12px; background: rgba(251, 191, 36, 0.1); border-radius: 8px; margin-bottom: 20px;">
+                <i class="bi bi-info-circle"></i> Esta orden no puede cambiar a otro estado.
+            </div>
+
+            <button type="submit" id="btn-submit-estado" class="btn"><i class="bi bi-save"></i> Guardar Cambios</button>
+        </form>
+    </div>
+</div>
+
+<script id="transiciones-data" type="application/json">
+    {{ transiciones_json|safe }}
+</script>
+
 {% endblock %}
 
 {% block extra_js %}
@@ -261,8 +313,67 @@
         if (e.target === this) cerrarModal();
     });
 
+    /* --- Modal: Cambiar Estado --- */
+    function abrirModalEstado(el) {
+        const ordenId = el.dataset.id;
+        const estadoActual = el.dataset.estado;
+        const placa = el.dataset.placa;
+        
+        document.getElementById('span-orden-id').textContent = `#${ordenId} (${placa})`;
+        document.getElementById('div-estado-actual').textContent = estadoActual;
+        
+        // Cargar transiciones
+        const transicionesStr = document.getElementById('transiciones-data').textContent;
+        const transicionesDict = JSON.parse(transicionesStr);
+        const permitidos = transicionesDict[estadoActual] || [];
+        
+        const selectNuevo = document.getElementById('nuevo_estado');
+        const groupNuevo = document.getElementById('group-nuevo-estado');
+        const msgNoTransiciones = document.getElementById('msg-no-transiciones');
+        const btnSubmit = document.getElementById('btn-submit-estado');
+        
+        selectNuevo.innerHTML = '';
+        
+        if (permitidos.length === 0) {
+            groupNuevo.style.display = 'none';
+            msgNoTransiciones.style.display = 'block';
+            btnSubmit.style.display = 'none';
+        } else {
+            groupNuevo.style.display = 'block';
+            msgNoTransiciones.style.display = 'none';
+            btnSubmit.style.display = 'block';
+            
+            permitidos.forEach(est => {
+                const opt = document.createElement('option');
+                opt.value = est;
+                opt.textContent = est;
+                selectNuevo.appendChild(opt);
+            });
+        }
+        
+        // Set form action dinamicamente
+        const form = document.getElementById('form-cambiar-estado');
+        form.action = `/workorders/orden/${ordenId}/cambiar-estado/`;
+        
+        document.getElementById('modal-estado').classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function cerrarModalEstado() {
+        document.getElementById('modal-estado').classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+    document.getElementById('modal-estado').addEventListener('click', function(e) {
+        if (e.target === this) cerrarModalEstado();
+    });
+
+    // Cerrar con Escape
     document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') cerrarModal();
+        if (e.key === 'Escape') {
+            cerrarModal();
+            cerrarModalEstado();
+        }
     });
 </script>
 {% endblock %}
