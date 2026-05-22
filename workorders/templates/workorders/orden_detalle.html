@@ -1,0 +1,404 @@
+{% extends "workorders/base.html" %}
+{% block title %}OT #{{ orden.id }}{% endblock %}
+{% block nav_kanban %}active{% endblock %}
+
+{% block extra_css %}
+<style>
+    .grid-2col {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+    }
+    @media (max-width: 1100px) {
+        .grid-2col { grid-template-columns: 1fr; }
+    }
+
+    .timer-display {
+        font-family: 'Inter', monospace;
+        font-size: 3.2em;
+        font-weight: 800;
+        letter-spacing: 2px;
+        background: var(--accent-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-align: center;
+        padding: 18px 0;
+    }
+
+    .timer-actions {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+    }
+
+    .btn-success {
+        background: linear-gradient(135deg, #16a34a, #34d399);
+    }
+
+    .btn-warn {
+        background: linear-gradient(135deg, #d97706, #fbbf24);
+    }
+
+    .checklist-item {
+        background: rgba(108, 138, 255, 0.04);
+        border: 1px solid var(--border-glass);
+        padding: 12px 14px;
+        border-radius: 10px;
+        margin-bottom: 10px;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .checklist-item .item-texto {
+        flex: 1;
+        font-size: 0.92em;
+        color: var(--text-primary);
+    }
+
+    .checklist-item select {
+        width: auto;
+        padding: 6px 10px;
+        font-size: 0.85em;
+    }
+
+    .item-OK { border-left: 3px solid var(--success); }
+    .item-REVISAR { border-left: 3px solid var(--warning); }
+    .item-FALLA { border-left: 3px solid var(--danger); }
+    .item-PENDIENTE { border-left: 3px solid var(--text-muted); }
+
+    .evidence-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 12px;
+        margin-top: 14px;
+    }
+
+    .evidence-tile {
+        position: relative;
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid var(--border-glass);
+        aspect-ratio: 1 / 1;
+        background: rgba(108, 138, 255, 0.05);
+    }
+
+    .evidence-tile img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .evidence-tile .tag {
+        position: absolute;
+        top: 6px;
+        left: 6px;
+        font-size: 0.65em;
+        padding: 3px 8px;
+        border-radius: 8px;
+        background: rgba(0, 0, 0, 0.65);
+        color: white;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .evidence-tile .delete-btn {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        background: rgba(248, 113, 113, 0.85);
+        color: white;
+        border: none;
+        width: 26px;
+        height: 26px;
+        border-radius: 6px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px dashed var(--border-glass);
+        font-size: 0.9em;
+    }
+
+    .info-row:last-child { border-bottom: none; }
+
+    .info-row .label { color: var(--text-secondary); font-weight: 600; }
+    .info-row .value { color: var(--text-primary); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="bi bi-clipboard-data"></i> Orden de Trabajo #{{ orden.id }}</h1>
+    <p>{{ orden.vehiculo.placa }} — {{ orden.vehiculo.marca }} {{ orden.vehiculo.modelo }} ({{ orden.vehiculo.anio }})</p>
+</div>
+
+<!-- Info general -->
+<div class="glass-card">
+    <h2><span class="card-icon"><i class="bi bi-info-circle"></i></span> Información</h2>
+    <div class="grid-2col">
+        <div>
+            <div class="info-row"><span class="label">Propietario</span><span class="value">{{ orden.propietario.nombre }}</span></div>
+            <div class="info-row"><span class="label">Mecánico</span><span class="value">{{ orden.mecanico.nombre|default:"— sin asignar —" }}</span></div>
+            <div class="info-row"><span class="label">Estado</span><span class="value"><span class="badge badge-default">{{ orden.get_estado_display }}</span></span></div>
+            <div class="info-row"><span class="label">Bahía</span><span class="value">{{ orden.bahia|default:"—" }}</span></div>
+        </div>
+        <div>
+            <div class="info-row"><span class="label">Kilometraje</span><span class="value">{{ orden.odometer_km }} km</span></div>
+            <div class="info-row"><span class="label">Tiempo estimado</span><span class="value">{{ orden.tiempo_estimado }} h</span></div>
+            <div class="info-row"><span class="label">Tiempo real</span><span class="value" id="tiempoRealDisplay">{{ orden.tiempo_real }} h</span></div>
+            <div class="info-row"><span class="label">Ingreso</span><span class="value">{{ orden.fecha_ingreso|date:"d M Y H:i" }}</span></div>
+        </div>
+    </div>
+    <div class="info-box" style="margin-top:18px;">
+        <h3><i class="bi bi-chat-quote"></i> Problema reportado</h3>
+        <p>{{ orden.descripcion_problema }}</p>
+    </div>
+</div>
+
+<div class="grid-2col">
+    <!-- Cronómetro -->
+    <div class="glass-card">
+        <h2><span class="card-icon"><i class="bi bi-stopwatch"></i></span> Cronómetro</h2>
+        <div class="timer-display" id="timerDisplay">00:00:00</div>
+        <div class="timer-actions">
+            <button class="btn btn-success" id="btnIniciar" style="width:auto;{% if timer_activo %}display:none;{% endif %}">
+                <i class="bi bi-play-fill"></i> Iniciar
+            </button>
+            <button class="btn btn-warn" id="btnDetener" style="width:auto;{% if not timer_activo %}display:none;{% endif %}">
+                <i class="bi bi-stop-fill"></i> Detener
+            </button>
+        </div>
+        {% if orden.timers.exists %}
+        <div style="margin-top:24px;">
+            <h3 style="font-size:0.85em;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;">
+                Sesiones recientes
+            </h3>
+            {% for t in orden.timers.all|slice:":6" %}
+            <div class="order-item" style="padding:10px 14px;">
+                <p style="margin:0;font-size:0.85em;">
+                    <strong>{{ t.inicio|date:"d/m H:i" }}</strong>
+                    → {% if t.fin %}{{ t.fin|date:"H:i" }} · <span style="color:var(--accent-cyan);">{{ t.duracion_horas }}h</span>{% else %}<span class="badge badge-success badge-pulse">EN CURSO</span>{% endif %}
+                </p>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Estado -->
+    <div class="glass-card">
+        <h2><span class="card-icon"><i class="bi bi-arrow-repeat"></i></span> Cambiar Estado</h2>
+        {% if transiciones_validas %}
+        <form method="post" action="{% url 'cambiar_estado_orden' orden.id %}">
+            {% csrf_token %}
+            <div class="form-group">
+                <label>Siguiente estado</label>
+                <select name="nuevo_estado" required>
+                    {% for est in transiciones_validas %}
+                    <option value="{{ est }}">{{ est }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn">Aplicar transición</button>
+        </form>
+        {% else %}
+        <p style="color:var(--text-muted);font-style:italic;">No hay transiciones disponibles desde este estado.</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Checklist -->
+<div class="glass-card">
+    <h2><span class="card-icon"><i class="bi bi-check2-square"></i></span> Checklists de Diagnóstico</h2>
+
+    <form method="post" action="{% url 'orden_crear_checklist' orden.id %}" style="margin-bottom:20px;">
+        {% csrf_token %}
+        <div style="display:flex;gap:12px;align-items:end;">
+            <div class="form-group" style="flex:1;margin-bottom:0;">
+                <label>Crear checklist para categoría</label>
+                <select name="categoria">
+                    {% for val, lbl in categorias %}
+                    <option value="{{ val }}">{{ lbl }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-secondary" style="height:42px;"><i class="bi bi-plus-lg"></i> Agregar</button>
+        </div>
+    </form>
+
+    {% for cl in orden.checklists.all %}
+    <div style="margin-bottom:24px;">
+        <h3 style="color:var(--accent-primary);margin-bottom:10px;font-size:1em;">
+            <i class="bi bi-tag-fill"></i> {{ cl.get_categoria_display }} — {{ cl.fecha|date:"d M H:i" }}
+        </h3>
+        {% for it in cl.items.all %}
+        <div class="checklist-item item-{{ it.estado }}" data-id="{{ it.id }}">
+            <span class="item-texto">{{ it.texto }}</span>
+            <select class="check-estado">
+                <option value="PENDIENTE" {% if it.estado == 'PENDIENTE' %}selected{% endif %}>Pendiente</option>
+                <option value="OK" {% if it.estado == 'OK' %}selected{% endif %}>OK</option>
+                <option value="REVISAR" {% if it.estado == 'REVISAR' %}selected{% endif %}>Revisar</option>
+                <option value="FALLA" {% if it.estado == 'FALLA' %}selected{% endif %}>Falla</option>
+            </select>
+            <input type="text" class="check-nota" placeholder="Nota..." value="{{ it.nota }}" style="flex-basis:100%;font-size:0.85em;">
+        </div>
+        {% endfor %}
+    </div>
+    {% empty %}
+    <div class="empty-state">
+        <div class="empty-icon"><i class="bi bi-clipboard-check"></i></div>
+        <p>Aún no hay checklists. Crea uno arriba.</p>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Evidencias -->
+<div class="glass-card">
+    <h2><span class="card-icon"><i class="bi bi-camera-fill"></i></span> Evidencias Fotográficas</h2>
+
+    <form method="post" action="{% url 'subir_evidencia' orden.id %}" enctype="multipart/form-data" style="margin-bottom:18px;">
+        {% csrf_token %}
+        <div style="display:grid;grid-template-columns:1fr 1fr 2fr auto;gap:12px;align-items:end;">
+            <div class="form-group" style="margin-bottom:0;">
+                <label>Imagen</label>
+                <input type="file" name="imagen" accept="image/*" required>
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+                <label>Momento</label>
+                <select name="momento">
+                    <option value="ANTES">Antes</option>
+                    <option value="DURANTE">Durante</option>
+                    <option value="DESPUES">Después</option>
+                </select>
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+                <label>Descripción</label>
+                <input type="text" name="descripcion" maxlength="200" placeholder="Ej: estado motor antes de desarme">
+            </div>
+            <button type="submit" class="btn btn-secondary" style="height:42px;"><i class="bi bi-upload"></i> Subir</button>
+        </div>
+    </form>
+
+    {% if orden.evidencias.all %}
+    <div class="evidence-grid">
+        {% for ev in orden.evidencias.all %}
+        <div class="evidence-tile">
+            <img src="{{ ev.imagen.url }}" alt="{{ ev.descripcion }}" title="{{ ev.descripcion }}">
+            <span class="tag">{{ ev.get_momento_display }}</span>
+            <form method="post" action="{% url 'eliminar_evidencia' ev.id %}" style="margin:0;">
+                {% csrf_token %}
+                <input type="hidden" name="orden_id" value="{{ orden.id }}">
+                <button type="submit" class="delete-btn" onclick="return confirm('¿Eliminar evidencia?')">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon"><i class="bi bi-images"></i></div>
+        <p>Sin evidencias todavía</p>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    /* ── Timer ── */
+    const ORDEN_ID = {{ orden.id }};
+    const TIMER_URL = "{% url 'orden_timer' orden.id %}";
+    let timerInicio = {% if timer_activo %}new Date("{{ timer_activo.inicio|date:'c' }}"){% else %}null{% endif %};
+    let timerInterval = null;
+    const display = document.getElementById('timerDisplay');
+
+    function fmt(s) {
+        const h = String(Math.floor(s / 3600)).padStart(2, '0');
+        const m = String(Math.floor((s % 3600) / 60)).padStart(2, '0');
+        const ss = String(s % 60).padStart(2, '0');
+        return `${h}:${m}:${ss}`;
+    }
+
+    function tick() {
+        if (!timerInicio) return;
+        const s = Math.floor((Date.now() - timerInicio.getTime()) / 1000);
+        display.textContent = fmt(s);
+    }
+
+    if (timerInicio) {
+        tick();
+        timerInterval = setInterval(tick, 1000);
+    }
+
+    document.getElementById('btnIniciar').onclick = async () => {
+        const r = await fetch(TIMER_URL, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({accion: 'iniciar'})
+        });
+        const data = await r.json();
+        if (data.ok) {
+            timerInicio = new Date(data.inicio);
+            timerInterval = setInterval(tick, 1000);
+            document.getElementById('btnIniciar').style.display = 'none';
+            document.getElementById('btnDetener').style.display = '';
+        } else {
+            alert(data.error);
+        }
+    };
+
+    document.getElementById('btnDetener').onclick = async () => {
+        const r = await fetch(TIMER_URL, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({accion: 'detener'})
+        });
+        const data = await r.json();
+        if (data.ok) {
+            clearInterval(timerInterval);
+            timerInicio = null;
+            display.textContent = '00:00:00';
+            document.getElementById('btnIniciar').style.display = '';
+            document.getElementById('btnDetener').style.display = 'none';
+            location.reload();
+        } else {
+            alert(data.error);
+        }
+    };
+
+    /* ── Checklist live update ── */
+    document.querySelectorAll('.checklist-item').forEach(row => {
+        const id = row.dataset.id;
+        const selectEl = row.querySelector('.check-estado');
+        const notaEl = row.querySelector('.check-nota');
+
+        async function guardar() {
+            const r = await fetch(`/workorders/checklist/item/${id}/`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({estado: selectEl.value, nota: notaEl.value})
+            });
+            const data = await r.json();
+            if (data.ok) {
+                row.className = 'checklist-item item-' + data.estado;
+            }
+        }
+
+        selectEl.addEventListener('change', guardar);
+        let t;
+        notaEl.addEventListener('input', () => {
+            clearTimeout(t);
+            t = setTimeout(guardar, 600);
+        });
+    });
+</script>
+{% endblock %}
