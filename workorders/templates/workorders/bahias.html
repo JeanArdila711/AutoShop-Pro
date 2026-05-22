@@ -1,0 +1,226 @@
+{% extends "workorders/base.html" %}
+{% block title %}Bahías{% endblock %}
+{% block nav_bahias %}active{% endblock %}
+
+{% block extra_css %}
+<style>
+    .bahias-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 18px;
+        margin-bottom: 28px;
+    }
+
+    .bahia-card {
+        background: var(--bg-card);
+        backdrop-filter: blur(16px);
+        border: 1px solid var(--border-glass);
+        border-radius: 16px;
+        padding: 22px;
+        box-shadow: var(--shadow-card);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .bahia-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: var(--accent-gradient);
+        opacity: 0.6;
+    }
+
+    .bahia-card.ocupada::before {
+        background: linear-gradient(135deg, #f87171, #fbbf24);
+        opacity: 1;
+    }
+
+    .bahia-card:hover {
+        border-color: var(--border-glow);
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-card), var(--shadow-glow);
+    }
+
+    .bahia-codigo {
+        font-size: 1.7em;
+        font-weight: 800;
+        background: var(--accent-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        letter-spacing: -1px;
+    }
+
+    .bahia-nombre {
+        color: var(--text-secondary);
+        font-size: 0.85em;
+        margin-bottom: 14px;
+    }
+
+    .bahia-status {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin: 12px 0;
+    }
+
+    .bahia-orden-info {
+        background: rgba(108, 138, 255, 0.06);
+        border: 1px solid var(--border-glass);
+        border-radius: 10px;
+        padding: 10px 12px;
+        margin: 12px 0;
+        font-size: 0.85em;
+        color: var(--text-primary);
+    }
+
+    .bahia-orden-info strong {
+        color: var(--accent-primary);
+    }
+
+    .bahia-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 14px;
+    }
+
+    .inline-select {
+        flex: 1;
+        padding: 8px 10px;
+        font-size: 0.85em;
+    }
+
+    .btn-sm {
+        padding: 8px 14px;
+        font-size: 0.8em;
+        width: auto;
+    }
+
+    .btn-danger-sm {
+        background: rgba(248, 113, 113, 0.15);
+        color: var(--danger);
+        border: 1px solid rgba(248, 113, 113, 0.25);
+        padding: 8px 14px;
+        font-size: 0.8em;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.25s ease;
+    }
+
+    .btn-danger-sm:hover {
+        background: rgba(248, 113, 113, 0.25);
+    }
+
+    .form-inline-row {
+        display: grid;
+        grid-template-columns: 1fr 2fr 1fr auto;
+        gap: 12px;
+        align-items: end;
+    }
+
+    @media (max-width: 768px) {
+        .form-inline-row { grid-template-columns: 1fr; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="bi bi-grid-3x3-gap-fill"></i> Gestión de Bahías</h1>
+    <p>Ocupación en tiempo real y asignación de órdenes a bahías físicas</p>
+</div>
+
+<!-- Form crear bahía -->
+<div class="glass-card">
+    <h2><span class="card-icon"><i class="bi bi-plus-circle"></i></span> Nueva Bahía</h2>
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="accion" value="crear">
+        <div class="form-inline-row">
+            <div class="form-group" style="margin-bottom:0;">
+                <label>Código</label>
+                <input type="text" name="codigo" required maxlength="10" placeholder="B01">
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+                <label>Nombre</label>
+                <input type="text" name="nombre" required maxlength="60" placeholder="Bahía mecánica principal">
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+                <label>Tipo</label>
+                <select name="tipo">
+                    <option value="GENERAL">General</option>
+                    <option value="MECANICA">Mecánica</option>
+                    <option value="ELECTRICA">Eléctrica</option>
+                    <option value="CARROCERIA">Carrocería</option>
+                    <option value="ALINEACION">Alineación</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-sm" style="height:42px;">Crear</button>
+        </div>
+    </form>
+</div>
+
+<!-- Grid bahías -->
+<div class="glass-card">
+    <h2><span class="card-icon"><i class="bi bi-grid"></i></span> Bahías Registradas ({{ bahias|length }})</h2>
+    {% if bahias %}
+    <div class="bahias-grid">
+        {% for b in bahias %}
+        <div class="bahia-card {% if b.orden_actual %}ocupada{% endif %}">
+            <div class="bahia-codigo">{{ b.codigo }}</div>
+            <div class="bahia-nombre">{{ b.nombre }}</div>
+            <div class="bahia-status">
+                {% if b.orden_actual %}
+                <span class="badge badge-danger badge-pulse">OCUPADA</span>
+                {% else %}
+                <span class="badge badge-success">LIBRE</span>
+                {% endif %}
+                <span class="badge badge-info">{{ b.get_tipo_display }}</span>
+            </div>
+
+            {% if b.orden_actual %}
+            <div class="bahia-orden-info">
+                <strong>OT #{{ b.orden_actual.id }}</strong> · {{ b.orden_actual.vehiculo.placa }}<br>
+                <span style="color:var(--text-secondary);">{{ b.orden_actual.vehiculo.marca }} {{ b.orden_actual.vehiculo.modelo }}</span><br>
+                {% if b.orden_actual.mecanico %}<span style="color:var(--text-muted);font-size:0.9em;"><i class="bi bi-wrench"></i> {{ b.orden_actual.mecanico.nombre }}</span>{% endif %}
+            </div>
+            <form method="post" style="margin:0;">
+                {% csrf_token %}
+                <input type="hidden" name="accion" value="liberar">
+                <input type="hidden" name="bahia_id" value="{{ b.id }}">
+                <button type="submit" class="btn-danger-sm" style="width:100%;">
+                    <i class="bi bi-box-arrow-right"></i> Liberar
+                </button>
+            </form>
+            {% else %}
+            <form method="post" style="margin:0;">
+                {% csrf_token %}
+                <input type="hidden" name="accion" value="asignar">
+                <input type="hidden" name="bahia_id" value="{{ b.id }}">
+                <div class="bahia-actions">
+                    <select name="orden_id" class="inline-select" required>
+                        <option value="">— Seleccionar orden —</option>
+                        {% for o in ordenes_libres %}
+                        <option value="{{ o.id }}">OT#{{ o.id }} — {{ o.vehiculo.placa }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="btn btn-sm">Asignar</button>
+                </div>
+            </form>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon"><i class="bi bi-grid"></i></div>
+        <p>Aún no hay bahías registradas</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
