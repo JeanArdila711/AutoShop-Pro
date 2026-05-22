@@ -275,36 +275,39 @@ class WorkOrderService:
     # ─────────────────────────────────────────────
 
     def _asignar_mejor_mecanico(self, especialidad_requerida):
-        """Selecciona el mecánico con mejor score según especialidad y carga"""
-        mecanicos = Mechanic.objects.filter(disponible=True)
-
-        if not mecanicos.exists():
+        """Selecciona el mecánico con mejor score según especialidad, carga, nivel y eficiencia"""
+        candidato = self.preview_mejor_mecanico(especialidad_requerida)
+        if candidato is None:
             raise ValueError("No hay mecánicos disponibles")
+        return candidato['mecanico']
+
+    def preview_mejor_mecanico(self, especialidad_requerida):
+        """Calcula el mejor mecánico devolviendo dict con score (no lanza si vacío)"""
+        mecanicos = Mechanic.objects.filter(disponible=True)
+        if not mecanicos.exists():
+            return None
 
         mejor = None
-        mejor_score = 0
-
+        mejor_score = -1
         for mec in mecanicos:
             score = 0
-
-            # Coincidencia de especialidad
             if mec.especialidad == especialidad_requerida:
                 score += 30
             elif mec.especialidad == 'GENERAL':
                 score += 15
-
-            # Carga de trabajo (menor carga = mayor score)
-            score += 20 * (1 - mec.horas_pendientes / 40)
-
-            # Nivel de experiencia
+            if mec.horas_pendientes < 40:
+                score += 20 * (1 - mec.horas_pendientes / 40)
             if mec.nivel == 'EXPERTO':
                 score += 10
+            elif mec.nivel == 'INTERMEDIO':
+                score += 5
+            score += 5 * (mec.eficiencia or 1.0)
 
             if score > mejor_score:
                 mejor_score = score
                 mejor = mec
 
-        return mejor
+        return {'mecanico': mejor, 'score': round(mejor_score, 2)} if mejor else None
 
     # ─────────────────────────────────────────────
     # Kanban / Operación taller

@@ -203,6 +203,26 @@ class GestionarComponentesView(View):
         return redirect('gestionar_componentes', vehiculo_id=vehiculo_id)
 
 
+class AsignacionPreviewAPIView(View):
+    """Devuelve el mecánico que sería asignado para una especialidad dada"""
+
+    def get(self, request):
+        esp = request.GET.get('especialidad', 'GENERAL')
+        service = WorkOrderService()
+        res = service.preview_mejor_mecanico(esp)
+        if res is None:
+            return JsonResponse({'ok': False, 'error': 'No hay mecánicos disponibles'}, status=200)
+        m = res['mecanico']
+        return JsonResponse({
+            'ok': True,
+            'nombre': m.nombre,
+            'especialidad': m.especialidad,
+            'nivel': m.nivel,
+            'carga_horas': m.horas_pendientes,
+            'score': res['score'],
+        })
+
+
 class KanbanView(View):
     """Tablero Kanban de órdenes — drag & drop entre estados"""
 

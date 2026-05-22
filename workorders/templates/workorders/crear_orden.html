@@ -247,8 +247,38 @@
                 </div>
             </div>
 
+            <!-- Preview asignación automática -->
+            <div id="preview-asignacion" class="info-box" style="display:none;margin-top:12px;">
+                <h3><i class="bi bi-robot"></i> Asignación sugerida</h3>
+                <p id="preview-asignacion-texto"></p>
+            </div>
+
             <button type="submit" class="btn"><i class="bi bi-check-circle-fill"></i> Crear Orden de Trabajo</button>
         </form>
+
+        <script>
+            (function() {
+                const sel = document.getElementById('especialidad');
+                const box = document.getElementById('preview-asignacion');
+                const txt = document.getElementById('preview-asignacion-texto');
+                if (!sel) return;
+                async function refrescar() {
+                    try {
+                        const r = await fetch("{% url 'asignacion_preview' %}?especialidad=" + sel.value);
+                        const d = await r.json();
+                        if (d.ok) {
+                            txt.innerHTML = `<strong>${d.nombre}</strong> · ${d.especialidad} · ${d.nivel} · carga ${d.carga_horas}h · score <strong>${d.score}</strong>`;
+                            box.style.display = '';
+                        } else {
+                            txt.textContent = d.error || 'No disponible';
+                            box.style.display = '';
+                        }
+                    } catch (e) {}
+                }
+                sel.addEventListener('change', refrescar);
+                refrescar();
+            })();
+        </script>
     </div>
 </div>
 

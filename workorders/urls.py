@@ -12,6 +12,7 @@ from workorders.views import (
     EliminarComponenteView,
     KanbanView,
     KanbanMoverAPIView,
+    AsignacionPreviewAPIView,
     BahiasView,
     OrdenDetalleView,
     TimerAPIView,
@@ -35,6 +36,7 @@ urlpatterns = [
     path("orden/<int:orden_id>/cambiar-estado/", CambiarEstadoOrdenView.as_view(), name='cambiar_estado_orden'),
 
     # ── Operación taller ──
+    path("asignacion/preview/", AsignacionPreviewAPIView.as_view(), name='asignacion_preview'),
     path("kanban/", KanbanView.as_view(), name='kanban'),
     path("kanban/mover/", KanbanMoverAPIView.as_view(), name='kanban_mover'),
     path("bahias/", BahiasView.as_view(), name='bahias'),
