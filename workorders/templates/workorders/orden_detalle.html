@@ -382,7 +382,7 @@
         const notaEl = row.querySelector('.check-nota');
 
         async function guardar() {
-            const r = await fetch(`/workorders/checklist/item/${id}/`, {
+            const r = await fetch(`/api/v1/checklist/item/${id}/`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({estado: selectEl.value, nota: notaEl.value})
