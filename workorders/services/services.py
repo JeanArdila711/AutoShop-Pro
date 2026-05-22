@@ -29,11 +29,19 @@ class WorkOrderService:
 
     def obtener_estadisticas_dashboard(self):
         """Retorna las estadísticas y órdenes recientes para el dashboard"""
+        from workorders.models import ComponentePredictivo
+
+        alertas_criticas = 0
+        for comp in ComponentePredictivo.objects.select_related('vehiculo').all():
+            if comp.calcular_probabilidad_fallo(comp.vehiculo.km_actuales) > 0.7:
+                alertas_criticas += 1
+
         return {
             'total_propietarios': Owner.objects.count(),
             'total_vehiculos': Vehicle.objects.count(),
             'total_mecanicos': Mechanic.objects.count(),
             'total_ordenes': WorkOrder.objects.count(),
+            'alertas_criticas': alertas_criticas,
             'ordenes': WorkOrder.objects.all().order_by('-fecha_ingreso')[:10],
         }
 
@@ -164,6 +172,103 @@ class WorkOrderService:
         orden.estado = nuevo_estado
         orden.save()
         return orden
+
+    # ─────────────────────────────────────────────
+    # Componentes Predictivos
+    # ─────────────────────────────────────────────
+
+    def obtener_resumen_predictivo(self):
+        """Retorna resumen de alertas predictivas para todos los vehículos"""
+        from workorders.models import ComponentePredictivo
+
+        componentes = ComponentePredictivo.objects.select_related(
+            'vehiculo', 'vehiculo__propietario'
+        ).all()
+
+        todos = []
+        for comp in componentes:
+            km = comp.vehiculo.km_actuales
+            prob = comp.calcular_probabilidad_fallo(km)
+            prob_pct = round(prob * 100, 1)
+
+            if prob > 0.7:
+                urgencia = 'ALTA'
+            elif prob > 0.4:
+                urgencia = 'MEDIA'
+            else:
+                urgencia = 'BAJA'
+
+            todos.append({
+                'componente': comp,
+                'vehiculo': comp.vehiculo,
+                'probabilidad': prob_pct,
+                'urgencia': urgencia,
+            })
+
+        todos.sort(key=lambda x: x['probabilidad'], reverse=True)
+
+        alertas_alta = [c for c in todos if c['urgencia'] == 'ALTA']
+        alertas_media = [c for c in todos if c['urgencia'] == 'MEDIA']
+
+        return {
+            'todos_componentes': todos,
+            'alertas_alta': alertas_alta,
+            'alertas_media': alertas_media,
+            'total_riesgo_alto': len(alertas_alta),
+            'total_riesgo_medio': len(alertas_media),
+            'total_sin_riesgo': len([c for c in todos if c['urgencia'] == 'BAJA']),
+            'total_componentes': len(todos),
+        }
+
+    def obtener_componentes_vehiculo(self, vehiculo_id):
+        """Retorna un vehículo y sus componentes predictivos con probabilidades calculadas"""
+        from workorders.models import ComponentePredictivo
+
+        vehiculo = Vehicle.objects.select_related('propietario').get(id=vehiculo_id)
+        componentes = ComponentePredictivo.objects.filter(vehiculo=vehiculo)
+
+        resultado = []
+        for comp in componentes:
+            prob = comp.calcular_probabilidad_fallo(vehiculo.km_actuales)
+            prob_pct = round(prob * 100, 1)
+
+            if prob > 0.7:
+                urgencia = 'ALTA'
+            elif prob > 0.4:
+                urgencia = 'MEDIA'
+            else:
+                urgencia = 'BAJA'
+
+            resultado.append({
+                'componente': comp,
+                'probabilidad': prob_pct,
+                'urgencia': urgencia,
+            })
+
+        resultado.sort(key=lambda x: x['probabilidad'], reverse=True)
+        return vehiculo, resultado
+
+    def agregar_componente_predictivo(self, datos):
+        """Crea un componente predictivo asociado a un vehículo"""
+        from workorders.models import ComponentePredictivo
+
+        vehiculo = Vehicle.objects.get(id=datos['vehiculo_id'])
+        comp = ComponentePredictivo.objects.create(
+            vehiculo=vehiculo,
+            nombre=datos['nombre'],
+            categoria=datos.get('categoria', 'GENERAL'),
+            km_promedio_fallo=int(datos['km_promedio_fallo']),
+            desviacion_estandar=float(datos['desviacion_estandar']),
+            costo_promedio=float(datos.get('costo_promedio', 0)),
+        )
+        return comp
+
+    def eliminar_componente_predictivo(self, comp_id):
+        """Elimina un componente predictivo por id"""
+        from workorders.models import ComponentePredictivo
+
+        comp = ComponentePredictivo.objects.get(id=comp_id)
+        comp.delete()
 
     # ─────────────────────────────────────────────
     # Métodos privados de apoyo

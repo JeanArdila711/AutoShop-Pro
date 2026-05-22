@@ -2,7 +2,7 @@ from django.views import View
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from workorders.services.services import WorkOrderService
-from workorders.models import Owner
+from workorders.models import Owner, CategoriaComponente
 
 
 class LandingPageView(View):
@@ -156,3 +156,61 @@ class CambiarEstadoOrdenView(View):
         except Exception as e:
             messages.error(request, f'❌ Error al cambiar estado: {str(e)}')
         return redirect('crear_orden')
+
+
+class PredictivoDashboardView(View):
+    """Vista del dashboard de mantenimiento predictivo"""
+
+    def get(self, request):
+        service = WorkOrderService()
+        context = service.obtener_resumen_predictivo()
+        context['vehiculos'] = service.listar_vehiculos(orden='marca')
+        return render(request, 'workorders/predictivo_dashboard.html', context)
+
+
+class GestionarComponentesView(View):
+    """Vista para gestionar componentes predictivos de un vehículo"""
+
+    def get(self, request, vehiculo_id):
+        service = WorkOrderService()
+        vehiculo, componentes = service.obtener_componentes_vehiculo(vehiculo_id)
+        context = {
+            'vehiculo': vehiculo,
+            'componentes': componentes,
+            'categorias': CategoriaComponente.choices,
+        }
+        return render(request, 'workorders/gestionar_componentes.html', context)
+
+    def post(self, request, vehiculo_id):
+        datos = {
+            'vehiculo_id': vehiculo_id,
+            'nombre': request.POST.get('nombre', '').strip(),
+            'categoria': request.POST.get('categoria', 'GENERAL'),
+            'km_promedio_fallo': request.POST.get('km_promedio_fallo', 0),
+            'desviacion_estandar': request.POST.get('desviacion_estandar', 1000),
+            'costo_promedio': request.POST.get('costo_promedio', 0),
+        }
+        try:
+            service = WorkOrderService()
+            comp = service.agregar_componente_predictivo(datos)
+            messages.success(request, f'✅ Componente "{comp.nombre}" añadido correctamente')
+        except Exception as e:
+            messages.error(request, f'❌ Error: {str(e)}')
+        return redirect('gestionar_componentes', vehiculo_id=vehiculo_id)
+
+
+class EliminarComponenteView(View):
+    """Vista para eliminar un componente predictivo"""
+
+    def post(self, request, comp_id):
+        vehiculo_id = request.POST.get('vehiculo_id')
+        try:
+            service = WorkOrderService()
+            service.eliminar_componente_predictivo(comp_id)
+            messages.success(request, '✅ Componente eliminado')
+        except Exception as e:
+            messages.error(request, f'❌ Error: {str(e)}')
+
+        if vehiculo_id:
+            return redirect('gestionar_componentes', vehiculo_id=vehiculo_id)
+        return redirect('predictivo_dashboard')

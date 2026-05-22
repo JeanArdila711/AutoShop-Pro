@@ -30,6 +30,14 @@
         <div class="stat-number" data-target="{{ total_ordenes }}">0</div>
         <div class="stat-label">Órdenes</div>
     </div>
+    <div class="stat-card stat-card-danger" style="{% if alertas_criticas > 0 %}border-color: rgba(248,113,113,0.3);{% endif %}">
+        <div class="stat-icon" style="color: var(--danger);"><i class="bi bi-exclamation-triangle-fill"></i></div>
+        <div class="stat-number" data-target="{{ alertas_criticas }}" style="{% if alertas_criticas > 0 %}-webkit-text-fill-color: var(--danger); color: var(--danger);{% endif %}">0</div>
+        <div class="stat-label">Alertas Críticas</div>
+        {% if alertas_criticas > 0 %}
+        <a href="{% url 'predictivo_dashboard' %}" style="display:block; margin-top:10px; font-size:0.75em; color:var(--danger); text-decoration:none; font-weight:600;">Ver alertas &rarr;</a>
+        {% endif %}
+    </div>
 </div>
 
 <!-- Órdenes Recientes -->

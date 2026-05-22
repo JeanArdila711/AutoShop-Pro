@@ -7,6 +7,9 @@ from workorders.views import (
     RegistrarVehiculoView,
     RegistrarMecanicoView,
     CambiarEstadoOrdenView,
+    PredictivoDashboardView,
+    GestionarComponentesView,
+    EliminarComponenteView,
 )
 
 def ping(request):
@@ -21,4 +24,8 @@ urlpatterns = [
     path("vehiculos/", RegistrarVehiculoView.as_view(), name='registrar_vehiculo'),
     path("mecanicos/", RegistrarMecanicoView.as_view(), name='registrar_mecanico'),
     path("orden/<int:orden_id>/cambiar-estado/", CambiarEstadoOrdenView.as_view(), name='cambiar_estado_orden'),
+    # ── Predictivo ──
+    path("predictivo/", PredictivoDashboardView.as_view(), name='predictivo_dashboard'),
+    path("predictivo/vehiculo/<int:vehiculo_id>/", GestionarComponentesView.as_view(), name='gestionar_componentes'),
+    path("predictivo/componente/<int:comp_id>/eliminar/", EliminarComponenteView.as_view(), name='eliminar_componente'),
 ]

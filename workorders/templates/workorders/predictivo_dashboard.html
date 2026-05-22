@@ -1,0 +1,370 @@
+{% extends "workorders/base.html" %}
+{% block title %}Mantenimiento Predictivo{% endblock %}
+{% block nav_predictivo %}active{% endblock %}
+
+{% block extra_css %}
+<style>
+    .prob-bar-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .prob-bar-bg {
+        flex: 1;
+        height: 8px;
+        background: rgba(255, 255, 255, 0.06);
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .prob-bar-fill {
+        height: 100%;
+        border-radius: 4px;
+        transition: width 1s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .prob-bar-fill.alta { background: linear-gradient(90deg, #f87171, #ef4444); }
+    .prob-bar-fill.media { background: linear-gradient(90deg, #fbbf24, #f59e0b); }
+    .prob-bar-fill.baja { background: linear-gradient(90deg, #34d399, #10b981); }
+
+    .prob-label {
+        font-size: 0.82em;
+        font-weight: 700;
+        min-width: 42px;
+        text-align: right;
+    }
+
+    .prob-label.alta { color: var(--danger); }
+    .prob-label.media { color: var(--warning); }
+    .prob-label.baja { color: var(--success); }
+
+    .urgencia-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 16px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid var(--border-glass);
+    }
+
+    .urgencia-header .urgencia-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        animation: pulse 2s ease-in-out infinite;
+    }
+
+    .urgencia-header .urgencia-dot.alta { background: var(--danger); }
+    .urgencia-header .urgencia-dot.media { background: var(--warning); }
+    .urgencia-header .urgencia-dot.baja { background: var(--success); }
+
+    .summary-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 16px;
+        margin-bottom: 28px;
+    }
+
+    .summary-stat {
+        background: var(--bg-card);
+        border: 1px solid var(--border-glass);
+        border-radius: 14px;
+        padding: 20px 18px;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+    .summary-stat:hover {
+        border-color: var(--border-glow);
+        transform: translateY(-2px);
+    }
+
+    .summary-stat .s-number {
+        font-size: 2em;
+        font-weight: 800;
+        line-height: 1.1;
+    }
+
+    .summary-stat .s-label {
+        font-size: 0.78em;
+        color: var(--text-secondary);
+        margin-top: 6px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .summary-stat.alta .s-number { color: var(--danger); }
+    .summary-stat.media .s-number { color: var(--warning); }
+    .summary-stat.baja .s-number { color: var(--success); }
+    .summary-stat.total .s-number {
+        background: var(--accent-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .vehicle-select-form {
+        display: flex;
+        gap: 12px;
+        align-items: flex-end;
+        flex-wrap: wrap;
+    }
+
+    .vehicle-select-form .form-group {
+        flex: 1;
+        min-width: 200px;
+        margin-bottom: 0;
+    }
+
+    .empty-section {
+        text-align: center;
+        padding: 28px;
+        color: var(--text-muted);
+        font-size: 0.9em;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="bi bi-graph-up-arrow"></i> Mantenimiento Predictivo</h1>
+    <p>Monitoreo de componentes y alertas de fallo basado en kilometraje</p>
+</div>
+
+<!-- Resumen estadístico -->
+<div class="summary-stats">
+    <div class="summary-stat alta">
+        <div class="s-number">{{ total_riesgo_alto }}</div>
+        <div class="s-label">Riesgo Alto</div>
+    </div>
+    <div class="summary-stat media">
+        <div class="s-number">{{ total_riesgo_medio }}</div>
+        <div class="s-label">Riesgo Medio</div>
+    </div>
+    <div class="summary-stat baja">
+        <div class="s-number">{{ total_sin_riesgo }}</div>
+        <div class="s-label">Sin Riesgo</div>
+    </div>
+    <div class="summary-stat total">
+        <div class="s-number">{{ total_componentes }}</div>
+        <div class="s-label">Total Componentes</div>
+    </div>
+</div>
+
+<!-- Ir a gestionar componentes de un vehículo -->
+<div class="glass-card">
+    <h2><span class="card-icon"><i class="bi bi-car-front"></i></span> Gestionar Componentes por Vehículo</h2>
+    <div class="vehicle-select-form">
+        <div class="form-group">
+            <label>Seleccionar vehículo</label>
+            <select id="vehiculoSelect">
+                <option value="">-- Selecciona un vehículo --</option>
+                {% for v in vehiculos %}
+                <option value="{{ v.id }}">{{ v.placa }} — {{ v.marca }} {{ v.modelo }} ({{ v.km_actuales|floatformat:0 }} km)</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group" style="flex: 0;">
+            <label style="opacity:0;">ir</label>
+            <button class="btn" style="width:auto; padding: 12px 24px;" onclick="irAVehiculo()">
+                <i class="bi bi-arrow-right-circle"></i> Gestionar
+            </button>
+        </div>
+    </div>
+    {% if not vehiculos %}
+    <div class="empty-section">No hay vehículos registrados. <a href="{% url 'registrar_vehiculo' %}" style="color: var(--accent-primary);">Registrar vehículo</a></div>
+    {% endif %}
+</div>
+
+<!-- Alertas ALTA urgencia -->
+{% if alertas_alta %}
+<div class="glass-card">
+    <div class="urgencia-header">
+        <span class="urgencia-dot alta"></span>
+        <h2 style="margin:0; padding:0; border:none; font-size:1.1em; color: var(--danger);">
+            <i class="bi bi-exclamation-triangle-fill"></i> Riesgo Alto — Reemplazo Urgente
+        </h2>
+        <span class="badge badge-danger" style="margin-left:auto;">{{ alertas_alta|length }} componente{{ alertas_alta|length|pluralize:"s" }}</span>
+    </div>
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Vehículo</th>
+                    <th>Propietario</th>
+                    <th>Componente</th>
+                    <th>Categoría</th>
+                    <th>Probabilidad</th>
+                    <th>Km actuales / Km fallo</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in alertas_alta %}
+                <tr>
+                    <td><strong style="color: var(--accent-primary);">{{ item.vehiculo.placa }}</strong><br><span style="color:var(--text-muted); font-size:0.8em;">{{ item.vehiculo.marca }} {{ item.vehiculo.modelo }}</span></td>
+                    <td>{{ item.vehiculo.propietario.nombre }}</td>
+                    <td><strong>{{ item.componente.nombre }}</strong></td>
+                    <td><span class="badge badge-default">{{ item.componente.get_categoria_display }}</span></td>
+                    <td>
+                        <div class="prob-bar-wrapper">
+                            <div class="prob-bar-bg">
+                                <div class="prob-bar-fill alta" style="width: {{ item.probabilidad }}%;"></div>
+                            </div>
+                            <span class="prob-label alta">{{ item.probabilidad }}%</span>
+                        </div>
+                    </td>
+                    <td style="color: var(--text-secondary); font-size:0.88em;">
+                        {{ item.vehiculo.km_actuales|floatformat:0 }} km / {{ item.componente.km_promedio_fallo|floatformat:0 }} km
+                    </td>
+                    <td>
+                        <a href="{% url 'gestionar_componentes' item.vehiculo.id %}" class="btn-secondary" style="font-size:0.82em; padding: 6px 14px;">
+                            <i class="bi bi-gear"></i> Gestionar
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<!-- Alertas MEDIA urgencia -->
+{% if alertas_media %}
+<div class="glass-card">
+    <div class="urgencia-header">
+        <span class="urgencia-dot media"></span>
+        <h2 style="margin:0; padding:0; border:none; font-size:1.1em; color: var(--warning);">
+            <i class="bi bi-exclamation-circle-fill"></i> Riesgo Medio — Monitorear
+        </h2>
+        <span class="badge badge-warning" style="margin-left:auto;">{{ alertas_media|length }} componente{{ alertas_media|length|pluralize:"s" }}</span>
+    </div>
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Vehículo</th>
+                    <th>Propietario</th>
+                    <th>Componente</th>
+                    <th>Categoría</th>
+                    <th>Probabilidad</th>
+                    <th>Km actuales / Km fallo</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in alertas_media %}
+                <tr>
+                    <td><strong style="color: var(--accent-primary);">{{ item.vehiculo.placa }}</strong><br><span style="color:var(--text-muted); font-size:0.8em;">{{ item.vehiculo.marca }} {{ item.vehiculo.modelo }}</span></td>
+                    <td>{{ item.vehiculo.propietario.nombre }}</td>
+                    <td><strong>{{ item.componente.nombre }}</strong></td>
+                    <td><span class="badge badge-default">{{ item.componente.get_categoria_display }}</span></td>
+                    <td>
+                        <div class="prob-bar-wrapper">
+                            <div class="prob-bar-bg">
+                                <div class="prob-bar-fill media" style="width: {{ item.probabilidad }}%;"></div>
+                            </div>
+                            <span class="prob-label media">{{ item.probabilidad }}%</span>
+                        </div>
+                    </td>
+                    <td style="color: var(--text-secondary); font-size:0.88em;">
+                        {{ item.vehiculo.km_actuales|floatformat:0 }} km / {{ item.componente.km_promedio_fallo|floatformat:0 }} km
+                    </td>
+                    <td>
+                        <a href="{% url 'gestionar_componentes' item.vehiculo.id %}" class="btn-secondary" style="font-size:0.82em; padding: 6px 14px;">
+                            <i class="bi bi-gear"></i> Gestionar
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<!-- Todos los componentes (tabla completa) -->
+<div class="glass-card">
+    <h2><span class="card-icon"><i class="bi bi-list-check"></i></span> Todos los Componentes</h2>
+    {% if todos_componentes %}
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Vehículo</th>
+                    <th>Componente</th>
+                    <th>Categoría</th>
+                    <th>Urgencia</th>
+                    <th>Probabilidad</th>
+                    <th>Costo estimado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in todos_componentes %}
+                <tr>
+                    <td>
+                        <strong style="color: var(--accent-primary);">{{ item.vehiculo.placa }}</strong>
+                        <span style="color:var(--text-muted); font-size:0.8em; display:block;">{{ item.vehiculo.marca }} {{ item.vehiculo.modelo }} {{ item.vehiculo.anio }}</span>
+                    </td>
+                    <td>{{ item.componente.nombre }}</td>
+                    <td><span class="badge badge-default">{{ item.componente.get_categoria_display }}</span></td>
+                    <td>
+                        {% if item.urgencia == 'ALTA' %}
+                        <span class="badge badge-danger badge-pulse">ALTA</span>
+                        {% elif item.urgencia == 'MEDIA' %}
+                        <span class="badge badge-warning badge-pulse">MEDIA</span>
+                        {% else %}
+                        <span class="badge badge-success">BAJA</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="prob-bar-wrapper">
+                            <div class="prob-bar-bg">
+                                <div class="prob-bar-fill {{ item.urgencia|lower }}" style="width: {{ item.probabilidad }}%;"></div>
+                            </div>
+                            <span class="prob-label {{ item.urgencia|lower }}">{{ item.probabilidad }}%</span>
+                        </div>
+                    </td>
+                    <td style="color: var(--text-secondary);">
+                        {% if item.componente.costo_promedio %}
+                        ${{ item.componente.costo_promedio|floatformat:0 }}
+                        {% else %}
+                        <span style="color: var(--text-muted);">—</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'gestionar_componentes' item.vehiculo.id %}" class="btn-secondary" style="font-size:0.82em; padding: 6px 14px;">
+                            <i class="bi bi-gear"></i> Gestionar
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon"><i class="bi bi-graph-up"></i></div>
+        <p>No hay componentes predictivos registrados.</p>
+        <p style="margin-top: 16px;">
+            Selecciona un vehículo arriba para añadir sus componentes de seguimiento.
+        </p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function irAVehiculo() {
+        const val = document.getElementById('vehiculoSelect').value;
+        if (val) {
+            window.location.href = `/workorders/predictivo/vehiculo/${val}/`;
+        }
+    }
+</script>
+{% endblock %}

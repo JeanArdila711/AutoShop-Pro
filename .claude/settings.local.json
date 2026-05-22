@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem *)",
+      "Bash(python manage.py check)",
+      "Bash(ls venv*)",
+      "Bash(ls .venv*)",
+      "Bash(ls env*)",
+      "Bash(Scripts/python manage.py check)",
+      "PowerShell(& \"C:\\\\Users\\\\juand\\\\OneDrive\\\\Documentos\\\\Pc\\\\EAFIT\\\\Semestre 7\\\\Topicos en software\\\\AutoShop-Pro\\\\AutoShop-Pro\\\\venv\\\\Scripts\\\\python.exe\" \"C:\\\\Users\\\\juand\\\\OneDrive\\\\Documentos\\\\Pc\\\\EAFIT\\\\Semestre 7\\\\Topicos en software\\\\AutoShop-Pro\\\\AutoShop-Pro\\\\manage.py\" check 2>&1)",
+      "Bash(venv/Scripts/python manage.py show_urls)"
+    ]
+  }
+}
