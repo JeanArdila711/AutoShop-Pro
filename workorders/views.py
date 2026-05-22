@@ -1,8 +1,12 @@
 from django.views import View
 from django.shortcuts import render, redirect
+from django.http import JsonResponse
 from django.contrib import messages
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 from workorders.services.services import WorkOrderService
 from workorders.models import Owner, CategoriaComponente
+import json
 
 
 class LandingPageView(View):
@@ -197,6 +201,150 @@ class GestionarComponentesView(View):
         except Exception as e:
             messages.error(request, f'❌ Error: {str(e)}')
         return redirect('gestionar_componentes', vehiculo_id=vehiculo_id)
+
+
+class KanbanView(View):
+    """Tablero Kanban de órdenes — drag & drop entre estados"""
+
+    def get(self, request):
+        service = WorkOrderService()
+        context = service.obtener_kanban()
+        return render(request, 'workorders/kanban.html', context)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class KanbanMoverAPIView(View):
+    """Endpoint AJAX para mover orden entre estados desde el Kanban"""
+
+    def post(self, request):
+        try:
+            payload = json.loads(request.body.decode('utf-8'))
+            orden_id = payload['orden_id']
+            nuevo_estado = payload['nuevo_estado']
+            service = WorkOrderService()
+            orden = service.cambiar_estado_orden(orden_id, nuevo_estado)
+            return JsonResponse({'ok': True, 'estado': orden.estado})
+        except Exception as e:
+            return JsonResponse({'ok': False, 'error': str(e)}, status=400)
+
+
+class BahiasView(View):
+    """Gestión de bahías del taller"""
+
+    def get(self, request):
+        service = WorkOrderService()
+        context = {
+            'bahias': service.listar_bahias(),
+            'ordenes_libres': service.listar_ordenes_recientes(limite=50),
+        }
+        return render(request, 'workorders/bahias.html', context)
+
+    def post(self, request):
+        accion = request.POST.get('accion', 'crear')
+        service = WorkOrderService()
+        try:
+            if accion == 'crear':
+                service.registrar_bahia({
+                    'codigo': request.POST.get('codigo', '').strip(),
+                    'nombre': request.POST.get('nombre', '').strip(),
+                    'tipo': request.POST.get('tipo', 'GENERAL'),
+                })
+                messages.success(request, '✅ Bahía creada')
+            elif accion == 'asignar':
+                service.asignar_bahia(
+                    request.POST.get('bahia_id'),
+                    request.POST.get('orden_id'),
+                )
+                messages.success(request, '✅ Orden asignada a bahía')
+            elif accion == 'liberar':
+                service.liberar_bahia(request.POST.get('bahia_id'))
+                messages.success(request, '✅ Bahía liberada')
+        except Exception as e:
+            messages.error(request, f'❌ {str(e)}')
+        return redirect('bahias')
+
+
+class OrdenDetalleView(View):
+    """Panel operativo de una orden: timer, checklist, fotos"""
+
+    def get(self, request, orden_id):
+        service = WorkOrderService()
+        context = service.obtener_detalle_orden(orden_id)
+        context['categorias'] = CategoriaComponente.choices
+        return render(request, 'workorders/orden_detalle.html', context)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class TimerAPIView(View):
+    """Iniciar/detener timer de una orden"""
+
+    def post(self, request, orden_id):
+        service = WorkOrderService()
+        try:
+            data = json.loads(request.body.decode('utf-8') or '{}')
+            accion = data.get('accion', 'iniciar')
+            if accion == 'iniciar':
+                t = service.iniciar_timer(orden_id, data.get('nota', ''))
+                return JsonResponse({'ok': True, 'timer_id': t.id, 'inicio': t.inicio.isoformat()})
+            else:
+                t = service.detener_timer(orden_id)
+                return JsonResponse({'ok': True, 'duracion_horas': t.duracion_horas()})
+        except Exception as e:
+            return JsonResponse({'ok': False, 'error': str(e)}, status=400)
+
+
+class CrearChecklistView(View):
+    def post(self, request, orden_id):
+        try:
+            service = WorkOrderService()
+            service.crear_checklist(orden_id, request.POST.get('categoria', 'GENERAL'))
+            messages.success(request, '✅ Checklist creado')
+        except Exception as e:
+            messages.error(request, f'❌ {str(e)}')
+        return redirect('orden_detalle', orden_id=orden_id)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class ChecklistItemAPIView(View):
+    def post(self, request, item_id):
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+            service = WorkOrderService()
+            item = service.actualizar_item_checklist(
+                item_id, data.get('estado', 'OK'), data.get('nota', ''),
+            )
+            return JsonResponse({'ok': True, 'estado': item.estado})
+        except Exception as e:
+            return JsonResponse({'ok': False, 'error': str(e)}, status=400)
+
+
+class SubirEvidenciaView(View):
+    def post(self, request, orden_id):
+        try:
+            imagen = request.FILES.get('imagen')
+            if not imagen:
+                raise ValueError("Falta archivo de imagen")
+            service = WorkOrderService()
+            service.subir_evidencia(
+                orden_id, imagen,
+                momento=request.POST.get('momento', 'ANTES'),
+                descripcion=request.POST.get('descripcion', ''),
+            )
+            messages.success(request, '✅ Evidencia subida')
+        except Exception as e:
+            messages.error(request, f'❌ {str(e)}')
+        return redirect('orden_detalle', orden_id=orden_id)
+
+
+class EliminarEvidenciaView(View):
+    def post(self, request, evidencia_id):
+        orden_id = request.POST.get('orden_id')
+        try:
+            WorkOrderService().eliminar_evidencia(evidencia_id)
+            messages.success(request, '✅ Evidencia eliminada')
+        except Exception as e:
+            messages.error(request, f'❌ {str(e)}')
+        return redirect('orden_detalle', orden_id=orden_id)
 
 
 class EliminarComponenteView(View):

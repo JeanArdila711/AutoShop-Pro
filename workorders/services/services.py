@@ -306,6 +306,180 @@ class WorkOrderService:
 
         return mejor
 
+    # ─────────────────────────────────────────────
+    # Kanban / Operación taller
+    # ─────────────────────────────────────────────
+
+    def obtener_kanban(self):
+        """Agrupa órdenes por estado para tablero Kanban"""
+        import json
+        from workorders.models import EstadoOrden, TRANSICIONES_VALIDAS
+        ordenes = WorkOrder.objects.select_related(
+            'vehiculo', 'propietario', 'mecanico',
+        ).all().order_by('-fecha_ingreso')
+
+        columnas = []
+        for estado, label in EstadoOrden.choices:
+            columnas.append({
+                'estado': estado,
+                'label': label,
+                'ordenes': [o for o in ordenes if o.estado == estado],
+            })
+        transiciones = {k: list(v) for k, v in TRANSICIONES_VALIDAS.items()}
+        return {
+            'columnas': columnas,
+            'transiciones': json.dumps(transiciones),
+        }
+
+    # ─────────────────────────────────────────────
+    # Bahías
+    # ─────────────────────────────────────────────
+
+    def listar_bahias(self):
+        from workorders.models import Bahia
+        return Bahia.objects.select_related(
+            'orden_actual', 'orden_actual__vehiculo', 'orden_actual__mecanico',
+        ).order_by('codigo')
+
+    def registrar_bahia(self, datos):
+        from workorders.models import Bahia
+        return Bahia.objects.create(
+            codigo=datos['codigo'].upper(),
+            nombre=datos['nombre'],
+            tipo=datos.get('tipo', 'GENERAL'),
+        )
+
+    def asignar_bahia(self, bahia_id, orden_id):
+        from workorders.models import Bahia
+        bahia = Bahia.objects.get(id=bahia_id)
+        if bahia.orden_actual_id and str(bahia.orden_actual_id) != str(orden_id):
+            raise ValueError(f"Bahía {bahia.codigo} ya ocupada")
+        orden = WorkOrder.objects.get(id=orden_id)
+        # Liberar bahía previa si la orden estaba en otra
+        from workorders.models import Bahia as B
+        B.objects.filter(orden_actual=orden).update(orden_actual=None)
+        bahia.orden_actual = orden
+        bahia.save()
+        orden.bahia = bahia.codigo
+        orden.save(update_fields=['bahia'])
+        return bahia
+
+    def liberar_bahia(self, bahia_id):
+        from workorders.models import Bahia
+        bahia = Bahia.objects.get(id=bahia_id)
+        if bahia.orden_actual_id:
+            orden = bahia.orden_actual
+            orden.bahia = None
+            orden.save(update_fields=['bahia'])
+        bahia.orden_actual = None
+        bahia.save()
+        return bahia
+
+    # ─────────────────────────────────────────────
+    # Cronómetro
+    # ─────────────────────────────────────────────
+
+    def iniciar_timer(self, orden_id, nota=''):
+        from workorders.models import TimerSession
+        from django.utils import timezone
+        orden = WorkOrder.objects.get(id=orden_id)
+        # No abrir dos timers activos
+        if orden.timers.filter(fin__isnull=True).exists():
+            raise ValueError("Ya existe un timer activo para esta orden")
+        return TimerSession.objects.create(orden=orden, inicio=timezone.now(), nota=nota)
+
+    def detener_timer(self, orden_id):
+        from workorders.models import TimerSession
+        from django.utils import timezone
+        timer = TimerSession.objects.filter(orden_id=orden_id, fin__isnull=True).first()
+        if not timer:
+            raise ValueError("No hay timer activo")
+        timer.fin = timezone.now()
+        timer.save()
+        # Recalcular tiempo_real total
+        orden = WorkOrder.objects.get(id=orden_id)
+        total_h = sum(t.duracion_horas() for t in orden.timers.exclude(fin__isnull=True))
+        orden.tiempo_real = int(round(total_h))
+        orden.save(update_fields=['tiempo_real'])
+        return timer
+
+    def timer_activo(self, orden_id):
+        from workorders.models import TimerSession
+        return TimerSession.objects.filter(orden_id=orden_id, fin__isnull=True).first()
+
+    # ─────────────────────────────────────────────
+    # Checklists
+    # ─────────────────────────────────────────────
+
+    def crear_checklist(self, orden_id, categoria):
+        from workorders.models import (
+            ChecklistTemplate, DiagnosticoChecklist, DiagnosticoChecklistItem,
+        )
+        orden = WorkOrder.objects.get(id=orden_id)
+        try:
+            template = ChecklistTemplate.objects.prefetch_related('items').get(
+                categoria=categoria,
+            )
+        except ChecklistTemplate.DoesNotExist:
+            raise ValueError(f"No existe plantilla de checklist para {categoria}")
+
+        checklist = DiagnosticoChecklist.objects.create(
+            orden=orden, categoria=categoria,
+        )
+        for tmpl_item in template.items.all():
+            DiagnosticoChecklistItem.objects.create(
+                checklist=checklist, texto=tmpl_item.texto,
+            )
+        return checklist
+
+    def actualizar_item_checklist(self, item_id, estado, nota=''):
+        from workorders.models import DiagnosticoChecklistItem
+        item = DiagnosticoChecklistItem.objects.get(id=item_id)
+        item.estado = estado
+        item.nota = nota
+        item.save()
+        return item
+
+    def obtener_checklists_orden(self, orden_id):
+        from workorders.models import DiagnosticoChecklist
+        return DiagnosticoChecklist.objects.filter(orden_id=orden_id).prefetch_related('items')
+
+    # ─────────────────────────────────────────────
+    # Evidencias fotográficas
+    # ─────────────────────────────────────────────
+
+    def subir_evidencia(self, orden_id, imagen, momento='ANTES', descripcion=''):
+        from workorders.models import EvidenciaFoto
+        orden = WorkOrder.objects.get(id=orden_id)
+        return EvidenciaFoto.objects.create(
+            orden=orden, imagen=imagen, momento=momento, descripcion=descripcion,
+        )
+
+    def listar_evidencias(self, orden_id):
+        from workorders.models import EvidenciaFoto
+        return EvidenciaFoto.objects.filter(orden_id=orden_id).order_by('fecha')
+
+    def eliminar_evidencia(self, evidencia_id):
+        from workorders.models import EvidenciaFoto
+        EvidenciaFoto.objects.get(id=evidencia_id).delete()
+
+    # ─────────────────────────────────────────────
+    # Detalle orden (para panel operación)
+    # ─────────────────────────────────────────────
+
+    def obtener_detalle_orden(self, orden_id):
+        from workorders.models import EstadoOrden, TRANSICIONES_VALIDAS, Bahia
+        orden = WorkOrder.objects.select_related(
+            'vehiculo', 'propietario', 'mecanico',
+        ).prefetch_related('timers', 'evidencias', 'checklists__items').get(id=orden_id)
+        return {
+            'orden': orden,
+            'timer_activo': self.timer_activo(orden_id),
+            'transiciones_validas': TRANSICIONES_VALIDAS.get(orden.estado, []),
+            'bahias_libres': Bahia.objects.filter(orden_actual__isnull=True, activa=True),
+            'estados': EstadoOrden.choices,
+        }
+
     def _estimar_tiempo(self, descripcion):
         """Estima horas de trabajo según palabras clave en la descripción"""
         desc = descripcion.lower()

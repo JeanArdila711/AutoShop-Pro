@@ -1,0 +1,241 @@
+{% extends "workorders/base.html" %}
+{% block title %}Kanban Órdenes{% endblock %}
+{% block nav_kanban %}active{% endblock %}
+
+{% block extra_css %}
+<style>
+    .kanban-board {
+        display: flex;
+        gap: 16px;
+        overflow-x: auto;
+        padding-bottom: 16px;
+        align-items: flex-start;
+    }
+
+    .kanban-col {
+        flex: 0 0 280px;
+        background: var(--bg-card);
+        backdrop-filter: blur(16px);
+        border: 1px solid var(--border-glass);
+        border-radius: 16px;
+        padding: 14px;
+        max-height: 75vh;
+        display: flex;
+        flex-direction: column;
+        box-shadow: var(--shadow-card);
+        transition: border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .kanban-col.drag-over {
+        border-color: var(--accent-primary);
+        box-shadow: var(--shadow-card), 0 0 24px rgba(108, 138, 255, 0.25);
+    }
+
+    .kanban-col-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--border-glass);
+        margin-bottom: 12px;
+    }
+
+    .kanban-col-title {
+        font-size: 0.8em;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        color: var(--text-secondary);
+    }
+
+    .kanban-count {
+        background: rgba(108, 138, 255, 0.15);
+        color: var(--accent-primary);
+        font-size: 0.7em;
+        font-weight: 700;
+        padding: 3px 10px;
+        border-radius: 12px;
+    }
+
+    .kanban-cards {
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        flex: 1;
+        min-height: 60px;
+        padding-right: 4px;
+    }
+
+    .kanban-card {
+        background: rgba(108, 138, 255, 0.06);
+        border: 1px solid var(--border-glass);
+        padding: 12px 14px;
+        border-radius: 12px;
+        cursor: grab;
+        transition: all 0.25s ease;
+        position: relative;
+        user-select: none;
+    }
+
+    .kanban-card:hover {
+        border-color: var(--border-glow);
+        background: rgba(108, 138, 255, 0.1);
+        transform: translateY(-2px);
+    }
+
+    .kanban-card.dragging {
+        opacity: 0.4;
+        cursor: grabbing;
+    }
+
+    .kanban-card-id {
+        font-size: 0.7em;
+        color: var(--text-muted);
+        font-weight: 600;
+        letter-spacing: 1px;
+    }
+
+    .kanban-card-title {
+        font-weight: 700;
+        color: var(--text-primary);
+        font-size: 0.95em;
+        margin: 4px 0 6px;
+    }
+
+    .kanban-card-meta {
+        font-size: 0.78em;
+        color: var(--text-secondary);
+        line-height: 1.5;
+    }
+
+    .kanban-card-meta i {
+        margin-right: 5px;
+        color: var(--accent-primary);
+    }
+
+    .kanban-card-link {
+        display: inline-block;
+        margin-top: 8px;
+        font-size: 0.75em;
+        color: var(--accent-cyan);
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .kanban-card-link:hover {
+        text-decoration: underline;
+    }
+
+    .empty-col {
+        text-align: center;
+        color: var(--text-muted);
+        font-size: 0.8em;
+        padding: 20px 8px;
+        opacity: 0.5;
+        font-style: italic;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="bi bi-kanban"></i> Tablero Kanban</h1>
+    <p>Arrastra las órdenes entre columnas para cambiar su estado</p>
+</div>
+
+<div class="kanban-board" id="kanbanBoard">
+    {% for col in columnas %}
+    <div class="kanban-col" data-estado="{{ col.estado }}">
+        <div class="kanban-col-header">
+            <span class="kanban-col-title">{{ col.label }}</span>
+            <span class="kanban-count">{{ col.ordenes|length }}</span>
+        </div>
+        <div class="kanban-cards" data-estado="{{ col.estado }}">
+            {% for o in col.ordenes %}
+            <div class="kanban-card" draggable="true" data-id="{{ o.id }}">
+                <div class="kanban-card-id">OT #{{ o.id }}</div>
+                <div class="kanban-card-title">{{ o.vehiculo.placa }} — {{ o.vehiculo.marca }} {{ o.vehiculo.modelo }}</div>
+                <div class="kanban-card-meta">
+                    <div><i class="bi bi-person"></i>{{ o.propietario.nombre }}</div>
+                    {% if o.mecanico %}<div><i class="bi bi-wrench"></i>{{ o.mecanico.nombre }}</div>{% endif %}
+                    {% if o.bahia %}<div><i class="bi bi-grid-3x3-gap"></i>Bahía {{ o.bahia }}</div>{% endif %}
+                </div>
+                <a href="{% url 'orden_detalle' o.id %}" class="kanban-card-link">Abrir panel →</a>
+            </div>
+            {% empty %}
+            <div class="empty-col">— vacío —</div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<script id="transiciones-data" type="application/json">{{ transiciones|safe|default:"{}" }}</script>
+
+<script>
+    const TRANSICIONES = {{ transiciones|safe }};
+    const board = document.getElementById('kanbanBoard');
+    let dragged = null;
+    let originCol = null;
+
+    document.querySelectorAll('.kanban-card').forEach(card => {
+        card.addEventListener('dragstart', e => {
+            dragged = card;
+            originCol = card.closest('.kanban-cards').dataset.estado;
+            card.classList.add('dragging');
+        });
+        card.addEventListener('dragend', () => {
+            dragged && dragged.classList.remove('dragging');
+            dragged = null;
+            document.querySelectorAll('.kanban-col').forEach(c => c.classList.remove('drag-over'));
+        });
+    });
+
+    document.querySelectorAll('.kanban-col').forEach(col => {
+        const dest = col.dataset.estado;
+        col.addEventListener('dragover', e => {
+            if (!dragged) return;
+            const permitidos = TRANSICIONES[originCol] || [];
+            if (originCol === dest || permitidos.includes(dest)) {
+                e.preventDefault();
+                col.classList.add('drag-over');
+            }
+        });
+        col.addEventListener('dragleave', () => col.classList.remove('drag-over'));
+        col.addEventListener('drop', async e => {
+            e.preventDefault();
+            col.classList.remove('drag-over');
+            if (!dragged) return;
+            if (originCol === dest) return;
+            const permitidos = TRANSICIONES[originCol] || [];
+            if (!permitidos.includes(dest)) return;
+
+            const ordenId = dragged.dataset.id;
+            try {
+                const r = await fetch("{% url 'kanban_mover' %}", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ orden_id: ordenId, nuevo_estado: dest }),
+                });
+                const data = await r.json();
+                if (data.ok) {
+                    col.querySelector('.kanban-cards').appendChild(dragged);
+                    actualizarConteos();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (err) {
+                alert('Error de red: ' + err);
+            }
+        });
+    });
+
+    function actualizarConteos() {
+        document.querySelectorAll('.kanban-col').forEach(col => {
+            const n = col.querySelectorAll('.kanban-card').length;
+            col.querySelector('.kanban-count').textContent = n;
+        });
+    }
+</script>
+{% endblock %}

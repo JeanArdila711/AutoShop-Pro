@@ -1334,6 +1334,14 @@
                 <span class="nav-icon"><i class="bi bi-file-earmark-plus"></i></span>
                 <span class="nav-label">Crear Orden</span>
             </a>
+            <a href="{% url 'kanban' %}" class="nav-link {% block nav_kanban %}{% endblock %}">
+                <span class="nav-icon"><i class="bi bi-kanban"></i></span>
+                <span class="nav-label">Kanban</span>
+            </a>
+            <a href="{% url 'bahias' %}" class="nav-link {% block nav_bahias %}{% endblock %}">
+                <span class="nav-icon"><i class="bi bi-grid-3x3-gap-fill"></i></span>
+                <span class="nav-label">Bahías</span>
+            </a>
             <a href="{% url 'predictivo_dashboard' %}" class="nav-link {% block nav_predictivo %}{% endblock %}">
                 <span class="nav-icon"><i class="bi bi-graph-up-arrow"></i></span>
                 <span class="nav-label">Predictivo</span>
