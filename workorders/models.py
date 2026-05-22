@@ -412,3 +412,150 @@ class ComponentePredictivo(models.Model):
     def debe_reemplazarse_ya(self, km_actuales):
         """Retorna True si la probabilidad de fallo supera el 70%"""
         return self.calcular_probabilidad_fallo(km_actuales) > 0.7
+
+
+# ─────────────────────────────────────────────
+# MODELO: Bahía de Trabajo
+# ─────────────────────────────────────────────
+
+class Bahia(models.Model):
+    """Bahía física del taller donde se atienden las órdenes"""
+    TIPOS = [
+        ('GENERAL', 'General'),
+        ('MECANICA', 'Mecánica'),
+        ('ELECTRICA', 'Eléctrica'),
+        ('CARROCERIA', 'Carrocería'),
+        ('ALINEACION', 'Alineación'),
+    ]
+
+    codigo = models.CharField(max_length=10, unique=True)
+    nombre = models.CharField(max_length=60)
+    tipo = models.CharField(max_length=15, choices=TIPOS, default='GENERAL')
+    activa = models.BooleanField(default=True)
+    orden_actual = models.OneToOneField(
+        'WorkOrder', on_delete=models.SET_NULL,
+        null=True, blank=True, related_name='bahia_asignada',
+    )
+
+    def __str__(self):
+        return f"{self.codigo} - {self.nombre}"
+
+    def esta_ocupada(self):
+        return self.orden_actual is not None
+
+
+# ─────────────────────────────────────────────
+# MODELO: Sesión de Cronómetro (timer)
+# ─────────────────────────────────────────────
+
+class TimerSession(models.Model):
+    """Sesiones de cronómetro asociadas a una orden — calculan tiempo_real"""
+    orden = models.ForeignKey(
+        WorkOrder, on_delete=models.CASCADE, related_name='timers',
+    )
+    inicio = models.DateTimeField(default=timezone.now)
+    fin = models.DateTimeField(null=True, blank=True)
+    nota = models.CharField(max_length=200, blank=True, default='')
+
+    class Meta:
+        ordering = ['-inicio']
+
+    def __str__(self):
+        return f"Timer OT#{self.orden_id} {self.inicio:%Y-%m-%d %H:%M}"
+
+    @property
+    def activo(self):
+        return self.fin is None
+
+    def duracion_segundos(self):
+        fin = self.fin or timezone.now()
+        return int((fin - self.inicio).total_seconds())
+
+    def duracion_horas(self):
+        return round(self.duracion_segundos() / 3600.0, 2)
+
+
+# ─────────────────────────────────────────────
+# MODELO: Plantilla y resultado de Checklist
+# ─────────────────────────────────────────────
+
+class ChecklistTemplate(models.Model):
+    """Plantilla de checklist por categoría de diagnóstico"""
+    categoria = models.CharField(
+        max_length=20, choices=CategoriaComponente.choices, unique=True,
+    )
+    descripcion = models.CharField(max_length=200, blank=True, default='')
+
+    def __str__(self):
+        return f"Checklist {self.categoria}"
+
+
+class ChecklistTemplateItem(models.Model):
+    template = models.ForeignKey(
+        ChecklistTemplate, on_delete=models.CASCADE, related_name='items',
+    )
+    texto = models.CharField(max_length=200)
+    orden = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['orden', 'id']
+
+    def __str__(self):
+        return self.texto
+
+
+class DiagnosticoChecklist(models.Model):
+    """Resultado de checklist aplicado a una orden"""
+    orden = models.ForeignKey(
+        WorkOrder, on_delete=models.CASCADE, related_name='checklists',
+    )
+    categoria = models.CharField(
+        max_length=20, choices=CategoriaComponente.choices,
+    )
+    fecha = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f"Checklist {self.categoria} OT#{self.orden_id}"
+
+
+class DiagnosticoChecklistItem(models.Model):
+    ESTADOS = [
+        ('OK', 'OK'),
+        ('REVISAR', 'A revisar'),
+        ('FALLA', 'Falla'),
+        ('PENDIENTE', 'Pendiente'),
+    ]
+    checklist = models.ForeignKey(
+        DiagnosticoChecklist, on_delete=models.CASCADE, related_name='items',
+    )
+    texto = models.CharField(max_length=200)
+    estado = models.CharField(max_length=12, choices=ESTADOS, default='PENDIENTE')
+    nota = models.CharField(max_length=300, blank=True, default='')
+
+    def __str__(self):
+        return f"{self.texto} [{self.estado}]"
+
+
+# ─────────────────────────────────────────────
+# MODELO: Evidencia fotográfica antes/después
+# ─────────────────────────────────────────────
+
+class EvidenciaFoto(models.Model):
+    MOMENTOS = [
+        ('ANTES', 'Antes'),
+        ('DURANTE', 'Durante'),
+        ('DESPUES', 'Después'),
+    ]
+    orden = models.ForeignKey(
+        WorkOrder, on_delete=models.CASCADE, related_name='evidencias',
+    )
+    imagen = models.ImageField(upload_to='evidencias/%Y/%m/')
+    momento = models.CharField(max_length=10, choices=MOMENTOS, default='ANTES')
+    descripcion = models.CharField(max_length=200, blank=True, default='')
+    fecha = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ['fecha']
+
+    def __str__(self):
+        return f"Foto {self.momento} OT#{self.orden_id}"
