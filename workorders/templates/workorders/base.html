@@ -1,5 +1,6 @@
+{% load i18n %}
 <!DOCTYPE html>
-<html lang="es">
+<html lang="{{ LANGUAGE_CODE }}">
 
 <head>
     <meta charset="UTF-8">
@@ -433,6 +434,17 @@
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.08);
         }
 
+        /* ── Language selector ── */
+        .lang-btn {
+            width: 100%; padding: 6px 4px; border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.15);
+            background: transparent; color: var(--text-primary);
+            cursor: pointer; font-size: 0.8em; font-weight: 400;
+            transition: background 0.2s;
+        }
+        .lang-btn:hover { background: rgba(255,255,255,0.1); }
+        .lang-btn-active { background: rgba(255,255,255,0.22) !important; font-weight: 700; }
+
         .badge-default { background: rgba(30,41,59,0.08); color: var(--primary); border: 1px solid rgba(30,41,59,0.12); }
         .badge-success { background: rgba(22,163,74,0.12); color: var(--success); border: 1px solid rgba(22,163,74,0.2); box-shadow: 0 0 16px rgba(22,163,74,0.06); }
         .badge-warning { background: rgba(217,119,6,0.12); color: var(--warning); border: 1px solid rgba(217,119,6,0.2); box-shadow: 0 0 16px rgba(217,119,6,0.06); }
@@ -678,30 +690,30 @@
         </a>
 
         <div class="sidebar-nav">
-            <div class="nav-section">Principal</div>
+            <div class="nav-section">{% trans "Principal" %}</div>
             <a href="{% url 'dashboard' %}" class="nav-link {% block nav_dashboard %}{% endblock %}">
                 <span class="nav-icon"><i class="bi bi-speedometer2"></i></span>
-                <span class="nav-label">Dashboard</span>
+                <span class="nav-label">{% trans "Dashboard" %}</span>
             </a>
 
-            <div class="nav-section">Registros</div>
+            <div class="nav-section">{% trans "Registros" %}</div>
             <a href="{% url 'registrar_propietario' %}" class="nav-link {% block nav_propietarios %}{% endblock %}">
                 <span class="nav-icon"><i class="bi bi-people-fill"></i></span>
-                <span class="nav-label">Propietarios</span>
+                <span class="nav-label">{% trans "Owners" %}</span>
             </a>
             <a href="{% url 'registrar_vehiculo' %}" class="nav-link {% block nav_vehiculos %}{% endblock %}">
                 <span class="nav-icon"><i class="bi bi-car-front"></i></span>
-                <span class="nav-label">Vehículos</span>
+                <span class="nav-label">{% trans "Vehicles" %}</span>
             </a>
             <a href="{% url 'registrar_mecanico' %}" class="nav-link {% block nav_mecanicos %}{% endblock %}">
                 <span class="nav-icon"><i class="bi bi-wrench-adjustable"></i></span>
-                <span class="nav-label">Mecánicos</span>
+                <span class="nav-label">{% trans "Mechanics" %}</span>
             </a>
 
-            <div class="nav-section">Operaciones</div>
+            <div class="nav-section">{% trans "Operaciones" %}</div>
             <a href="{% url 'crear_orden' %}" class="nav-link {% block nav_ordenes %}{% endblock %}">
                 <span class="nav-icon"><i class="bi bi-file-earmark-plus"></i></span>
-                <span class="nav-label">Crear Orden</span>
+                <span class="nav-label">{% trans "New Order" %}</span>
             </a>
             <a href="{% url 'kanban' %}" class="nav-link {% block nav_kanban %}{% endblock %}">
                 <span class="nav-icon"><i class="bi bi-kanban"></i></span>
@@ -709,18 +721,49 @@
             </a>
             <a href="{% url 'bahias' %}" class="nav-link {% block nav_bahias %}{% endblock %}">
                 <span class="nav-icon"><i class="bi bi-grid-3x3-gap-fill"></i></span>
-                <span class="nav-label">Bahías</span>
+                <span class="nav-label">{% trans "Bays" %}</span>
             </a>
             <a href="{% url 'predictivo_dashboard' %}" class="nav-link {% block nav_predictivo %}{% endblock %}">
                 <span class="nav-icon"><i class="bi bi-graph-up-arrow"></i></span>
-                <span class="nav-label">Predictivo</span>
+                <span class="nav-label">{% trans "Predictive" %}</span>
             </a>
         </div>
 
         <div class="sidebar-bottom">
+            <!-- Selector de idioma -->
+            {% get_current_language as CURRENT_LANG %}
+            <div style="display:flex;gap:6px;padding:0 12px;margin-bottom:8px;">
+                <button type="button" onclick="cambiarIdioma('es')"
+                    class="lang-btn {% if CURRENT_LANG == 'es' %}lang-btn-active{% endif %}">
+                    🇨🇴 ES
+                </button>
+                <button type="button" onclick="cambiarIdioma('en')"
+                    class="lang-btn {% if CURRENT_LANG == 'en' %}lang-btn-active{% endif %}">
+                    🇺🇸 EN
+                </button>
+            </div>
+            <script>
+            function cambiarIdioma(lang) {
+                var form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '{% url "set_language" %}';
+                var csrf = document.createElement('input');
+                csrf.type = 'hidden'; csrf.name = 'csrfmiddlewaretoken';
+                csrf.value = '{{ csrf_token }}';
+                var langInput = document.createElement('input');
+                langInput.type = 'hidden'; langInput.name = 'language'; langInput.value = lang;
+                var next = document.createElement('input');
+                next.type = 'hidden'; next.name = 'next'; next.value = window.location.pathname;
+                form.appendChild(csrf);
+                form.appendChild(langInput);
+                form.appendChild(next);
+                document.body.appendChild(form);
+                form.submit();
+            }
+            </script>
             <a href="{% url 'landing' %}" class="nav-link">
                 <span class="nav-icon"><i class="bi bi-house-door"></i></span>
-                <span class="nav-label">Inicio</span>
+                <span class="nav-label">{% trans "Inicio" %}</span>
             </a>
         </div>
     </nav>

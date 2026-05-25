@@ -1,5 +1,6 @@
 {% extends "workorders/base.html" %}
-{% block title %}Dashboard{% endblock %}
+{% load i18n %}
+{% block title %}{% trans "Dashboard" %}{% endblock %}
 {% block nav_dashboard %}active{% endblock %}
 
 {% block extra_css %}
@@ -747,8 +748,8 @@
 <!-- ── HEADER ── -->
 <div class="dash-header">
     <div class="dash-header-left">
-        <h1><i class="bi bi-grid-1x2-fill" style="color:var(--accent);font-size:0.75em;"></i> Panel de <span>Control</span></h1>
-        <p>Resumen operativo del taller en tiempo real</p>
+        <h1><i class="bi bi-grid-1x2-fill" style="color:var(--accent);font-size:0.75em;"></i> {% trans "Control Panel" %}</h1>
+        <p>{% trans "Real-time operational summary" %}</p>
     </div>
     <div class="dash-header-right">
         {% if ordenes_hoy > 0 %}
@@ -763,6 +764,11 @@
             {{ alertas_criticas }} alerta{{ alertas_criticas|pluralize:"s" }}
         </a>
         {% endif %}
+        <!-- ── Widget Tasa de Cambio — Adapter Pattern ── -->
+        <span class="header-badge" id="tasa-cambio-badge" title="Tasa USD/COP en tiempo real via ExchangeRate-API">
+            <i class="bi bi-currency-exchange"></i>
+            <span id="tasa-valor">Cargando...</span>
+        </span>
     </div>
 </div>
 
@@ -779,7 +785,7 @@
                 {% endif %}
             </div>
             <div class="kpi-value" data-target="{{ total_ordenes }}">0</div>
-            <div class="kpi-label">Ordenes de Trabajo</div>
+            <div class="kpi-label">{% trans "Total Orders" %}</div>
             <div class="kpi-sub">{{ ordenes_completadas }} completada{{ ordenes_completadas|pluralize:"s" }}</div>
         </div>
     </div>
@@ -791,7 +797,7 @@
                 <span class="kpi-trend kpi-trend-solid-neutral"><i class="bi bi-arrow-right-short"></i> {{ total_propietarios }}</span>
             </div>
             <div class="kpi-value" data-target="{{ total_propietarios }}">0</div>
-            <div class="kpi-label">Propietarios</div>
+            <div class="kpi-label">{% trans "Owners" %}</div>
             <div class="kpi-sub">{{ total_vehiculos }} vehiculo{{ total_vehiculos|pluralize:"s" }} asociados</div>
         </div>
     </div>
@@ -803,7 +809,7 @@
                 <span class="kpi-trend kpi-trend-solid-neutral"><i class="bi bi-arrow-right-short"></i> {{ total_mecanicos }}</span>
             </div>
             <div class="kpi-value" data-target="{{ total_mecanicos }}">0</div>
-            <div class="kpi-label">Mecanicos</div>
+            <div class="kpi-label">{% trans "Mechanics" %}</div>
             <div class="kpi-sub">Especialistas disponibles</div>
         </div>
     </div>
@@ -819,7 +825,7 @@
                 {% endif %}
             </div>
             <div class="kpi-value" data-target="{{ alertas_criticas }}">0</div>
-            <div class="kpi-label">Alertas Criticas</div>
+            <div class="kpi-label">{% trans "Critical Alerts" %}</div>
             {% if alertas_criticas > 0 %}
             <a href="{% url 'predictivo_dashboard' %}" class="kpi-sub" style="color:var(--danger);text-decoration:none;font-weight:600;">Ver alertas &rarr;</a>
             {% else %}
@@ -837,7 +843,7 @@
             <div class="panel-header">
                 <div class="panel-title">
                     <span class="panel-title-icon"><i class="bi bi-pie-chart-fill"></i></span>
-                    Distribucion de Ordenes
+                    {% trans "Order Distribution" %}
                 </div>
             </div>
             <div class="panel-body">
@@ -864,7 +870,7 @@
                 {% else %}
                 <div class="empty-state-modern">
                     <div class="empty-icon-wrap"><i class="bi bi-pie-chart"></i></div>
-                    <p>Sin datos de ordenes</p>
+                    <p>{% trans "No order data" %}</p>
                 </div>
                 {% endif %}
             </div>
@@ -877,14 +883,14 @@
             <div class="panel-header">
                 <div class="panel-title">
                     <span class="panel-title-icon"><i class="bi bi-graph-up-arrow"></i></span>
-                    Ingresos del Taller
+                    {% trans "Revenue" %}
                 </div>
             </div>
             <div class="panel-body">
                 <div class="revenue-row">
                     <div class="revenue-item">
                         <div class="revenue-item-header">
-                            <span class="revenue-item-label">Presupuestado</span>
+                            <span class="revenue-item-label">{% trans "Budgeted" %}</span>
                             <span class="revenue-item-value">${{ ingresos_presupuestado|floatformat:0|default:"0" }}</span>
                         </div>
                         <div class="progress-bar">
@@ -893,7 +899,7 @@
                     </div>
                     <div class="revenue-item">
                         <div class="revenue-item-header">
-                            <span class="revenue-item-label">Cobrado (Real)</span>
+                            <span class="revenue-item-label">{% trans "Real" %}</span>
                             <span class="revenue-item-value">${{ ingresos_real|floatformat:0|default:"0" }}</span>
                         </div>
                         <div class="progress-bar">
@@ -918,14 +924,14 @@
             <div class="panel-header">
                 <div class="panel-title">
                     <span class="panel-title-icon"><i class="bi bi-lightning-charge-fill"></i></span>
-                    Acciones Rapidas
+                    {% trans "Quick Actions" %}
                 </div>
             </div>
             <div class="panel-body">
                 <div class="quick-actions">
                     <a href="{% url 'crear_orden' %}" class="quick-action">
                         <div class="quick-action-icon kpi-icon-blue"><i class="bi bi-file-earmark-plus-fill"></i></div>
-                        <span class="quick-action-label">Nueva Orden</span>
+                        <span class="quick-action-label">{% trans "New Order" %}</span>
                     </a>
                     <a href="{% url 'kanban' %}" class="quick-action">
                         <div class="quick-action-icon kpi-icon-amber"><i class="bi bi-kanban-fill"></i></div>
@@ -933,15 +939,15 @@
                     </a>
                     <a href="{% url 'bahias' %}" class="quick-action">
                         <div class="quick-action-icon kpi-icon-green"><i class="bi bi-grid-3x3-gap-fill"></i></div>
-                        <span class="quick-action-label">Bahias</span>
+                        <span class="quick-action-label">{% trans "Bays" %}</span>
                     </a>
                     <a href="{% url 'registrar_propietario' %}" class="quick-action">
                         <div class="quick-action-icon kpi-icon-slate"><i class="bi bi-person-plus-fill"></i></div>
-                        <span class="quick-action-label">Propietario</span>
+                        <span class="quick-action-label">{% trans "Owners" %}</span>
                     </a>
                     <a href="{% url 'registrar_vehiculo' %}" class="quick-action">
                         <div class="quick-action-icon kpi-icon-slate"><i class="bi bi-car-front-fill"></i></div>
-                        <span class="quick-action-label">Vehiculo</span>
+                        <span class="quick-action-label">{% trans "Vehicles" %}</span>
                     </a>
                     <a href="{% url 'predictivo_dashboard' %}" class="quick-action">
                         <div class="quick-action-icon kpi-icon-red"><i class="bi bi-graph-up-arrow"></i></div>
@@ -961,7 +967,7 @@
             <div class="panel-header">
                 <div class="panel-title">
                     <span class="panel-title-icon"><i class="bi bi-clock-history"></i></span>
-                    Ordenes Recientes
+                    {% trans "Recent Orders" %}
                 </div>
                 <a href="{% url 'kanban' %}" class="panel-action">Ver todas <i class="bi bi-arrow-right"></i></a>
             </div>
@@ -971,11 +977,11 @@
                     <table class="orders-table">
                         <thead>
                             <tr>
-                                <th>Orden</th>
-                                <th>Vehiculo</th>
-                                <th>Mecanico</th>
-                                <th>Estado</th>
-                                <th>Fecha</th>
+                                <th>{% trans "Order" %}</th>
+                                <th>{% trans "Vehicle" %}</th>
+                                <th>{% trans "Mechanic" %}</th>
+                                <th>{% trans "Status" %}</th>
+                                <th>{% trans "Date" %}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -990,7 +996,7 @@
                                     {% if o.mecanico %}
                                     <span style="font-weight:500;">{{ o.mecanico.nombre }}</span>
                                     {% else %}
-                                    <span style="color:var(--text-muted);font-style:italic;">Sin asignar</span>
+                                    <span style="color:var(--text-muted);font-style:italic;">{% trans "Unassigned" %}</span>
                                     {% endif %}
                                 </td>
                                 <td>
@@ -1020,8 +1026,8 @@
             <div class="panel-body">
                 <div class="empty-state-modern">
                     <div class="empty-icon-wrap"><i class="bi bi-inbox"></i></div>
-                    <h3>Sin ordenes registradas</h3>
-                    <p>Crea la primera orden de trabajo para empezar.</p>
+                    <h3>{% trans "No orders registered" %}</h3>
+                    <p>{% trans "Create the first work order to get started." %}</p>
                     <a href="{% url 'crear_orden' %}" class="btn" style="width:auto;display:inline-flex;align-items:center;gap:8px;padding:10px 24px;">
                         <i class="bi bi-plus-lg"></i> Crear primera orden
                     </a>
@@ -1037,7 +1043,7 @@
             <div class="panel-header">
                 <div class="panel-title">
                     <span class="panel-title-icon"><i class="bi bi-person-workspace"></i></span>
-                    Carga de Trabajo
+                    {% trans "Mechanic Workload" %}
                 </div>
             </div>
             <div class="panel-body">
@@ -1059,7 +1065,7 @@
                 {% else %}
                 <div class="empty-state-modern">
                     <div class="empty-icon-wrap"><i class="bi bi-person-x"></i></div>
-                    <p>Sin mecanicos registrados</p>
+                    <p>{% trans "No mechanics registered" %}</p>
                     <a href="{% url 'registrar_mecanico' %}" class="btn-secondary" style="margin-top:8px;">
                         <i class="bi bi-person-plus"></i> Registrar
                     </a>
@@ -1148,5 +1154,25 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+/* ── Tasa de Cambio USD/COP — Adapter Pattern ── */
+(function() {
+    var badge = document.getElementById('tasa-cambio-badge');
+    var valorEl = document.getElementById('tasa-valor');
+
+    fetch('/workorders/tasa-cambio/')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.tasa_usd_cop) {
+                valorEl.textContent = '1 USD = ' + data.tasa_usd_cop_formateada + ' COP';
+                badge.title = 'Fuente: ' + data.fuente;
+            } else {
+                valorEl.textContent = 'Tasa no disponible';
+            }
+        })
+        .catch(function() {
+            valorEl.textContent = 'Tasa no disponible';
+        });
+})();
 </script>
 {% endblock %}
