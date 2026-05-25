@@ -4,13 +4,14 @@
 
 {% block extra_css %}
 <style>
-    /* ── Shared modal base ── */
+    /* ── Modal overlay ── */
     .modal-overlay {
         display: none;
         position: fixed;
         inset: 0;
-        background: rgba(0, 0, 0, 0.6);
+        background: rgba(15, 23, 42, 0.55);
         backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
         z-index: 1000;
         align-items: center;
         justify-content: center;
@@ -23,15 +24,15 @@
     }
 
     .modal-box {
-        background: var(--surface-card);
-        border: 1px solid var(--border-color);
+        background: #ffffff;
+        border: 1px solid var(--border);
         border-radius: 20px;
         padding: 36px;
         width: 100%;
         max-width: 680px;
         max-height: 90vh;
         overflow-y: auto;
-        box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+        box-shadow: 0 20px 60px rgba(15,23,42,0.18), 0 4px 16px rgba(15,23,42,0.08);
         animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         position: relative;
     }
@@ -43,34 +44,45 @@
         top: 16px;
         right: 20px;
         background: none;
-        border: none;
-        color: var(--text-muted);
-        font-size: 1.5rem;
+        border: 1px solid transparent;
+        color: var(--text-secondary);
+        font-size: 1.4rem;
         cursor: pointer;
         line-height: 1;
-        padding: 4px 8px;
+        padding: 6px 10px;
         border-radius: 8px;
-        transition: background 0.2s, color 0.2s;
+        transition: background 0.2s, border-color 0.2s, color 0.2s;
     }
 
     .modal-close:hover {
-        background: rgba(255,255,255,0.07);
-        color: var(--text-primary);
+        background: #F1F5F9;
+        border-color: var(--border);
+        color: var(--text);
     }
 
     .modal-title {
-        font-size: 1.3rem;
+        font-size: 1.25rem;
         font-weight: 700;
-        margin-bottom: 8px;
+        margin-bottom: 24px;
         display: flex;
         align-items: center;
         gap: 10px;
-        color: var(--accent-primary);
+        color: var(--text);
+        padding-right: 40px;
+    }
+
+    .modal-title i { color: var(--accent); }
+
+    .modal-subtitle {
+        font-size: 0.84rem;
+        color: var(--text-secondary);
+        margin-top: -16px;
+        margin-bottom: 20px;
     }
 
     @keyframes slideUp {
-        from { opacity: 0; transform: translateY(30px) scale(0.97); }
-        to   { opacity: 1; transform: translateY(0)   scale(1); }
+        from { opacity: 0; transform: translateY(24px) scale(0.98); }
+        to   { opacity: 1; transform: translateY(0) scale(1); }
     }
 
     @keyframes fadeIn {
@@ -78,6 +90,70 @@
         to   { opacity: 1; }
     }
 
+    /* ── Form fields ── */
+    .modal-box .form-group label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.84rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        margin-bottom: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+
+    .modal-box input[type="text"],
+    .modal-box input[type="number"],
+    .modal-box select {
+        width: 100%;
+        padding: 11px 14px;
+        background: #F8FAFC;
+        border: 1.5px solid var(--border);
+        border-radius: 10px;
+        font-size: 0.95rem;
+        color: var(--text);
+        transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+        appearance: none;
+        -webkit-appearance: none;
+        outline: none;
+        font-family: inherit;
+    }
+
+    .modal-box input:focus,
+    .modal-box select:focus {
+        border-color: var(--accent);
+        background: #ffffff;
+        box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.08);
+    }
+
+    .modal-box select {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 14px center;
+        padding-right: 40px;
+    }
+
+    .modal-box .btn {
+        width: 100%;
+        padding: 13px 20px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        border-radius: 12px;
+        margin-top: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    }
+
+    .modal-box .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(220, 38, 38, 0.3);
+    }
+
+    /* ── Page layout ── */
     .page-header-row {
         display: flex;
         align-items: flex-start;
@@ -87,73 +163,61 @@
         margin-bottom: 28px;
     }
 
-    .page-header-row .page-header {
-        margin-bottom: 0;
-    }
+    .page-header-row .page-header { margin-bottom: 0; }
 
     .btn-register {
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        padding: 12px 22px;
-        background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+        padding: 11px 22px;
+        background: var(--accent);
         color: #fff;
         border: none;
         border-radius: 12px;
-        font-size: 0.95rem;
+        font-size: 0.9rem;
         font-weight: 600;
         cursor: pointer;
         white-space: nowrap;
-        box-shadow: 0 4px 20px rgba(108,138,255,0.35);
-        transition: transform 0.2s, box-shadow 0.2s;
+        box-shadow: 0 2px 8px rgba(220, 38, 38, 0.25);
+        transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
         flex-shrink: 0;
         align-self: center;
     }
 
     .btn-register:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 28px rgba(108,138,255,0.5);
+        background: var(--accent-hover);
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(220, 38, 38, 0.3);
     }
 
     /* ── Clickable rows ── */
     tbody tr.clickable-row {
         cursor: pointer;
-        transition: background 0.18s;
+        transition: background 0.15s;
     }
 
     tbody tr.clickable-row:hover {
-        background: rgba(108, 138, 255, 0.07);
-    }
-
-    tbody tr.clickable-row td:first-child::before {
-        content: '';
-        display: inline-block;
-        width: 3px;
-        height: 0;
-        background: var(--accent-primary);
-        border-radius: 2px;
-        margin-right: 0;
-        transition: height 0.2s;
-        vertical-align: middle;
+        background: #FEF2F2;
     }
 
     tbody tr.clickable-row:hover td:first-child {
-        padding-left: 12px;
+        padding-left: 14px;
+        border-left: 3px solid var(--accent);
     }
 
     .row-hint {
         font-size: 0.78rem;
-        color: var(--text-muted);
-        margin-top: 8px;
+        color: var(--text-secondary);
+        margin-top: 10px;
         display: flex;
         align-items: center;
         gap: 5px;
     }
 
-    /* ── Orden card dentro del modal ── */
+    /* ── Order card in modal ── */
     .order-card {
-        background: rgba(108, 138, 255, 0.05);
-        border: 1px solid rgba(108, 138, 255, 0.15);
+        background: #F8FAFC;
+        border: 1.5px solid var(--border);
         border-radius: 14px;
         padding: 16px 20px;
         display: flex;
@@ -163,66 +227,57 @@
     }
 
     .order-card:hover {
-        background: rgba(108, 138, 255, 0.1);
-        border-color: rgba(108, 138, 255, 0.3);
+        background: #FEF2F2;
+        border-color: rgba(220, 38, 38, 0.25);
     }
 
     .order-card-icon {
-        font-size: 2rem;
-        color: var(--accent-primary);
+        font-size: 1.8rem;
+        color: var(--accent);
         flex-shrink: 0;
-        opacity: 0.8;
+        opacity: 0.7;
     }
 
     .order-card-info { flex: 1; min-width: 0; }
 
     .order-id {
-        font-family: monospace;
-        font-size: 1.1rem;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 1rem;
         font-weight: 700;
-        color: var(--accent-cyan);
+        color: var(--text);
         letter-spacing: 1px;
-    }
-
-    .order-desc {
-        font-size: 0.9rem;
-        color: var(--text-secondary);
-        margin-top: 2px;
     }
 
     .order-meta {
         display: flex;
-        gap: 10px;
-        margin-top: 8px;
+        gap: 12px;
+        margin-top: 6px;
         flex-wrap: wrap;
     }
 
     .order-meta span {
         font-size: 0.78rem;
-        color: var(--text-muted);
+        color: var(--text-secondary);
         display: flex;
         align-items: center;
         gap: 4px;
     }
 
-    .orders-list {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-    }
+    .orders-list { display: flex; flex-direction: column; gap: 10px; }
 
     .no-orders {
         text-align: center;
         padding: 32px 20px;
-        color: var(--text-muted);
+        color: var(--text-secondary);
         font-size: 0.9rem;
     }
 
     .no-orders i {
-        font-size: 2.5rem;
+        font-size: 2.2rem;
         display: block;
         margin-bottom: 10px;
-        opacity: 0.4;
+        opacity: 0.3;
+        color: var(--accent);
     }
 
     /* ── Vehicle info strip ── */
@@ -231,7 +286,8 @@
         align-items: center;
         gap: 14px;
         padding: 14px 18px;
-        background: rgba(108, 138, 255, 0.06);
+        background: #F8FAFC;
+        border: 1px solid var(--border);
         border-radius: 12px;
         margin-bottom: 20px;
     }
@@ -240,11 +296,11 @@
         width: 44px;
         height: 44px;
         border-radius: 50%;
-        background: linear-gradient(135deg, var(--accent-cyan), var(--accent-primary));
+        background: var(--accent);
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.2rem;
+        font-size: 1.1rem;
         color: #fff;
         flex-shrink: 0;
     }
@@ -253,15 +309,15 @@
 
     .vehicle-strip-name {
         font-weight: 700;
-        font-size: 1rem;
-        color: var(--text-primary);
-        font-family: monospace;
+        font-size: 0.95rem;
+        color: var(--text);
+        font-family: 'JetBrains Mono', monospace;
         letter-spacing: 1px;
     }
 
     .vehicle-strip-meta {
         font-size: 0.82rem;
-        color: var(--text-muted);
+        color: var(--text-secondary);
         margin-top: 2px;
     }
 
@@ -269,8 +325,9 @@
         font-size: 0.8rem;
         font-weight: 700;
         padding: 4px 10px;
-        background: rgba(108, 138, 255, 0.15);
-        color: var(--accent-primary);
+        background: var(--accent-light);
+        color: var(--accent);
+        border: 1px solid rgba(220, 38, 38, 0.2);
         border-radius: 20px;
     }
 </style>

@@ -9,8 +9,9 @@
         display: none;
         position: fixed;
         inset: 0;
-        background: rgba(0, 0, 0, 0.6);
+        background: rgba(15, 23, 42, 0.55);
         backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
         z-index: 1000;
         align-items: center;
         justify-content: center;
@@ -23,15 +24,15 @@
     }
 
     .modal-box {
-        background: var(--surface-card);
-        border: 1px solid var(--border-color);
+        background: #ffffff;
+        border: 1px solid var(--border);
         border-radius: 20px;
         padding: 36px;
         width: 100%;
         max-width: 720px;
         max-height: 90vh;
         overflow-y: auto;
-        box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+        box-shadow: 0 20px 60px rgba(15,23,42,0.18), 0 4px 16px rgba(15,23,42,0.08);
         animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         position: relative;
     }
@@ -41,49 +42,188 @@
         top: 16px;
         right: 20px;
         background: none;
-        border: none;
-        color: var(--text-muted);
-        font-size: 1.5rem;
+        border: 1px solid transparent;
+        color: var(--text-secondary);
+        font-size: 1.4rem;
         cursor: pointer;
         line-height: 1;
-        padding: 4px 8px;
+        padding: 6px 10px;
         border-radius: 8px;
-        transition: background 0.2s, color 0.2s;
+        transition: background 0.2s, border-color 0.2s, color 0.2s;
     }
 
     .modal-close:hover {
-        background: rgba(255,255,255,0.07);
-        color: var(--text-primary);
+        background: #F1F5F9;
+        border-color: var(--border);
+        color: var(--text);
     }
 
     .modal-title {
-        font-size: 1.3rem;
+        font-size: 1.25rem;
         font-weight: 700;
         margin-bottom: 24px;
         display: flex;
         align-items: center;
         gap: 10px;
-        color: var(--accent-primary);
+        color: var(--text);
+        padding-right: 40px;
+    }
+
+    .modal-title i {
+        color: var(--accent);
+        font-size: 1.2rem;
     }
 
     .modal-info-banner {
-        background: rgba(108, 138, 255, 0.08);
-        border: 1px solid rgba(108, 138, 255, 0.2);
-        border-radius: 12px;
-        padding: 14px 18px;
+        background: #FEF2F2;
+        border: 1px solid rgba(220, 38, 38, 0.15);
+        border-left: 3px solid var(--accent);
+        border-radius: 10px;
+        padding: 12px 16px;
         margin-bottom: 24px;
-        font-size: 0.85rem;
+        font-size: 0.84rem;
         color: var(--text-secondary);
         line-height: 1.6;
     }
 
     .modal-info-banner strong {
-        color: var(--accent-primary);
+        color: var(--accent);
+        font-weight: 600;
+    }
+
+    /* ── Form field refinements inside modals ── */
+    .modal-box .form-group label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.84rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        margin-bottom: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+
+    .modal-box .form-group label i {
+        color: var(--accent);
+        font-size: 0.9rem;
+    }
+
+    .modal-box input[type="text"],
+    .modal-box input[type="email"],
+    .modal-box input[type="number"],
+    .modal-box textarea,
+    .modal-box select {
+        width: 100%;
+        padding: 11px 14px;
+        background: #F8FAFC;
+        border: 1.5px solid var(--border);
+        border-radius: 10px;
+        font-size: 0.95rem;
+        color: var(--text);
+        transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+        appearance: none;
+        -webkit-appearance: none;
+        outline: none;
+        font-family: inherit;
+    }
+
+    .modal-box input:focus,
+    .modal-box textarea:focus,
+    .modal-box select:focus {
+        border-color: var(--accent);
+        background: #ffffff;
+        box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.08);
+    }
+
+    .modal-box select {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 14px center;
+        padding-right: 40px;
+    }
+
+    .modal-box textarea {
+        resize: vertical;
+        min-height: 96px;
+    }
+
+    /* ── Asignación preview card ── */
+    #preview-asignacion.info-box {
+        background: #F0FDF4;
+        border: 1.5px solid rgba(22, 163, 74, 0.25);
+        border-left: 3px solid #16A34A;
+        border-radius: 10px;
+        padding: 14px 16px;
+    }
+
+    #preview-asignacion h3 {
+        color: #15803D;
+        font-size: 0.82rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    #preview-asignacion p {
+        color: #374151;
+        font-size: 0.875rem;
+        line-height: 1.6;
+    }
+
+    /* ── Submit button ── */
+    .modal-box .btn {
+        width: 100%;
+        padding: 13px 20px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        border-radius: 12px;
+        margin-top: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    }
+
+    .modal-box .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(220, 38, 38, 0.3);
+    }
+
+    .modal-box .btn:active { transform: translateY(0); }
+
+    /* Estado actual display */
+    #div-estado-actual {
+        padding: 11px 14px;
+        background: #F8FAFC;
+        border: 1.5px solid var(--border);
+        border-radius: 10px;
+        font-family: 'JetBrains Mono', monospace;
+        font-weight: 700;
+        font-size: 0.9rem;
+        color: var(--text);
+        letter-spacing: 0.05em;
+    }
+
+    #msg-no-transiciones {
+        background: #FFFBEB;
+        border: 1px solid rgba(217, 119, 6, 0.25);
+        border-left: 3px solid #D97706;
+        border-radius: 10px;
+        padding: 12px 16px;
+        font-size: 0.875rem;
+        color: #92400E;
+        margin-bottom: 20px;
     }
 
     @keyframes slideUp {
-        from { opacity: 0; transform: translateY(30px) scale(0.97); }
-        to   { opacity: 1; transform: translateY(0)   scale(1); }
+        from { opacity: 0; transform: translateY(24px) scale(0.98); }
+        to   { opacity: 1; transform: translateY(0) scale(1); }
     }
 
     @keyframes fadeIn {
@@ -108,35 +248,36 @@
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        padding: 12px 22px;
-        background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+        padding: 11px 22px;
+        background: var(--accent);
         color: #fff;
         border: none;
         border-radius: 12px;
-        font-size: 0.95rem;
+        font-size: 0.9rem;
         font-weight: 600;
         cursor: pointer;
         white-space: nowrap;
-        box-shadow: 0 4px 20px rgba(108,138,255,0.35);
-        transition: transform 0.2s, box-shadow 0.2s;
+        box-shadow: 0 2px 8px rgba(220, 38, 38, 0.25);
+        transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
         flex-shrink: 0;
         align-self: center;
     }
 
     .btn-register:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 28px rgba(108,138,255,0.5);
+        background: var(--accent-hover);
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(220, 38, 38, 0.3);
     }
 
     .order-item.clickable {
         cursor: pointer;
         transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
     }
-    
+
     .order-item.clickable:hover {
         transform: translateY(-2px);
-        border-color: rgba(108, 138, 255, 0.4);
-        background: rgba(108, 138, 255, 0.04);
+        border-color: rgba(220, 38, 38, 0.25);
+        background: #FEF2F2;
     }
 </style>
 {% endblock %}
@@ -295,7 +436,7 @@
             
             <div class="form-group">
                 <label>Estado Actual</label>
-                <div id="div-estado-actual" style="padding: 12px; background: rgba(255,255,255,0.05); border-radius: 8px; font-family: monospace; color: var(--accent-cyan); font-weight: bold; border: 1px solid var(--border-glass);"></div>
+                <div id="div-estado-actual"></div>
             </div>
 
             <div class="form-group" id="group-nuevo-estado">
@@ -305,7 +446,7 @@
                 </select>
             </div>
 
-            <div id="msg-no-transiciones" style="display: none; color: var(--warning); padding: 12px; background: rgba(251, 191, 36, 0.1); border-radius: 8px; margin-bottom: 20px;">
+            <div id="msg-no-transiciones" style="display: none;">
                 <i class="bi bi-info-circle"></i> Esta orden no puede cambiar a otro estado.
             </div>
 
