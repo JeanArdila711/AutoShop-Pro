@@ -8,7 +8,7 @@
     .load-bar-container {
         width: 100%;
         height: 6px;
-        background: rgba(108, 138, 255, 0.08);
+        background: #E2E8F0;
         border-radius: 3px;
         overflow: hidden;
     }
@@ -18,6 +18,7 @@
         border-radius: 3px;
         transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
         position: relative;
+        overflow: hidden;
     }
 
     .load-bar.low  { background: var(--success); }
@@ -28,9 +29,14 @@
         content: '';
         position: absolute;
         inset: 0;
-        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%);
         animation: shimmer 2s infinite;
         background-size: 200% 100%;
+    }
+
+    @keyframes shimmer {
+        0%   { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
     }
 
     /* ── Modal overlay ── */
@@ -38,8 +44,9 @@
         display: none;
         position: fixed;
         inset: 0;
-        background: rgba(0, 0, 0, 0.6);
+        background: rgba(15, 23, 42, 0.55);
         backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
         z-index: 1000;
         align-items: center;
         justify-content: center;
@@ -52,15 +59,15 @@
     }
 
     .modal-box {
-        background: var(--surface-card);
-        border: 1px solid var(--border-color);
+        background: #ffffff;
+        border: 1px solid var(--border);
         border-radius: 20px;
         padding: 36px;
         width: 100%;
         max-width: 620px;
         max-height: 90vh;
         overflow-y: auto;
-        box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+        box-shadow: 0 20px 60px rgba(15,23,42,0.18), 0 4px 16px rgba(15,23,42,0.08);
         animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         position: relative;
     }
@@ -70,34 +77,38 @@
         top: 16px;
         right: 20px;
         background: none;
-        border: none;
-        color: var(--text-muted);
-        font-size: 1.5rem;
+        border: 1px solid transparent;
+        color: var(--text-secondary);
+        font-size: 1.4rem;
         cursor: pointer;
         line-height: 1;
-        padding: 4px 8px;
+        padding: 6px 10px;
         border-radius: 8px;
-        transition: background 0.2s, color 0.2s;
+        transition: background 0.2s, border-color 0.2s, color 0.2s;
     }
 
     .modal-close:hover {
-        background: rgba(255,255,255,0.07);
-        color: var(--text-primary);
+        background: #F1F5F9;
+        border-color: var(--border);
+        color: var(--text);
     }
 
     .modal-title {
-        font-size: 1.3rem;
+        font-size: 1.25rem;
         font-weight: 700;
         margin-bottom: 24px;
         display: flex;
         align-items: center;
         gap: 10px;
-        color: var(--accent-primary);
+        color: var(--text);
+        padding-right: 40px;
     }
 
+    .modal-title i { color: var(--accent); }
+
     @keyframes slideUp {
-        from { opacity: 0; transform: translateY(30px) scale(0.97); }
-        to   { opacity: 1; transform: translateY(0)   scale(1); }
+        from { opacity: 0; transform: translateY(24px) scale(0.98); }
+        to   { opacity: 1; transform: translateY(0) scale(1); }
     }
 
     @keyframes fadeIn {
@@ -105,6 +116,70 @@
         to   { opacity: 1; }
     }
 
+    /* ── Form fields ── */
+    .modal-box .form-group label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.84rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        margin-bottom: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+
+    .modal-box input[type="text"],
+    .modal-box input[type="number"],
+    .modal-box select {
+        width: 100%;
+        padding: 11px 14px;
+        background: #F8FAFC;
+        border: 1.5px solid var(--border);
+        border-radius: 10px;
+        font-size: 0.95rem;
+        color: var(--text);
+        transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+        appearance: none;
+        -webkit-appearance: none;
+        outline: none;
+        font-family: inherit;
+    }
+
+    .modal-box input:focus,
+    .modal-box select:focus {
+        border-color: var(--accent);
+        background: #ffffff;
+        box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.08);
+    }
+
+    .modal-box select {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 14px center;
+        padding-right: 40px;
+    }
+
+    .modal-box .btn {
+        width: 100%;
+        padding: 13px 20px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        border-radius: 12px;
+        margin-top: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    }
+
+    .modal-box .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(220, 38, 38, 0.3);
+    }
+
+    /* ── Page layout ── */
     .page-header-row {
         display: flex;
         align-items: flex-start;
@@ -114,32 +189,31 @@
         margin-bottom: 28px;
     }
 
-    .page-header-row .page-header {
-        margin-bottom: 0;
-    }
+    .page-header-row .page-header { margin-bottom: 0; }
 
     .btn-register {
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        padding: 12px 22px;
-        background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+        padding: 11px 22px;
+        background: var(--accent);
         color: #fff;
         border: none;
         border-radius: 12px;
-        font-size: 0.95rem;
+        font-size: 0.9rem;
         font-weight: 600;
         cursor: pointer;
         white-space: nowrap;
-        box-shadow: 0 4px 20px rgba(108,138,255,0.35);
-        transition: transform 0.2s, box-shadow 0.2s;
+        box-shadow: 0 2px 8px rgba(220, 38, 38, 0.25);
+        transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
         flex-shrink: 0;
         align-self: center;
     }
 
     .btn-register:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 28px rgba(108,138,255,0.5);
+        background: var(--accent-hover);
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(220, 38, 38, 0.3);
     }
 </style>
 {% endblock %}
