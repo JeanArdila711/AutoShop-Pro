@@ -29,12 +29,56 @@ class WorkOrderService:
 
     def obtener_estadisticas_dashboard(self):
         """Retorna las estadísticas y órdenes recientes para el dashboard"""
-        from workorders.models import ComponentePredictivo
+        from workorders.models import ComponentePredictivo, EstadoOrden
+        from django.db.models import Sum, Count, Q
+        from django.utils import timezone
+        from datetime import timedelta
 
         alertas_criticas = 0
         for comp in ComponentePredictivo.objects.select_related('vehiculo').all():
             if comp.calcular_probabilidad_fallo(comp.vehiculo.km_actuales) > 0.7:
                 alertas_criticas += 1
+
+        # ── Órdenes por estado (para donut chart) ──
+        estados_activos = [
+            EstadoOrden.ABIERTA, EstadoOrden.EN_DIAGNOSTICO,
+            EstadoOrden.PRESUPUESTADA, EstadoOrden.APROBADA,
+            EstadoOrden.EN_REPARACION, EstadoOrden.EN_ESPERA,
+            EstadoOrden.PRUEBA_PISTA,
+        ]
+        ordenes_activas = WorkOrder.objects.filter(estado__in=estados_activos).count()
+        ordenes_completadas = WorkOrder.objects.filter(
+            estado__in=[EstadoOrden.CERRADA, EstadoOrden.FACTURADA, EstadoOrden.ENTREGADA]
+        ).count()
+
+        # ── Distribución por estado ──
+        distribucion_estados = list(
+            WorkOrder.objects.values('estado')
+            .annotate(total=Count('id'))
+            .order_by('-total')
+        )
+
+        # ── Ingresos estimados ──
+        ingresos = WorkOrder.objects.aggregate(
+            presupuestado=Sum('costo_presupuestado'),
+            real=Sum('costo_real'),
+        )
+
+        # ── Órdenes de hoy ──
+        hoy = timezone.now().date()
+        ordenes_hoy = WorkOrder.objects.filter(
+            fecha_ingreso__date=hoy
+        ).count()
+
+        # ── Mecánicos con carga actual ──
+        mecanicos_carga = list(
+            Mechanic.objects.annotate(
+                ordenes_activas=Count(
+                    'ordenes',
+                    filter=Q(ordenes__estado__in=estados_activos)
+                )
+            ).order_by('-ordenes_activas')[:5]
+        )
 
         return {
             'total_propietarios': Owner.objects.count(),
@@ -42,7 +86,16 @@ class WorkOrderService:
             'total_mecanicos': Mechanic.objects.count(),
             'total_ordenes': WorkOrder.objects.count(),
             'alertas_criticas': alertas_criticas,
-            'ordenes': WorkOrder.objects.all().order_by('-fecha_ingreso')[:10],
+            'ordenes': WorkOrder.objects.select_related(
+                'vehiculo', 'propietario', 'mecanico'
+            ).all().order_by('-fecha_ingreso')[:10],
+            'ordenes_activas': ordenes_activas,
+            'ordenes_completadas': ordenes_completadas,
+            'distribucion_estados': distribucion_estados,
+            'ingresos_presupuestado': ingresos['presupuestado'] or 0,
+            'ingresos_real': ingresos['real'] or 0,
+            'ordenes_hoy': ordenes_hoy,
+            'mecanicos_carga': mecanicos_carga,
         }
 
     # ─────────────────────────────────────────────

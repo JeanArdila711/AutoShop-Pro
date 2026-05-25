@@ -1,53 +1,249 @@
 # docker-compose.yml
-# Orquesta: Django + Flask + Nginx + SQLite (via volumen)
+# Orquesta el ecosistema completo: Django (monolito) + 6 microservicios Flask
+# + Redis (message broker) + Celery worker + Nginx (API Gateway)
+#
+# Strangler Pattern: Nginx rutea /api/v1/ → Django, /api/v2/<servicio>/ → Flask correspondiente
 
 version: "3.9"
 
 services:
 
-  # ── Monolito Django (API v1) ──────────────────────────────
+  # ─────────────────────────────────────────────────────────────
+  # MESSAGE BROKER (Redis) — para Celery y eventos asíncronos
+  # ─────────────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: autoshop_redis
+    expose:
+      - "6379"
+    networks:
+      - autoshop_net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # ─────────────────────────────────────────────────────────────
+  # MONOLITO DJANGO (legado + frontend HTML + API v1)
+  # ─────────────────────────────────────────────────────────────
   django_web:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: autoshop_django
     environment:
-      - ENV_TYPE=PROD # Activa PredictorReal en lugar de PredictorMock
+      - ENV_TYPE=PROD
       - DJANGO_SETTINGS_MODULE=autoshop.settings
+      - REDIS_URL=redis://redis:6379/0
+      # URLs internas de los microservicios (para que Django los consuma)
+      - ORDENES_URL=http://ordenes_service:5001
+      - INVENTARIO_URL=http://inventario_service:5002
+      - FACTURACION_URL=http://facturacion_service:5003
+      - PREDICTIVO_URL=http://predictivo_service:5000
+      - CITAS_URL=http://citas_service:5004
+      - NOTIFICACIONES_URL=http://notificaciones_service:5005
     volumes:
-      - .:/app # Monta el código para no tener que rebuilder en desarrollo
+      - .:/app
     expose:
-      - "8000" # Solo expuesto internamente (Nginx lo rutea)
+      - "8000"
+    depends_on:
+      - redis
     networks:
       - autoshop_net
 
-  # ── Microservicio Flask (API v2) ──────────────────────────
+  # ─────────────────────────────────────────────────────────────
+  # MICROSERVICIO: Órdenes de Trabajo (puerto 5001)
+  # WorkOrder, TimerSession, Checklist, EvidenciaFoto, Bahia
+  # ─────────────────────────────────────────────────────────────
+  ordenes_service:
+    build:
+      context: .
+      dockerfile: services/ordenes_service/Dockerfile
+    container_name: autoshop_ordenes
+    environment:
+      - ENV_TYPE=PROD
+      - REDIS_URL=redis://redis:6379/0
+    volumes:
+      - ./services/ordenes_service:/app
+    expose:
+      - "5001"
+    depends_on:
+      - redis
+    networks:
+      - autoshop_net
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5001/api/v2/ordenes/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ─────────────────────────────────────────────────────────────
+  # MICROSERVICIO: Inventario (puerto 5002)
+  # ParteMecanica, Proveedor, OrdenCompra, DetalleOrdenCompra
+  # Catálogo público (servicio a proveer al equipo aliado)
+  # ─────────────────────────────────────────────────────────────
+  inventario_service:
+    build:
+      context: .
+      dockerfile: services/inventario_service/Dockerfile
+    container_name: autoshop_inventario
+    environment:
+      - ENV_TYPE=PROD
+      - REDIS_URL=redis://redis:6379/0
+    volumes:
+      - ./services/inventario_service:/app
+    expose:
+      - "5002"
+    depends_on:
+      - redis
+    networks:
+      - autoshop_net
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5002/api/v2/inventario/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ─────────────────────────────────────────────────────────────
+  # MICROSERVICIO: Facturación (puerto 5003)
+  # FacturaServicio (impuestos, garantías, generación de PDF async)
+  # ─────────────────────────────────────────────────────────────
+  facturacion_service:
+    build:
+      context: .
+      dockerfile: services/facturacion_service/Dockerfile
+    container_name: autoshop_facturacion
+    environment:
+      - ENV_TYPE=PROD
+      - REDIS_URL=redis://redis:6379/0
+    volumes:
+      - ./services/facturacion_service:/app
+    expose:
+      - "5003"
+    depends_on:
+      - redis
+    networks:
+      - autoshop_net
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5003/api/v2/facturacion/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ─────────────────────────────────────────────────────────────
+  # MICROSERVICIO: Predictivo (puerto 5000) ✅ Ya existe
+  # ComponentePredictivo, cálculo de probabilidad de fallo
+  # ─────────────────────────────────────────────────────────────
   predictivo_service:
     build:
       context: .
       dockerfile: Dockerfile.flask
-    container_name: autoshop_flask
+    container_name: autoshop_predictivo
     expose:
-      - "5000" # Solo expuesto internamente (Nginx lo rutea)
+      - "5000"
     healthcheck:
-      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/api/v2/predictivo/health')" ]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/api/v2/predictivo/health')"]
       interval: 30s
       timeout: 10s
       retries: 3
     networks:
       - autoshop_net
 
-  # ── Nginx (Reverse Proxy / Router de tráfico) ─────────────
+  # ─────────────────────────────────────────────────────────────
+  # MICROSERVICIO: Citas (puerto 5004)
+  # Cita — agendamiento de mantenimientos preventivos
+  # ─────────────────────────────────────────────────────────────
+  citas_service:
+    build:
+      context: .
+      dockerfile: services/citas_service/Dockerfile
+    container_name: autoshop_citas
+    environment:
+      - ENV_TYPE=PROD
+      - REDIS_URL=redis://redis:6379/0
+    volumes:
+      - ./services/citas_service:/app
+    expose:
+      - "5004"
+    depends_on:
+      - redis
+    networks:
+      - autoshop_net
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5004/api/v2/citas/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ─────────────────────────────────────────────────────────────
+  # MICROSERVICIO: Notificaciones (puerto 5005)
+  # Flask + Celery consumer — Adapter Pattern para SendGrid
+  # Escucha eventos en Redis: orden.creada, factura.generada, etc.
+  # ─────────────────────────────────────────────────────────────
+  notificaciones_service:
+    build:
+      context: .
+      dockerfile: services/notificaciones_service/Dockerfile
+    container_name: autoshop_notificaciones
+    environment:
+      - ENV_TYPE=PROD
+      - REDIS_URL=redis://redis:6379/0
+      - SENDGRID_API_KEY=${SENDGRID_API_KEY:-}
+    volumes:
+      - ./services/notificaciones_service:/app
+    expose:
+      - "5005"
+    depends_on:
+      - redis
+    networks:
+      - autoshop_net
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5005/api/v2/notificaciones/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ─────────────────────────────────────────────────────────────
+  # CELERY WORKER — procesa tareas asíncronas en background
+  # Comparte código con notificaciones_service
+  # ─────────────────────────────────────────────────────────────
+  celery_worker:
+    build:
+      context: .
+      dockerfile: services/notificaciones_service/Dockerfile
+    container_name: autoshop_celery
+    command: celery -A tasks worker --loglevel=info
+    environment:
+      - ENV_TYPE=PROD
+      - REDIS_URL=redis://redis:6379/0
+      - SENDGRID_API_KEY=${SENDGRID_API_KEY:-}
+    volumes:
+      - ./services/notificaciones_service:/app
+    depends_on:
+      - redis
+      - notificaciones_service
+    networks:
+      - autoshop_net
+
+  # ─────────────────────────────────────────────────────────────
+  # NGINX — API Gateway / Reverse Proxy (único puerto público)
+  # ─────────────────────────────────────────────────────────────
   nginx:
-    image: nginx:1.25-alpine # Imagen oficial - no necesita Dockerfile propio
+    image: nginx:1.25-alpine
     container_name: autoshop_nginx
     ports:
-      - "80:80" # ← El ÚNICO puerto expuesto al mundo exterior
+      - "80:80"
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro # Montar config
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
       - django_web
+      - ordenes_service
+      - inventario_service
+      - facturacion_service
       - predictivo_service
+      - citas_service
+      - notificaciones_service
     networks:
       - autoshop_net
 

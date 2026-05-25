@@ -1,0 +1,229 @@
+# AutoShop Pro — English Translations
+# Copyright (C) 2026 AutoShop Pro
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: en\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+# ── settings.py ──
+msgid "Spanish"
+msgstr "Spanish"
+
+msgid "English"
+msgstr "English"
+
+# ── Navigation — sections ──
+msgid "Principal"
+msgstr "Main"
+
+msgid "Registros"
+msgstr "Records"
+
+msgid "Operaciones"
+msgstr "Operations"
+
+msgid "Inicio"
+msgstr "Home"
+
+# ── Navigation ──
+msgid "Dashboard"
+msgstr "Dashboard"
+
+msgid "Work Orders"
+msgstr "Work Orders"
+
+msgid "Vehicles"
+msgstr "Vehicles"
+
+msgid "Owners"
+msgstr "Owners"
+
+msgid "Mechanics"
+msgstr "Mechanics"
+
+msgid "Inventory"
+msgstr "Inventory"
+
+msgid "Predictive"
+msgstr "Predictive"
+
+msgid "Bays"
+msgstr "Bays"
+
+msgid "Appointments"
+msgstr "Appointments"
+
+# ── Dashboard ──
+msgid "Control Panel"
+msgstr "Control Panel"
+
+msgid "Real-time operational summary"
+msgstr "Real-time operational summary"
+
+msgid "Total Orders"
+msgstr "Total Orders"
+
+msgid "Active Orders"
+msgstr "Active Orders"
+
+msgid "Total Vehicles"
+msgstr "Total Vehicles"
+
+msgid "Critical Alerts"
+msgstr "Critical Alerts"
+
+msgid "Revenue"
+msgstr "Revenue"
+
+msgid "Budgeted"
+msgstr "Budgeted"
+
+msgid "Real"
+msgstr "Actual"
+
+msgid "Quick Actions"
+msgstr "Quick Actions"
+
+msgid "New Order"
+msgstr "New Order"
+
+msgid "Register Vehicle"
+msgstr "Register Vehicle"
+
+msgid "Register Owner"
+msgstr "Register Owner"
+
+msgid "Register Mechanic"
+msgstr "Register Mechanic"
+
+msgid "View Kanban"
+msgstr "View Kanban"
+
+msgid "View Bays"
+msgstr "View Bays"
+
+msgid "Recent Orders"
+msgstr "Recent Orders"
+
+msgid "Mechanic Workload"
+msgstr "Mechanic Workload"
+
+msgid "orders today"
+msgstr "orders today"
+
+msgid "alerts"
+msgstr "alerts"
+
+# ── Order States ──
+msgid "OPEN"
+msgstr "Open"
+
+msgid "IN_DIAGNOSIS"
+msgstr "In Diagnosis"
+
+msgid "BUDGETED"
+msgstr "Budgeted"
+
+msgid "APPROVED"
+msgstr "Approved"
+
+msgid "IN_REPAIR"
+msgstr "In Repair"
+
+msgid "ON_HOLD"
+msgstr "On Hold"
+
+msgid "ROAD_TEST"
+msgstr "Road Test"
+
+msgid "CLOSED"
+msgstr "Closed"
+
+msgid "INVOICED"
+msgstr "Invoiced"
+
+msgid "DELIVERED"
+msgstr "Delivered"
+
+# ── Forms ──
+msgid "Save"
+msgstr "Save"
+
+msgid "Cancel"
+msgstr "Cancel"
+
+msgid "Edit"
+msgstr "Edit"
+
+msgid "Delete"
+msgstr "Delete"
+
+msgid "Search"
+msgstr "Search"
+
+msgid "Filter"
+msgstr "Filter"
+
+msgid "Back"
+msgstr "Back"
+
+msgid "Confirm"
+msgstr "Confirm"
+
+# ── General messages ──
+msgid "Created successfully"
+msgstr "Created successfully"
+
+msgid "Updated successfully"
+msgstr "Updated successfully"
+
+msgid "Deleted successfully"
+msgstr "Deleted successfully"
+
+msgid "Error processing request"
+msgstr "Error processing request"
+
+msgid "Required field"
+msgstr "Required field"
+
+msgid "Change language"
+msgstr "Change language"
+
+msgid "Language"
+msgstr "Language"
+
+# ── Dashboard content ──
+msgid "Order Distribution"
+msgstr "Order Distribution"
+
+msgid "No order data"
+msgstr "No order data"
+
+msgid "Order"
+msgstr "Order"
+
+msgid "Vehicle"
+msgstr "Vehicle"
+
+msgid "Mechanic"
+msgstr "Mechanic"
+
+msgid "Status"
+msgstr "Status"
+
+msgid "Date"
+msgstr "Date"
+
+msgid "Unassigned"
+msgstr "Unassigned"
+
+msgid "No orders registered"
+msgstr "No orders registered"
+
+msgid "Create the first work order to get started."
+msgstr "Create the first work order to get started."
+
+msgid "No mechanics registered"
+msgstr "No mechanics registered"

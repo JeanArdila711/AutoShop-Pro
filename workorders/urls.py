@@ -16,6 +16,7 @@ from workorders.views import (
     SubirEvidenciaView,
     EliminarEvidenciaView,
 )
+from workorders.views_tasa_cambio import TasaCambioView
 
 urlpatterns = [
     # ── Rutas HTML (SSR) ──
@@ -33,6 +34,9 @@ urlpatterns = [
     path("orden/<int:orden_id>/checklist/", CrearChecklistView.as_view(), name='orden_crear_checklist'),
     path("orden/<int:orden_id>/evidencia/", SubirEvidenciaView.as_view(), name='subir_evidencia'),
     path("evidencia/<int:evidencia_id>/eliminar/", EliminarEvidenciaView.as_view(), name='eliminar_evidencia'),
+
+    # ── API de Terceros — Adapter Pattern ──
+    path("tasa-cambio/", TasaCambioView.as_view(), name='tasa_cambio'),
 
     # ── Predictivo ──
     path("predictivo/", PredictivoDashboardView.as_view(), name='predictivo_dashboard'),

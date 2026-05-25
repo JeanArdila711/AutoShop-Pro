@@ -806,6 +806,222 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* ── SERVICES SHOWCASE ── */
+
+        .services-showcase {
+            max-width: 720px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .services-showcase-label {
+            font-size: 0.78em;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: var(--text-muted);
+            font-weight: 700;
+            margin-bottom: 32px;
+            display: block;
+        }
+
+        /* Floating image preview */
+        .showcase-preview {
+            pointer-events: none;
+            position: fixed;
+            z-index: 200;
+            width: 280px;
+            height: 180px;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+            opacity: 0;
+            transform: scale(0.88);
+            transition: opacity 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+                        transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+            will-change: transform, opacity;
+        }
+
+        .showcase-preview.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .showcase-preview img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transform: scale(1.08);
+            filter: blur(8px);
+            transition: opacity 0.45s ease, transform 0.45s ease, filter 0.45s ease;
+        }
+
+        .showcase-preview img.active {
+            opacity: 1;
+            transform: scale(1);
+            filter: none;
+        }
+
+        .showcase-preview-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(15,23,42,0.22) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        /* List items */
+        .showcase-list {
+            list-style: none;
+        }
+
+        .showcase-item {
+            border-top: 1px solid var(--border);
+            transition: border-color 0.25s ease;
+        }
+
+        .showcase-item:last-child + .showcase-list-end {
+            border-top: 1px solid var(--border);
+        }
+
+        .showcase-item-link {
+            display: block;
+            padding: 22px 0;
+            text-decoration: none;
+            cursor: default;
+            position: relative;
+        }
+
+        /* Hover background highlight */
+        .showcase-item-bg {
+            position: absolute;
+            inset: 0;
+            margin: 0 -20px;
+            border-radius: var(--radius);
+            background: var(--bg-alt);
+            border: 1px solid var(--border);
+            opacity: 0;
+            transform: scaleY(0.9);
+            transition: opacity 0.28s ease, transform 0.28s ease;
+        }
+
+        .showcase-item.hovered .showcase-item-bg {
+            opacity: 1;
+            transform: scaleY(1);
+        }
+
+        .showcase-item-inner {
+            position: relative;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .showcase-item-left {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .showcase-item-title-row {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .showcase-item-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.5em;
+            font-weight: 400;
+            letter-spacing: 0.8px;
+            color: var(--primary);
+            position: relative;
+            transition: color 0.25s ease;
+        }
+
+        .showcase-item-title::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -1px;
+            height: 1.5px;
+            width: 0;
+            background: var(--accent);
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .showcase-item.hovered .showcase-item-title::after {
+            width: 100%;
+        }
+
+        .showcase-item.hovered .showcase-item-title {
+            color: var(--accent);
+        }
+
+        /* Arrow icon */
+        .showcase-arrow {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            color: var(--text-muted);
+            opacity: 0;
+            transform: translateX(-8px) translateY(6px);
+            transition: opacity 0.28s ease, transform 0.28s ease;
+            flex-shrink: 0;
+        }
+
+        .showcase-arrow svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .showcase-item.hovered .showcase-arrow {
+            opacity: 1;
+            transform: translateX(0) translateY(0);
+        }
+
+        .showcase-item-desc {
+            font-size: 0.88em;
+            color: var(--text-muted);
+            margin-top: 5px;
+            line-height: 1.6;
+            transition: color 0.25s ease;
+        }
+
+        .showcase-item.hovered .showcase-item-desc {
+            color: var(--text-secondary);
+        }
+
+        /* Icon badge */
+        .showcase-item-icon {
+            flex-shrink: 0;
+            font-size: 1.1em;
+            color: var(--text-muted);
+            transition: color 0.25s ease;
+            padding-top: 3px;
+        }
+
+        .showcase-item.hovered .showcase-item-icon {
+            color: var(--accent);
+        }
+
+        .showcase-list-end {
+            border-top: 1px solid var(--border);
+        }
+
+        @media (max-width: 768px) {
+            .showcase-preview {
+                display: none;
+            }
+
+            .services-showcase {
+                max-width: 100%;
+            }
+        }
     </style>
 </head>
 
@@ -882,37 +1098,151 @@
             <h2>ESPECIALIDADES MECÁNICAS</h2>
             <p>Contamos con técnicos especializados en cada área para brindarte un servicio de calidad.</p>
         </div>
-        <div class="services-grid">
-            <div class="service-card reveal">
-                <div class="service-icon"><i class="bi bi-cpu"></i></div>
-                <h3>Motor</h3>
-                <p>Diagnóstico y reparación de motores con equipo de última generación y técnicos certificados.</p>
-            </div>
-            <div class="service-card reveal">
-                <div class="service-icon"><i class="bi bi-gear-wide-connected"></i></div>
-                <h3>Transmisión</h3>
-                <p>Servicio completo de cajas automáticas y manuales. Cambio de aceite, ajustes y reconstrucción.</p>
-            </div>
-            <div class="service-card reveal">
-                <div class="service-icon"><i class="bi bi-arrows-collapse-vertical"></i></div>
-                <h3>Suspensión</h3>
-                <p>Alineación, balanceo, amortiguadores y todo lo que tu vehículo necesita para rodar suave.</p>
-            </div>
-            <div class="service-card reveal">
-                <div class="service-icon"><i class="bi bi-lightning-charge"></i></div>
-                <h3>Eléctrico</h3>
-                <p>Sistemas eléctricos, baterías, alternadores y diagnóstico computarizado de sensores.</p>
-            </div>
-            <div class="service-card reveal">
-                <div class="service-icon"><i class="bi bi-disc"></i></div>
-                <h3>Frenos</h3>
-                <p>Revisión completa del sistema de frenado: pastillas, discos, líquido y ABS.</p>
-            </div>
-            <div class="service-card reveal">
-                <div class="service-icon"><i class="bi bi-wrench-adjustable-circle"></i></div>
-                <h3>Mantenimiento General</h3>
-                <p>Revisiones preventivas, cambios de aceite, filtros y chequeo de rutina para tu tranquilidad.</p>
-            </div>
+
+        <!-- Floating image preview (follows cursor) -->
+        <div class="showcase-preview" id="showcasePreview" aria-hidden="true">
+            <img id="showcaseImg0"
+                src="https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=560&auto=format&fit=crop"
+                alt="Motor" loading="eager">
+            <img id="showcaseImg1"
+                src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=560&auto=format&fit=crop"
+                alt="Transmisión" loading="lazy">
+            <img id="showcaseImg2"
+                src="https://images.unsplash.com/photo-1631549916768-4119b2e5f926?w=560&auto=format&fit=crop"
+                alt="Suspensión" loading="lazy">
+            <img id="showcaseImg3"
+                src="https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=560&auto=format&fit=crop"
+                alt="Eléctrico" loading="lazy">
+            <img id="showcaseImg4"
+                src="https://images.unsplash.com/photo-1493238792000-8113da705763?w=560&auto=format&fit=crop"
+                alt="Frenos" loading="lazy">
+            <img id="showcaseImg5"
+                src="https://images.unsplash.com/photo-1530046339160-ce3e530c7d2f?w=560&auto=format&fit=crop"
+                alt="Mantenimiento General" loading="lazy">
+            <div class="showcase-preview-overlay"></div>
+        </div>
+
+        <div class="services-showcase reveal" id="servicesShowcase">
+            <span class="services-showcase-label">Especialidades disponibles</span>
+
+            <ul class="showcase-list" id="showcaseList">
+
+                <!-- Motor -->
+                <li class="showcase-item" data-index="0">
+                    <div class="showcase-item-link">
+                        <div class="showcase-item-bg"></div>
+                        <div class="showcase-item-inner">
+                            <div class="showcase-item-left">
+                                <div class="showcase-item-title-row">
+                                    <span class="showcase-item-title">Motor</span>
+                                    <span class="showcase-arrow" aria-hidden="true">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+                                    </span>
+                                </div>
+                                <p class="showcase-item-desc">Diagnóstico y reparación de motores con equipo de última generación y técnicos certificados.</p>
+                            </div>
+                            <span class="showcase-item-icon"><i class="bi bi-cpu"></i></span>
+                        </div>
+                    </div>
+                </li>
+
+                <!-- Transmisión -->
+                <li class="showcase-item" data-index="1">
+                    <div class="showcase-item-link">
+                        <div class="showcase-item-bg"></div>
+                        <div class="showcase-item-inner">
+                            <div class="showcase-item-left">
+                                <div class="showcase-item-title-row">
+                                    <span class="showcase-item-title">Transmisión</span>
+                                    <span class="showcase-arrow" aria-hidden="true">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+                                    </span>
+                                </div>
+                                <p class="showcase-item-desc">Servicio completo de cajas automáticas y manuales. Cambio de aceite, ajustes y reconstrucción.</p>
+                            </div>
+                            <span class="showcase-item-icon"><i class="bi bi-gear-wide-connected"></i></span>
+                        </div>
+                    </div>
+                </li>
+
+                <!-- Suspensión -->
+                <li class="showcase-item" data-index="2">
+                    <div class="showcase-item-link">
+                        <div class="showcase-item-bg"></div>
+                        <div class="showcase-item-inner">
+                            <div class="showcase-item-left">
+                                <div class="showcase-item-title-row">
+                                    <span class="showcase-item-title">Suspensión</span>
+                                    <span class="showcase-arrow" aria-hidden="true">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+                                    </span>
+                                </div>
+                                <p class="showcase-item-desc">Alineación, balanceo, amortiguadores y todo lo que tu vehículo necesita para rodar suave.</p>
+                            </div>
+                            <span class="showcase-item-icon"><i class="bi bi-arrows-collapse-vertical"></i></span>
+                        </div>
+                    </div>
+                </li>
+
+                <!-- Eléctrico -->
+                <li class="showcase-item" data-index="3">
+                    <div class="showcase-item-link">
+                        <div class="showcase-item-bg"></div>
+                        <div class="showcase-item-inner">
+                            <div class="showcase-item-left">
+                                <div class="showcase-item-title-row">
+                                    <span class="showcase-item-title">Eléctrico</span>
+                                    <span class="showcase-arrow" aria-hidden="true">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+                                    </span>
+                                </div>
+                                <p class="showcase-item-desc">Sistemas eléctricos, baterías, alternadores y diagnóstico computarizado de sensores.</p>
+                            </div>
+                            <span class="showcase-item-icon"><i class="bi bi-lightning-charge"></i></span>
+                        </div>
+                    </div>
+                </li>
+
+                <!-- Frenos -->
+                <li class="showcase-item" data-index="4">
+                    <div class="showcase-item-link">
+                        <div class="showcase-item-bg"></div>
+                        <div class="showcase-item-inner">
+                            <div class="showcase-item-left">
+                                <div class="showcase-item-title-row">
+                                    <span class="showcase-item-title">Frenos</span>
+                                    <span class="showcase-arrow" aria-hidden="true">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+                                    </span>
+                                </div>
+                                <p class="showcase-item-desc">Revisión completa del sistema de frenado: pastillas, discos, líquido de frenos y ABS.</p>
+                            </div>
+                            <span class="showcase-item-icon"><i class="bi bi-disc"></i></span>
+                        </div>
+                    </div>
+                </li>
+
+                <!-- Mantenimiento General -->
+                <li class="showcase-item" data-index="5">
+                    <div class="showcase-item-link">
+                        <div class="showcase-item-bg"></div>
+                        <div class="showcase-item-inner">
+                            <div class="showcase-item-left">
+                                <div class="showcase-item-title-row">
+                                    <span class="showcase-item-title">Mantenimiento General</span>
+                                    <span class="showcase-arrow" aria-hidden="true">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+                                    </span>
+                                </div>
+                                <p class="showcase-item-desc">Revisiones preventivas, cambios de aceite, filtros y chequeo de rutina para tu tranquilidad.</p>
+                            </div>
+                            <span class="showcase-item-icon"><i class="bi bi-wrench-adjustable-circle"></i></span>
+                        </div>
+                    </div>
+                </li>
+
+            </ul>
+            <div class="showcase-list-end"></div>
         </div>
     </section>
 
@@ -1034,6 +1364,58 @@
                 }
             });
         });
+
+        /* ── Services Showcase (ProjectShowcase port) ── */
+        (function() {
+            var preview   = document.getElementById('showcasePreview');
+            var items     = document.querySelectorAll('.showcase-item');
+            var imgs      = preview ? preview.querySelectorAll('img') : [];
+            var mouseX    = 0, mouseY    = 0;
+            var smoothX   = 0, smoothY   = 0;
+            var rafId     = null;
+            var active    = false;
+
+            function lerp(a, b, t) { return a + (b - a) * t; }
+
+            function tick() {
+                smoothX = lerp(smoothX, mouseX, 0.14);
+                smoothY = lerp(smoothY, mouseY, 0.14);
+                if (preview) {
+                    preview.style.left = (smoothX + 24) + 'px';
+                    preview.style.top  = (smoothY - 100) + 'px';
+                }
+                rafId = requestAnimationFrame(tick);
+            }
+
+            function setActiveImg(index) {
+                imgs.forEach(function(img, i) {
+                    img.classList.toggle('active', i === index);
+                });
+            }
+
+            document.addEventListener('mousemove', function(e) {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            });
+
+            items.forEach(function(item) {
+                var idx = parseInt(item.getAttribute('data-index'), 10);
+
+                item.addEventListener('mouseenter', function() {
+                    item.classList.add('hovered');
+                    setActiveImg(idx);
+                    if (preview) preview.classList.add('visible');
+                    active = true;
+                    if (!rafId) { smoothX = mouseX; smoothY = mouseY; tick(); }
+                });
+
+                item.addEventListener('mouseleave', function() {
+                    item.classList.remove('hovered');
+                    if (preview) preview.classList.remove('visible');
+                    active = false;
+                });
+            });
+        })();
 
         /* ── Hover Slider ── */
         (function() {

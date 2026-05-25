@@ -13,6 +13,9 @@ from workorders.views import LandingPageView
 urlpatterns = [
     path('admin/', admin.site.urls),
 
+    # ── i18n — cambio de idioma ──
+    path('i18n/', include('django.conf.urls.i18n')),
+
     # ── Landing Page ──
     path('', LandingPageView.as_view(), name='landing'),
 
