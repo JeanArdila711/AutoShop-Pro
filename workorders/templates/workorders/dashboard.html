@@ -769,6 +769,25 @@
             <i class="bi bi-currency-exchange"></i>
             <span id="tasa-valor">Cargando...</span>
         </span>
+        <!-- ── Widget Almuerzo — CasaChef (servicio aliado) ── -->
+        <span class="header-badge" id="casachef-badge" title="Recomendación de almuerzo — CasaChef" style="cursor:pointer;" onclick="toggleCasachefCard()">
+            <i class="bi bi-egg-fried"></i>
+            <span id="casachef-valor">Almuerzo...</span>
+        </span>
+    </div>
+</div>
+
+<!-- ── CasaChef Card (se muestra al hacer click en el badge) ── -->
+<div id="casachef-card" style="display:none; position:fixed; top:70px; right:24px; z-index:999;
+     background:#1e293b; border:1px solid #f97316; border-radius:12px;
+     padding:16px 20px; min-width:280px; max-width:320px; box-shadow:0 8px 32px rgba(0,0,0,0.5);">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <span style="font-weight:700; color:#fb923c; font-size:0.9rem;">🍽 Recomendación de Almuerzo</span>
+        <span onclick="toggleCasachefCard()" style="cursor:pointer; color:#64748b; font-size:1.1rem;">✕</span>
+    </div>
+    <div id="casachef-contenido" style="color:#e2e8f0; font-size:0.85rem;">Cargando...</div>
+    <div style="margin-top:10px; font-size:0.72rem; color:#475569;">
+        Powered by <strong style="color:#f97316;">CasaChef</strong> · Servicio aliado
     </div>
 </div>
 
@@ -1172,6 +1191,74 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .catch(function() {
             valorEl.textContent = 'Tasa no disponible';
+        });
+})();
+
+/* ── CasaChef — Recomendación Almuerzo (servicio aliado) ── */
+var casachefCargado = false;
+
+function toggleCasachefCard() {
+    var card = document.getElementById('casachef-card');
+    if (card.style.display === 'none') {
+        card.style.display = 'block';
+        if (!casachefCargado) { cargarCasachef(); }
+    } else {
+        card.style.display = 'none';
+    }
+}
+
+function cargarCasachef() {
+    var contenido = document.getElementById('casachef-contenido');
+    fetch('/workorders/recomendacion-almuerzo/?presupuesto=25000&tipo=almuerzo&ciudad=Medellin')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            casachefCargado = true;
+            if (data.ok && data.recomendacion) {
+                var r = data.recomendacion;
+                var tags = (r.tags || []).map(function(t) {
+                    return '<span style="background:#f97316;color:#fff;border-radius:4px;padding:1px 6px;font-size:0.7rem;margin-right:3px;">' + t + '</span>';
+                }).join('');
+                contenido.innerHTML =
+                    '<div style="font-weight:700;color:#fff;margin-bottom:4px;">' + r.nombre + '</div>' +
+                    '<div style="color:#fb923c;font-size:1rem;font-weight:700;margin-bottom:6px;">$' + r.precio_estimado.toLocaleString() + ' COP</div>' +
+                    '<div style="color:#94a3b8;margin-bottom:8px;font-size:0.8rem;">' + r.razon + '</div>' +
+                    '<div>' + tags + '</div>';
+                document.getElementById('casachef-valor').textContent = r.nombre.substring(0, 18) + '…';
+            } else {
+                contenido.innerHTML = '<span style="color:#64748b;">Sin recomendaciones disponibles.<br><small>El lab de CasaChef puede estar apagado.</small></span>';
+                document.getElementById('casachef-valor').textContent = 'No disponible';
+            }
+        })
+        .catch(function() {
+            casachefCargado = false;
+            contenido.innerHTML = '<span style="color:#64748b;">Error conectando con CasaChef.</span>';
+            document.getElementById('casachef-valor').textContent = 'Sin conexión';
+        });
+}
+
+/* Pre-cargar badge text al iniciar */
+(function() {
+    fetch('/workorders/recomendacion-almuerzo/?presupuesto=25000&tipo=almuerzo&ciudad=Medellin')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.ok && data.recomendacion) {
+                document.getElementById('casachef-valor').textContent = '🍽 Ver almuerzo';
+                casachefCargado = true;
+                var r = data.recomendacion;
+                var tags = (r.tags || []).map(function(t) {
+                    return '<span style="background:#f97316;color:#fff;border-radius:4px;padding:1px 6px;font-size:0.7rem;margin-right:3px;">' + t + '</span>';
+                }).join('');
+                document.getElementById('casachef-contenido').innerHTML =
+                    '<div style="font-weight:700;color:#fff;margin-bottom:4px;">' + r.nombre + '</div>' +
+                    '<div style="color:#fb923c;font-size:1rem;font-weight:700;margin-bottom:6px;">$' + r.precio_estimado.toLocaleString() + ' COP</div>' +
+                    '<div style="color:#94a3b8;margin-bottom:8px;font-size:0.8rem;">' + r.razon + '</div>' +
+                    '<div>' + tags + '</div>';
+            } else {
+                document.getElementById('casachef-valor').textContent = 'Sin almuerzo';
+            }
+        })
+        .catch(function() {
+            document.getElementById('casachef-valor').textContent = 'CasaChef off';
         });
 })();
 </script>
