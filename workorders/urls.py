@@ -17,6 +17,7 @@ from workorders.views import (
     EliminarEvidenciaView,
 )
 from workorders.views_tasa_cambio import TasaCambioView
+from workorders.views_casachef import RecomendacionAlmuerzoView
 
 urlpatterns = [
     # ── Rutas HTML (SSR) ──
@@ -37,6 +38,7 @@ urlpatterns = [
 
     # ── API de Terceros — Adapter Pattern ──
     path("tasa-cambio/", TasaCambioView.as_view(), name='tasa_cambio'),
+    path("recomendacion-almuerzo/", RecomendacionAlmuerzoView.as_view(), name='recomendacion_almuerzo'),
 
     # ── Predictivo ──
     path("predictivo/", PredictivoDashboardView.as_view(), name='predictivo_dashboard'),
