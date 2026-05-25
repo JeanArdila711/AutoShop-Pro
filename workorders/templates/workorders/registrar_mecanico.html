@@ -215,13 +215,147 @@
         transform: translateY(-1px);
         box-shadow: 0 6px 20px rgba(220, 38, 38, 0.3);
     }
+
+    /* ── KPI grid ── */
+    .kpi-grid {
+        display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-bottom: 24px;
+    }
+    @media(max-width:640px){ .kpi-grid { grid-template-columns: 1fr; } }
+    .kpi-card {
+        background:#fff; border:1px solid var(--border); border-radius:16px;
+        padding:20px 22px; display:flex; align-items:center; gap:16px;
+        box-shadow:0 1px 4px rgba(15,23,42,.06); transition:box-shadow .2s,transform .2s;
+    }
+    .kpi-card:hover { box-shadow:0 4px 16px rgba(15,23,42,.1); transform:translateY(-1px); }
+    .kpi-icon {
+        width:44px; height:44px; border-radius:12px;
+        display:flex; align-items:center; justify-content:center; font-size:1.2rem; flex-shrink:0;
+    }
+    .kpi-icon.red   { background:#FEF2F2; color:var(--accent); }
+    .kpi-icon.green { background:#F0FDF4; color:#16A34A; }
+    .kpi-icon.amber { background:#FFFBEB; color:#D97706; }
+    .kpi-value { font-size:1.6rem; font-weight:700; color:var(--text); line-height:1; }
+    .kpi-label { font-size:.78rem; color:var(--text-secondary); margin-top:4px; font-weight:500; text-transform:uppercase; letter-spacing:.04em; }
+
+    /* ── Toolbar ── */
+    .table-toolbar { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px; flex-wrap:wrap; }
+    .search-box { position:relative; flex:1; max-width:320px; }
+    .search-box i { position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--text-secondary); font-size:.9rem; pointer-events:none; }
+    .search-box input {
+        width:100%; padding:9px 14px 9px 36px; background:#F8FAFC; border:1.5px solid var(--border);
+        border-radius:10px; font-size:.875rem; color:var(--text); outline:none; font-family:inherit;
+        transition:border-color .2s,box-shadow .2s;
+    }
+    .search-box input:focus { border-color:var(--accent); background:#fff; box-shadow:0 0 0 3px rgba(220,38,38,.08); }
+    .table-count { font-size:.82rem; color:var(--text-secondary); white-space:nowrap; }
+
+    /* ── Pro table ── */
+    .pro-table { width:100%; border-collapse:collapse; }
+    .pro-table thead th {
+        padding:10px 14px; font-size:.75rem; font-weight:600; text-transform:uppercase;
+        letter-spacing:.06em; color:var(--text-secondary); background:#F8FAFC;
+        border-bottom:1px solid var(--border); text-align:left; white-space:nowrap;
+    }
+    .pro-table thead th:first-child { border-radius:8px 0 0 0; }
+    .pro-table thead th:last-child  { border-radius:0 8px 0 0; }
+    .pro-table tbody tr { border-bottom:1px solid #F1F5F9; transition:background .15s; }
+    .pro-table tbody tr:last-child { border-bottom:none; }
+    .pro-table tbody tr:hover { background:#FEF2F2; }
+    .pro-table tbody td { padding:13px 14px; font-size:.9rem; color:var(--text); vertical-align:middle; }
+    .pro-table tbody tr.hidden-row { display:none; }
+
+    /* Name cell */
+    .name-cell { display:flex; align-items:center; gap:11px; }
+    .name-avatar {
+        width:34px; height:34px; border-radius:50%;
+        display:flex; align-items:center; justify-content:center;
+        font-size:.78rem; font-weight:700; color:#fff; flex-shrink:0; letter-spacing:.5px;
+    }
+    .name-text strong { display:block; font-weight:600; font-size:.9rem; color:var(--text); }
+    .name-text span   { font-size:.78rem; color:var(--text-secondary); }
+
+    /* Especialidad badges */
+    .esp-badge {
+        display:inline-flex; align-items:center; gap:4px;
+        padding:4px 10px; border-radius:20px; font-size:.75rem; font-weight:600; white-space:nowrap;
+    }
+    .esp-motor     { background:#FEF2F2; color:#DC2626; border:1px solid rgba(220,38,38,.2); }
+    .esp-trans     { background:#FFFBEB; color:#D97706; border:1px solid rgba(217,119,6,.2); }
+    .esp-susp      { background:#EFF6FF; color:#2563EB; border:1px solid rgba(37,99,235,.2); }
+    .esp-elec      { background:#F0FDFA; color:#0D9488; border:1px solid rgba(13,148,136,.2); }
+    .esp-general   { background:#F8FAFC; color:#475569; border:1px solid #E2E8F0; }
+
+    /* Nivel badges */
+    .niv-badge {
+        display:inline-flex; align-items:center; gap:4px;
+        padding:4px 10px; border-radius:20px; font-size:.75rem; font-weight:600;
+    }
+    .niv-experto   { background:#FFFBEB; color:#92400E; border:1px solid rgba(180,83,9,.2); }
+    .niv-inter     { background:#EFF6FF; color:#1E40AF; border:1px solid rgba(37,99,235,.2); }
+    .niv-junior    { background:#F8FAFC; color:#475569; border:1px solid #E2E8F0; }
+
+    /* Status dot */
+    .status-dot {
+        display:inline-flex; align-items:center; gap:6px;
+        font-size:.82rem; font-weight:600;
+    }
+    .status-dot::before {
+        content:''; width:7px; height:7px; border-radius:50%; flex-shrink:0;
+    }
+    .status-dot.available { color:#15803D; }
+    .status-dot.available::before { background:#16A34A; box-shadow:0 0 0 2px rgba(22,163,74,.2); }
+    .status-dot.busy { color:#B91C1C; }
+    .status-dot.busy::before { background:#DC2626; }
+
+    /* Load bar compact */
+    .load-row { display:flex; align-items:center; gap:10px; }
+    .load-bar-container { flex:1; height:5px; background:#E2E8F0; border-radius:3px; overflow:hidden; min-width:60px; }
+    .load-bar { height:100%; border-radius:3px; transition:width .8s cubic-bezier(.16,1,.3,1); }
+    .load-bar.low  { background:#16A34A; }
+    .load-bar.mid  { background:#D97706; }
+    .load-bar.high { background:#DC2626; }
+    .load-label { font-size:.78rem; color:var(--text-secondary); white-space:nowrap; min-width:40px; text-align:right; }
+
+    /* Empty */
+    .pro-empty { text-align:center; padding:52px 20px; }
+    .pro-empty-icon {
+        width:56px; height:56px; border-radius:16px; background:#FEF2F2;
+        display:flex; align-items:center; justify-content:center; font-size:1.5rem; color:var(--accent); margin:0 auto 16px;
+    }
+    .pro-empty h3 { font-size:1rem; font-weight:600; color:var(--text); margin-bottom:6px; }
+    .pro-empty p  { font-size:.875rem; color:var(--text-secondary); margin-bottom:20px; }
 </style>
 {% endblock %}
 
 {% block content %}
 
+<!-- KPI Cards -->
+<div class="kpi-grid">
+    <div class="kpi-card">
+        <div class="kpi-icon red"><i class="bi bi-wrench-adjustable-circle-fill"></i></div>
+        <div>
+            <div class="kpi-value">{{ mecanicos|length }}</div>
+            <div class="kpi-label">Total Mecánicos</div>
+        </div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-icon green"><i class="bi bi-check-circle-fill"></i></div>
+        <div>
+            <div class="kpi-value" id="kpi-disponibles">—</div>
+            <div class="kpi-label">Disponibles</div>
+        </div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-icon amber"><i class="bi bi-hourglass-split"></i></div>
+        <div>
+            <div class="kpi-value" id="kpi-carga">—</div>
+            <div class="kpi-label">Carga Promedio</div>
+        </div>
+    </div>
+</div>
+
 <!-- Header con botón -->
-<div class="page-header-row">
+<div class="page-header-row" style="margin-bottom: 0;">
     <div class="page-header">
         <h1><i class="bi bi-wrench-adjustable"></i> Mecánicos</h1>
         <p>Equipo de trabajo y monitoreo de carga</p>
@@ -232,62 +366,79 @@
 </div>
 
 <!-- Lista de mecánicos -->
-<div class="glass-card">
-    <h2><span class="card-icon"><i class="bi bi-list-ul"></i></span> Mecánicos Registrados</h2>
+<div class="glass-card" style="margin-top: 20px;">
     {% if mecanicos %}
-    <div class="table-wrapper">
-        <table>
+    <div class="table-toolbar">
+        <div class="search-box">
+            <i class="bi bi-search"></i>
+            <input type="text" id="search-mecanicos" placeholder="Buscar mecánico..." autocomplete="off">
+        </div>
+        <span class="table-count" id="table-count">{{ mecanicos|length }} mecánicos</span>
+    </div>
+
+    <div class="table-wrapper" style="overflow-x: auto;">
+        <table class="pro-table" id="tabla-mecanicos">
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Nombre</th>
+                    <th>Mecánico</th>
                     <th>Especialidad</th>
                     <th>Nivel</th>
-                    <th>Tarifa/h</th>
+                    <th>Tarifa / h</th>
                     <th>Estado</th>
-                    <th>Carga de Trabajo</th>
+                    <th>Carga</th>
                 </tr>
             </thead>
             <tbody>
                 {% for m in mecanicos %}
-                <tr>
-                    <td style="color: var(--text-muted);">{{ m.id }}</td>
-                    <td><strong>{{ m.nombre }}</strong></td>
+                <tr data-search="{{ m.nombre|lower }} {{ m.especialidad|lower }} {{ m.nivel|lower }}"
+                    data-disponible="{{ m.disponible|yesno:'1,0' }}"
+                    data-horas="{{ m.horas_pendientes }}">
                     <td>
-                        <span class="badge
-                            {% if m.especialidad == 'MOTOR' %}badge-danger
-                            {% elif m.especialidad == 'TRANSMISION' %}badge-warning
-                            {% elif m.especialidad == 'SUSPENSION' %}badge-info
-                            {% elif m.especialidad == 'ELECTRICO' %}badge-cyan
-                            {% else %}badge-default{% endif %}">
+                        <div class="name-cell">
+                            <div class="name-avatar" data-name="{{ m.nombre }}"></div>
+                            <div class="name-text">
+                                <strong>{{ m.nombre }}</strong>
+                                <span>${{ m.tarifa_hora|floatformat:0 }}/h</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="esp-badge
+                            {% if m.especialidad == 'MOTOR' %}esp-motor
+                            {% elif m.especialidad == 'TRANSMISION' %}esp-trans
+                            {% elif m.especialidad == 'SUSPENSION' %}esp-susp
+                            {% elif m.especialidad == 'ELECTRICO' %}esp-elec
+                            {% else %}esp-general{% endif %}">
+                            {% if m.especialidad == 'MOTOR' %}<i class="bi bi-gear-fill" style="font-size:.65rem;"></i>
+                            {% elif m.especialidad == 'ELECTRICO' %}<i class="bi bi-lightning-fill" style="font-size:.65rem;"></i>
+                            {% elif m.especialidad == 'SUSPENSION' %}<i class="bi bi-arrows-vertical" style="font-size:.65rem;"></i>
+                            {% endif %}
                             {{ m.especialidad }}
                         </span>
                     </td>
                     <td>
-                        <span class="badge
-                            {% if m.nivel == 'EXPERTO' %}badge-gold
-                            {% elif m.nivel == 'INTERMEDIO' %}badge-info
-                            {% else %}badge-default{% endif %}">
-                            {% if m.nivel == 'EXPERTO' %}<i class="bi bi-star-fill"></i>{% endif %}
+                        <span class="niv-badge
+                            {% if m.nivel == 'EXPERTO' %}niv-experto
+                            {% elif m.nivel == 'INTERMEDIO' %}niv-inter
+                            {% else %}niv-junior{% endif %}">
+                            {% if m.nivel == 'EXPERTO' %}<i class="bi bi-star-fill" style="font-size:.6rem;"></i>{% endif %}
                             {{ m.nivel }}
                         </span>
                     </td>
-                    <td style="color: var(--text-secondary);">${{ m.tarifa_hora|floatformat:0 }}</td>
+                    <td style="font-weight:600; color:var(--text);">${{ m.tarifa_hora|floatformat:0 }}</td>
                     <td>
                         {% if m.disponible %}
-                        <span class="badge badge-success badge-pulse">Disponible</span>
+                        <span class="status-dot available">Disponible</span>
                         {% else %}
-                        <span class="badge badge-danger">Ocupado</span>
+                        <span class="status-dot busy">Ocupado</span>
                         {% endif %}
                     </td>
                     <td>
-                        <div style="display: flex; align-items: center; gap: 10px;">
+                        <div class="load-row">
                             <div class="load-bar-container">
                                 <div class="load-bar" data-hours="{{ m.horas_pendientes }}"></div>
                             </div>
-                            <span style="font-size: 0.8em; color: var(--text-muted); white-space: nowrap;">
-                                {{ m.horas_pendientes }}/40h
-                            </span>
+                            <span class="load-label">{{ m.horas_pendientes }}h</span>
                         </div>
                     </td>
                 </tr>
@@ -296,10 +447,11 @@
         </table>
     </div>
     {% else %}
-    <div class="empty-state">
-        <div class="empty-icon"><i class="bi bi-inbox"></i></div>
-        <p>No hay mecánicos registrados aún.</p>
-        <button class="btn-register" onclick="abrirModal()" style="margin-top: 12px;">
+    <div class="pro-empty">
+        <div class="pro-empty-icon"><i class="bi bi-wrench-adjustable"></i></div>
+        <h3>Sin mecánicos registrados</h3>
+        <p>Registra el primer mecánico del equipo.</p>
+        <button class="btn-register" onclick="abrirModal()">
             <i class="bi bi-plus-circle-fill"></i> Registrar el primero
         </button>
     </div>
@@ -358,7 +510,17 @@
 
 {% block extra_js %}
 <script>
-    // Load bars
+    /* ─── Avatars ─── */
+    const COLORS = ['#DC2626','#D97706','#2563EB','#16A34A','#7C3AED','#0891B2','#DB2777','#EA580C'];
+    document.querySelectorAll('.name-avatar[data-name]').forEach((el, i) => {
+        el.style.background = COLORS[i % COLORS.length];
+        const parts = (el.dataset.name || '').trim().split(' ');
+        el.textContent = parts.length >= 2
+            ? (parts[0][0] + parts[parts.length-1][0]).toUpperCase()
+            : (el.dataset.name || '').slice(0,2).toUpperCase();
+    });
+
+    /* ─── Load bars ─── */
     document.querySelectorAll('.load-bar[data-hours]').forEach(bar => {
         const hours = parseInt(bar.dataset.hours) || 0;
         const pct = Math.min(Math.round((hours / 40) * 100), 100);
@@ -368,7 +530,39 @@
         else bar.classList.add('high');
     });
 
-    // Modal
+    /* ─── KPI counters ─── */
+    (function() {
+        const rows = document.querySelectorAll('#tabla-mecanicos tbody tr');
+        let disponibles = 0, totalHoras = 0;
+        rows.forEach(r => {
+            if (r.dataset.disponible === '1') disponibles++;
+            totalHoras += parseInt(r.dataset.horas || '0');
+        });
+        const el1 = document.getElementById('kpi-disponibles');
+        const el2 = document.getElementById('kpi-carga');
+        if (el1) el1.textContent = disponibles;
+        if (el2 && rows.length) el2.textContent = Math.round(totalHoras / rows.length) + 'h';
+    })();
+
+    /* ─── Search ─── */
+    (function() {
+        const inp = document.getElementById('search-mecanicos');
+        const countEl = document.getElementById('table-count');
+        const rows = document.querySelectorAll('#tabla-mecanicos tbody tr');
+        if (!inp) return;
+        inp.addEventListener('input', function() {
+            const q = this.value.toLowerCase().trim();
+            let visible = 0;
+            rows.forEach(r => {
+                const match = !q || (r.dataset.search || '').includes(q);
+                r.classList.toggle('hidden-row', !match);
+                if (match) visible++;
+            });
+            if (countEl) countEl.textContent = visible + ' mecánico' + (visible !== 1 ? 's' : '');
+        });
+    })();
+
+    /* ─── Modal ─── */
     function abrirModal() {
         document.getElementById('modal-registrar').classList.add('open');
         document.body.style.overflow = 'hidden';

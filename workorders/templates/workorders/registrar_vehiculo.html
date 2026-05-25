@@ -330,13 +330,138 @@
         border: 1px solid rgba(220, 38, 38, 0.2);
         border-radius: 20px;
     }
+
+    /* ── KPI cards ── */
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    @media (max-width: 640px) { .kpi-grid { grid-template-columns: 1fr; } }
+
+    .kpi-card {
+        background: #ffffff;
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 20px 22px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        box-shadow: 0 1px 4px rgba(15,23,42,0.06);
+        transition: box-shadow 0.2s, transform 0.2s;
+    }
+
+    .kpi-card:hover { box-shadow: 0 4px 16px rgba(15,23,42,0.1); transform: translateY(-1px); }
+
+    .kpi-icon {
+        width: 44px; height: 44px; border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.2rem; flex-shrink: 0;
+    }
+
+    .kpi-icon.red   { background: #FEF2F2; color: var(--accent); }
+    .kpi-icon.blue  { background: #EFF6FF; color: #2563EB; }
+    .kpi-icon.green { background: #F0FDF4; color: #16A34A; }
+
+    .kpi-value { font-size: 1.6rem; font-weight: 700; color: var(--text); line-height: 1; }
+    .kpi-label { font-size: 0.78rem; color: var(--text-secondary); margin-top: 4px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; }
+
+    /* ── Toolbar ── */
+    .table-toolbar {
+        display: flex; align-items: center; justify-content: space-between;
+        gap: 12px; margin-bottom: 16px; flex-wrap: wrap;
+    }
+
+    .search-box { position: relative; flex: 1; max-width: 320px; }
+    .search-box i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-secondary); font-size: 0.9rem; pointer-events: none; }
+    .search-box input {
+        width: 100%; padding: 9px 14px 9px 36px;
+        background: #F8FAFC; border: 1.5px solid var(--border); border-radius: 10px;
+        font-size: 0.875rem; color: var(--text); outline: none; font-family: inherit;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .search-box input:focus { border-color: var(--accent); background: #fff; box-shadow: 0 0 0 3px rgba(220,38,38,0.08); }
+    .table-count { font-size: 0.82rem; color: var(--text-secondary); white-space: nowrap; }
+
+    /* ── Pro table ── */
+    .pro-table { width: 100%; border-collapse: collapse; }
+    .pro-table thead th {
+        padding: 10px 14px; font-size: 0.75rem; font-weight: 600;
+        text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-secondary);
+        background: #F8FAFC; border-bottom: 1px solid var(--border); text-align: left; white-space: nowrap;
+    }
+    .pro-table thead th:first-child { border-radius: 8px 0 0 0; }
+    .pro-table thead th:last-child  { border-radius: 0 8px 0 0; }
+    .pro-table tbody tr { border-bottom: 1px solid #F1F5F9; cursor: pointer; transition: background 0.15s; }
+    .pro-table tbody tr:last-child { border-bottom: none; }
+    .pro-table tbody tr:hover { background: #FEF2F2; }
+    .pro-table tbody td { padding: 13px 14px; font-size: 0.9rem; color: var(--text); vertical-align: middle; }
+    .pro-table tbody tr.hidden-row { display: none; }
+
+    /* Placa cell */
+    .placa-chip {
+        display: inline-flex; align-items: center; gap: 6px;
+        background: #0F172A; color: #F8FAFC;
+        font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; font-weight: 700;
+        padding: 5px 12px; border-radius: 8px; letter-spacing: 1.5px;
+    }
+
+    /* KM mini bar */
+    .km-cell { min-width: 120px; }
+    .km-bar-wrap { height: 4px; background: #E2E8F0; border-radius: 2px; margin-top: 4px; overflow: hidden; }
+    .km-bar { height: 100%; border-radius: 2px; background: var(--accent); transition: width 0.6s ease; }
+
+    /* Orders badge */
+    .ord-badge {
+        display: inline-flex; align-items: center; gap: 5px;
+        padding: 4px 10px; border-radius: 20px; font-size: 0.78rem; font-weight: 600;
+        background: #FEF2F2; color: var(--accent); border: 1px solid rgba(220,38,38,0.15);
+    }
+    .ord-badge.empty { background: #F8FAFC; color: var(--text-secondary); border-color: var(--border); }
+
+    /* Empty state */
+    .pro-empty { text-align: center; padding: 52px 20px; }
+    .pro-empty-icon {
+        width: 56px; height: 56px; border-radius: 16px;
+        background: #FEF2F2; display: flex; align-items: center; justify-content: center;
+        font-size: 1.5rem; color: var(--accent); margin: 0 auto 16px;
+    }
+    .pro-empty h3 { font-size: 1rem; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+    .pro-empty p { font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 20px; }
 </style>
 {% endblock %}
 
 {% block content %}
 
+<!-- KPI Cards -->
+<div class="kpi-grid">
+    <div class="kpi-card">
+        <div class="kpi-icon red"><i class="bi bi-car-front-fill"></i></div>
+        <div>
+            <div class="kpi-value">{{ vehiculos|length }}</div>
+            <div class="kpi-label">Total Vehículos</div>
+        </div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-icon blue"><i class="bi bi-people-fill"></i></div>
+        <div>
+            <div class="kpi-value" id="kpi-propietarios">—</div>
+            <div class="kpi-label">Propietarios</div>
+        </div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-icon green"><i class="bi bi-clipboard-data-fill"></i></div>
+        <div>
+            <div class="kpi-value" id="kpi-con-ordenes">—</div>
+            <div class="kpi-label">Con Órdenes</div>
+        </div>
+    </div>
+</div>
+
 <!-- Header con botón -->
-<div class="page-header-row">
+<div class="page-header-row" style="margin-bottom: 0;">
     <div class="page-header">
         <h1><i class="bi bi-car-front"></i> Vehículos</h1>
         <p>Gestión de la flota registrada en el taller</p>
@@ -347,18 +472,23 @@
 </div>
 
 <!-- Lista de vehículos -->
-<div class="glass-card">
-    <h2><span class="card-icon"><i class="bi bi-list-ul"></i></span> Vehículos Registrados</h2>
+<div class="glass-card" style="margin-top: 20px;">
     {% if vehiculos %}
-    <div class="table-wrapper">
-        <table>
+    <div class="table-toolbar">
+        <div class="search-box">
+            <i class="bi bi-search"></i>
+            <input type="text" id="search-vehiculos" placeholder="Buscar por placa, marca o propietario..." autocomplete="off">
+        </div>
+        <span class="table-count" id="table-count">{{ vehiculos|length }} vehículos</span>
+    </div>
+
+    <div class="table-wrapper" style="overflow-x: auto;">
+        <table class="pro-table" id="tabla-vehiculos">
             <thead>
                 <tr>
                     <th>Placa</th>
-                    <th>Marca</th>
-                    <th>Modelo</th>
-                    <th>Año</th>
-                    <th>Km</th>
+                    <th>Vehículo</th>
+                    <th>Kilometraje</th>
                     <th>Propietario</th>
                     <th>Órdenes</th>
                 </tr>
@@ -366,6 +496,7 @@
             <tbody>
                 {% for v in vehiculos %}
                 <tr class="clickable-row"
+                    data-search="{{ v.placa|lower }} {{ v.marca|lower }} {{ v.modelo|lower }} {{ v.propietario.nombre|lower }}"
                     data-vehiculo-placa="{{ v.placa }}"
                     data-vehiculo-marca="{{ v.marca }}"
                     data-vehiculo-modelo="{{ v.modelo }}"
@@ -373,21 +504,33 @@
                     data-vehiculo-anio="{{ v.anio }}"
                     data-ordenes="[{% for o in v.ordenes.all %}{% if not forloop.first %},{% endif %}{&quot;id&quot;:{{ o.id }},&quot;estado&quot;:&quot;{{ o.estado }}&quot;,&quot;fecha&quot;:&quot;{{ o.fecha_ingreso|date:'d/m/Y H:i' }}&quot;,&quot;mecanico&quot;:&quot;{% if o.mecanico %}{{ o.mecanico.nombre }}{% else %}Sin Asignar{% endif %}&quot;}{% endfor %}]"
                     onclick="abrirModalOrdenes(this)"
-                    title="Click para ver historial de órdenes">
+                    title="Ver historial de órdenes">
                     <td>
-                        <strong style="color: var(--accent-primary); font-family: monospace; letter-spacing: 1px;">
+                        <span class="placa-chip">
+                            <i class="bi bi-credit-card" style="font-size:0.7rem; opacity:0.6;"></i>
                             {{ v.placa }}
-                        </strong>
+                        </span>
                     </td>
-                    <td>{{ v.marca }}</td>
-                    <td>{{ v.modelo }}</td>
-                    <td><span class="badge badge-default">{{ v.anio }}</span></td>
-                    <td style="color: var(--text-secondary);">{{ v.km_actuales|floatformat:0 }} km</td>
-                    <td>{{ v.propietario.nombre }}</td>
+                    <td>
+                        <div style="font-weight: 600; color: var(--text);">{{ v.marca }} {{ v.modelo }}</div>
+                        <div style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 2px;">
+                            <i class="bi bi-calendar3" style="font-size:0.7rem;"></i> {{ v.anio }}
+                        </div>
+                    </td>
+                    <td class="km-cell">
+                        <div style="font-size: 0.875rem; font-weight: 500;">{{ v.km_actuales|floatformat:0 }} km</div>
+                        <div class="km-bar-wrap">
+                            <div class="km-bar" style="width: {{ v.km_actuales|floatformat:0 }}px;" data-km="{{ v.km_actuales }}"></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div style="font-size: 0.875rem;">{{ v.propietario.nombre }}</div>
+                    </td>
                     <td>
                         {% with count=v.ordenes.count %}
-                        <span class="orders-count-badge">
-                            <i class="bi bi-clipboard-data"></i> {{ count }}
+                        <span class="ord-badge {% if count == 0 %}empty{% endif %}">
+                            <i class="bi bi-clipboard{% if count > 0 %}-data{% endif %}"></i>
+                            {{ count }}
                         </span>
                         {% endwith %}
                     </td>
@@ -396,12 +539,13 @@
             </tbody>
         </table>
     </div>
-    <p class="row-hint"><i class="bi bi-hand-index"></i> Haz clic en un vehículo para ver su historial de órdenes</p>
+    <p class="row-hint" style="margin-top: 12px;"><i class="bi bi-hand-index"></i> Clic en una fila para ver el historial de órdenes</p>
     {% else %}
-    <div class="empty-state">
-        <div class="empty-icon"><i class="bi bi-inbox"></i></div>
-        <p>No hay vehículos registrados aún.</p>
-        <button class="btn-register" onclick="abrirModalRegistro()" style="margin-top: 12px;">
+    <div class="pro-empty">
+        <div class="pro-empty-icon"><i class="bi bi-car-front"></i></div>
+        <h3>Sin vehículos registrados</h3>
+        <p>Registra el primer vehículo de la flota.</p>
+        <button class="btn-register" onclick="abrirModalRegistro()">
             <i class="bi bi-plus-circle-fill"></i> Registrar el primero
         </button>
     </div>
@@ -502,6 +646,52 @@
 
 {% block extra_js %}
 <script>
+    /* ─── KPI counters ─── */
+    (function() {
+        const rows = document.querySelectorAll('#tabla-vehiculos tbody tr');
+        const propietariosUnicos = new Set();
+        let conOrdenes = 0;
+        rows.forEach(r => {
+            propietariosUnicos.add((r.querySelector('td:nth-child(4)')?.textContent || '').trim());
+            try {
+                const ords = JSON.parse(r.dataset.ordenes || '[]');
+                if (ords.length > 0) conOrdenes++;
+            } catch(e) {}
+        });
+        const el1 = document.getElementById('kpi-propietarios');
+        const el2 = document.getElementById('kpi-con-ordenes');
+        if (el1) el1.textContent = propietariosUnicos.size;
+        if (el2) el2.textContent = conOrdenes;
+
+        /* KM bars — max 200000 km → 100% */
+        document.querySelectorAll('.km-bar[data-km]').forEach(bar => {
+            const km = parseInt(bar.dataset.km) || 0;
+            const pct = Math.min(Math.round((km / 200000) * 100), 100);
+            bar.style.width = pct + '%';
+            if (pct > 75) bar.style.background = '#DC2626';
+            else if (pct > 40) bar.style.background = '#D97706';
+            else bar.style.background = '#16A34A';
+        });
+    })();
+
+    /* ─── Search ─── */
+    (function() {
+        const inp = document.getElementById('search-vehiculos');
+        const countEl = document.getElementById('table-count');
+        const rows = document.querySelectorAll('#tabla-vehiculos tbody tr');
+        if (!inp) return;
+        inp.addEventListener('input', function() {
+            const q = this.value.toLowerCase().trim();
+            let visible = 0;
+            rows.forEach(r => {
+                const match = !q || (r.dataset.search || '').includes(q);
+                r.classList.toggle('hidden-row', !match);
+                if (match) visible++;
+            });
+            if (countEl) countEl.textContent = visible + ' vehículo' + (visible !== 1 ? 's' : '');
+        });
+    })();
+
     /* ─── Modal 1: Registrar vehículo ─── */
     function abrirModalRegistro() {
         document.getElementById('modal-registrar').classList.add('open');

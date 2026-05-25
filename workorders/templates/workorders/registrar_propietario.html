@@ -319,6 +319,278 @@
         margin-top: 2px;
     }
 
+    /* ── KPI stat cards ── */
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    @media (max-width: 640px) { .kpi-grid { grid-template-columns: 1fr; } }
+
+    .kpi-card {
+        background: #ffffff;
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 20px 22px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        box-shadow: 0 1px 4px rgba(15,23,42,0.06);
+        transition: box-shadow 0.2s, transform 0.2s;
+    }
+
+    .kpi-card:hover {
+        box-shadow: 0 4px 16px rgba(15,23,42,0.1);
+        transform: translateY(-1px);
+    }
+
+    .kpi-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        flex-shrink: 0;
+    }
+
+    .kpi-icon.red   { background: #FEF2F2; color: var(--accent); }
+    .kpi-icon.amber { background: #FFFBEB; color: #D97706; }
+    .kpi-icon.blue  { background: #EFF6FF; color: #2563EB; }
+
+    .kpi-body { flex: 1; min-width: 0; }
+
+    .kpi-value {
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: var(--text);
+        line-height: 1;
+    }
+
+    .kpi-label {
+        font-size: 0.78rem;
+        color: var(--text-secondary);
+        margin-top: 4px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+
+    /* ── Toolbar ── */
+    .table-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+    }
+
+    .search-box {
+        position: relative;
+        flex: 1;
+        max-width: 320px;
+    }
+
+    .search-box i {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        pointer-events: none;
+    }
+
+    .search-box input {
+        width: 100%;
+        padding: 9px 14px 9px 36px;
+        background: #F8FAFC;
+        border: 1.5px solid var(--border);
+        border-radius: 10px;
+        font-size: 0.875rem;
+        color: var(--text);
+        outline: none;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        font-family: inherit;
+    }
+
+    .search-box input:focus {
+        border-color: var(--accent);
+        background: #fff;
+        box-shadow: 0 0 0 3px rgba(220,38,38,0.08);
+    }
+
+    .table-count {
+        font-size: 0.82rem;
+        color: var(--text-secondary);
+        white-space: nowrap;
+    }
+
+    /* ── Enhanced table ── */
+    .pro-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .pro-table thead th {
+        padding: 10px 14px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--text-secondary);
+        background: #F8FAFC;
+        border-bottom: 1px solid var(--border);
+        text-align: left;
+        white-space: nowrap;
+    }
+
+    .pro-table thead th:first-child { border-radius: 8px 0 0 0; }
+    .pro-table thead th:last-child  { border-radius: 0 8px 0 0; }
+
+    .pro-table tbody tr {
+        border-bottom: 1px solid #F1F5F9;
+        cursor: pointer;
+        transition: background 0.15s;
+    }
+
+    .pro-table tbody tr:last-child { border-bottom: none; }
+
+    .pro-table tbody tr:hover {
+        background: #FEF2F2;
+    }
+
+    .pro-table tbody tr:hover .row-accent-bar {
+        opacity: 1;
+    }
+
+    .pro-table tbody td {
+        padding: 13px 14px;
+        font-size: 0.9rem;
+        color: var(--text);
+        vertical-align: middle;
+    }
+
+    /* ── Name cell with avatar ── */
+    .name-cell {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+    }
+
+    .name-avatar {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: #fff;
+        flex-shrink: 0;
+        letter-spacing: 0.5px;
+    }
+
+    .name-text strong {
+        display: block;
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: var(--text);
+    }
+
+    .name-text span {
+        font-size: 0.78rem;
+        color: var(--text-secondary);
+    }
+
+    /* ── Tipo badges ── */
+    .tipo-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+        white-space: nowrap;
+    }
+
+    .tipo-vip {
+        background: #FFFBEB;
+        color: #92400E;
+        border: 1px solid rgba(180,83,9,0.2);
+    }
+
+    .tipo-premium {
+        background: #EFF6FF;
+        color: #1E40AF;
+        border: 1px solid rgba(37,99,235,0.2);
+    }
+
+    .tipo-regular {
+        background: #F8FAFC;
+        color: #475569;
+        border: 1px solid #E2E8F0;
+    }
+
+    /* ── Vehicles badge ── */
+    .veh-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        background: #FEF2F2;
+        color: var(--accent);
+        border: 1px solid rgba(220,38,38,0.15);
+    }
+
+    .veh-badge.empty {
+        background: #F8FAFC;
+        color: var(--text-secondary);
+        border-color: var(--border);
+    }
+
+    /* ── Empty state ── */
+    .pro-empty {
+        text-align: center;
+        padding: 52px 20px;
+    }
+
+    .pro-empty-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 16px;
+        background: #FEF2F2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: var(--accent);
+        margin: 0 auto 16px;
+    }
+
+    .pro-empty h3 {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text);
+        margin-bottom: 6px;
+    }
+
+    .pro-empty p {
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+        margin-bottom: 20px;
+    }
+
     .vehicles-count-badge {
         font-size: 0.8rem;
         font-weight: 700;
@@ -328,13 +600,41 @@
         border: 1px solid rgba(220, 38, 38, 0.2);
         border-radius: 20px;
     }
+
+    /* ── Hidden rows (search filter) ── */
+    .pro-table tbody tr.hidden-row { display: none; }
 </style>
 {% endblock %}
 
 {% block content %}
 
+<!-- KPI Cards -->
+<div class="kpi-grid">
+    <div class="kpi-card">
+        <div class="kpi-icon red"><i class="bi bi-people-fill"></i></div>
+        <div class="kpi-body">
+            <div class="kpi-value">{{ propietarios|length }}</div>
+            <div class="kpi-label">Total Propietarios</div>
+        </div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-icon amber"><i class="bi bi-star-fill"></i></div>
+        <div class="kpi-body">
+            <div class="kpi-value">{% with vip_count=propietarios|length %}{{ propietarios|dictsort:"tipo_cliente"|length }}{% endwith %}</div>
+            <div class="kpi-label">VIP &amp; Premium</div>
+        </div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-icon blue"><i class="bi bi-car-front-fill"></i></div>
+        <div class="kpi-body">
+            <div class="kpi-value" id="kpi-con-vehiculos">—</div>
+            <div class="kpi-label">Con Vehículos</div>
+        </div>
+    </div>
+</div>
+
 <!-- Header con botón -->
-<div class="page-header-row">
+<div class="page-header-row" style="margin-bottom: 0;">
     <div class="page-header">
         <h1><i class="bi bi-people-fill"></i> Propietarios</h1>
         <p>Gestión de propietarios registrados en el taller</p>
@@ -345,25 +645,31 @@
 </div>
 
 <!-- Lista de propietarios -->
-<div class="glass-card">
-    <h2><span class="card-icon"><i class="bi bi-list-ul"></i></span> Propietarios Registrados</h2>
+<div class="glass-card" style="margin-top: 20px;">
     {% if propietarios %}
-    <div class="table-wrapper">
-        <table>
+    <!-- Toolbar -->
+    <div class="table-toolbar">
+        <div class="search-box">
+            <i class="bi bi-search"></i>
+            <input type="text" id="search-propietarios" placeholder="Buscar propietario..." autocomplete="off">
+        </div>
+        <span class="table-count" id="table-count">{{ propietarios|length }} propietarios</span>
+    </div>
+
+    <div class="table-wrapper" style="overflow-x: auto;">
+        <table class="pro-table" id="tabla-propietarios">
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Nombre</th>
-                    <th>Email</th>
-                    <th>Teléfono</th>
+                    <th>Propietario</th>
+                    <th>Contacto</th>
                     <th>Tipo</th>
                     <th>Vehículos</th>
                 </tr>
             </thead>
             <tbody>
                 {% for p in propietarios %}
-                {# Serializar vehículos como JSON embebido en data-attribute #}
                 <tr class="clickable-row"
+                    data-search="{{ p.nombre|lower }} {{ p.email|default:''|lower }} {{ p.telefono|default:'' }}"
                     data-owner-id="{{ p.id }}"
                     data-owner-name="{{ p.nombre }}"
                     data-owner-email="{{ p.email|default:'' }}"
@@ -371,26 +677,38 @@
                     data-owner-tipo="{{ p.tipo_cliente }}"
                     data-vehiculos="[{% for v in p.vehiculos.all %}{% if not forloop.first %},{% endif %}{&quot;placa&quot;:&quot;{{ v.placa }}&quot;,&quot;marca&quot;:&quot;{{ v.marca }}&quot;,&quot;modelo&quot;:&quot;{{ v.modelo }}&quot;,&quot;anio&quot;:{{ v.anio }},&quot;km&quot;:{{ v.km_actuales }},&quot;vin&quot;:&quot;{{ v.vin|default:'' }}&quot;}{% endfor %}]"
                     onclick="abrirModalVehiculos(this)"
-                    title="Click para ver vehículos">
-                    <td style="color: var(--text-muted);">{{ p.id }}</td>
+                    title="Ver vehículos">
                     <td>
-                        <strong>{{ p.nombre }}</strong>
+                        <div class="name-cell">
+                            <div class="name-avatar" style="background: {{ p.id|add:0 }};" data-name="{{ p.nombre }}"></div>
+                            <div class="name-text">
+                                <strong>{{ p.nombre }}</strong>
+                                <span>#{{ p.id }}</span>
+                            </div>
+                        </div>
                     </td>
-                    <td style="color: var(--text-secondary);">{{ p.email|default:"&#8212;" }}</td>
-                    <td style="color: var(--text-secondary);">{{ p.telefono|default:"&#8212;" }}</td>
+                    <td>
+                        <div style="font-size: 0.875rem; color: var(--text);">{{ p.email|default:"—" }}</div>
+                        <div style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 2px;">{{ p.telefono|default:"Sin teléfono" }}</div>
+                    </td>
                     <td>
                         {% if p.tipo_cliente == 'VIP' %}
-                            <span class="badge badge-gold"><i class="bi bi-star-fill"></i> VIP</span>
+                            <span class="tipo-badge tipo-vip">
+                                <i class="bi bi-star-fill" style="font-size: 0.65rem;"></i> VIP
+                            </span>
                         {% elif p.tipo_cliente == 'PREMIUM' %}
-                            <span class="badge badge-cyan"><i class="bi bi-gem"></i> PREMIUM</span>
+                            <span class="tipo-badge tipo-premium">
+                                <i class="bi bi-gem" style="font-size: 0.65rem;"></i> Premium
+                            </span>
                         {% else %}
-                            <span class="badge badge-default">{{ p.tipo_cliente }}</span>
+                            <span class="tipo-badge tipo-regular">Regular</span>
                         {% endif %}
                     </td>
                     <td>
                         {% with count=p.vehiculos.count %}
-                        <span class="vehicles-count-badge">
-                            <i class="bi bi-car-front"></i> {{ count }}
+                        <span class="veh-badge {% if count == 0 %}empty{% endif %}">
+                            <i class="bi bi-car-front{% if count > 0 %}-fill{% endif %}"></i>
+                            {{ count }} veh.
                         </span>
                         {% endwith %}
                     </td>
@@ -399,12 +717,13 @@
             </tbody>
         </table>
     </div>
-    <p class="row-hint"><i class="bi bi-hand-index"></i> Haz clic en un propietario para ver sus vehículos</p>
+    <p class="row-hint" style="margin-top: 12px;"><i class="bi bi-hand-index"></i> Clic en una fila para ver los vehículos del propietario</p>
     {% else %}
-    <div class="empty-state">
-        <div class="empty-icon"><i class="bi bi-inbox"></i></div>
-        <p>No hay propietarios registrados aún.</p>
-        <button class="btn-register" onclick="abrirModalRegistro()" style="margin-top: 12px;">
+    <div class="pro-empty">
+        <div class="pro-empty-icon"><i class="bi bi-people"></i></div>
+        <h3>Sin propietarios registrados</h3>
+        <p>Empieza registrando el primer propietario del taller.</p>
+        <button class="btn-register" onclick="abrirModalRegistro()">
             <i class="bi bi-plus-circle-fill"></i> Registrar el primero
         </button>
     </div>
@@ -486,6 +805,46 @@
 
 {% block extra_js %}
 <script>
+    /* ─── Avatar colors ─── */
+    const AVATAR_COLORS = ['#DC2626','#D97706','#2563EB','#16A34A','#7C3AED','#0891B2','#DB2777','#EA580C'];
+    document.querySelectorAll('.name-avatar[data-name]').forEach((el, i) => {
+        el.style.background = AVATAR_COLORS[i % AVATAR_COLORS.length];
+        const name = el.dataset.name || '';
+        const parts = name.trim().split(' ');
+        el.textContent = parts.length >= 2
+            ? (parts[0][0] + parts[parts.length-1][0]).toUpperCase()
+            : name.slice(0,2).toUpperCase();
+    });
+
+    /* ─── KPI: con vehículos ─── */
+    const rows = document.querySelectorAll('#tabla-propietarios tbody tr');
+    let conVeh = 0;
+    rows.forEach(r => {
+        try {
+            const vehiculos = JSON.parse(r.dataset.vehiculos || '[]');
+            if (vehiculos.length > 0) conVeh++;
+        } catch(e) {}
+    });
+    const kpiEl = document.getElementById('kpi-con-vehiculos');
+    if (kpiEl) kpiEl.textContent = conVeh;
+
+    /* ─── Search filter ─── */
+    const searchInput = document.getElementById('search-propietarios');
+    const countEl = document.getElementById('table-count');
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            const q = this.value.toLowerCase().trim();
+            let visible = 0;
+            rows.forEach(r => {
+                const haystack = (r.dataset.search || '').toLowerCase();
+                const match = !q || haystack.includes(q);
+                r.classList.toggle('hidden-row', !match);
+                if (match) visible++;
+            });
+            if (countEl) countEl.textContent = visible + ' propietario' + (visible !== 1 ? 's' : '');
+        });
+    }
+
     /* ─── Modal 1: Registrar propietario ─── */
     function abrirModalRegistro() {
         document.getElementById('modal-registrar').classList.add('open');
